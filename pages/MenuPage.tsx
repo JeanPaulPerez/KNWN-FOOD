@@ -52,17 +52,17 @@ const CustomizationModal: React.FC<{
         initial={{ scale: 0.9, y: 20, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
         exit={{ scale: 0.9, y: 20, opacity: 0 }}
-        className="bg-brand-cream max-w-lg w-full rounded-[2rem] overflow-hidden shadow-2xl border border-brand-clay/30"
+        className="bg-brand-bg max-w-lg w-full rounded-[2.5rem] overflow-hidden shadow-2xl border border-brand-primary/10"
       >
-        <div className="p-8 space-y-6">
+        <div className="p-10 space-y-10">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-2xl font-serif text-brand-charcoal">Customize Your {item.name}</h3>
-              <p className="text-xs text-brand-muted uppercase tracking-widest mt-1">Personalize your meal</p>
+              <h3 className="text-4xl font-serif text-brand-primary">Customize Your <br /><span className="italic font-light">{item.name}</span></h3>
+              <p className="text-[10px] text-brand-primary/40 uppercase tracking-[0.3em] mt-4 font-black">Refining your culinary selection</p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-brand-clay/20 rounded-full transition-colors"
+              className="p-2 hover:bg-brand-subtle/40 rounded-full transition-colors text-brand-primary"
             >
               <X size={20} />
             </button>
@@ -71,15 +71,15 @@ const CustomizationModal: React.FC<{
           <div className="space-y-5">
             {/* Base Selection */}
             <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-brand-muted">Select Base (Choose 1)</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Select Base (Choose 1)</label>
               <div className="grid grid-cols-3 gap-2">
                 {bases.map(b => (
                   <button
                     key={b}
                     onClick={() => setBase(b)}
                     className={clsx(
-                      "py-3 px-2 rounded-xl text-[10px] font-bold transition-all border",
-                      base === b ? "bg-brand-charcoal text-white border-brand-charcoal" : "bg-white text-brand-charcoal border-brand-clay/40"
+                      "py-4 px-2 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border",
+                      base === b ? "bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/20" : "bg-white text-brand-primary/60 border-brand-primary/5 hover:border-brand-primary/20"
                     )}
                   >
                     {b}
@@ -90,7 +90,7 @@ const CustomizationModal: React.FC<{
 
             {/* Protein Selection */}
             <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-brand-muted">Select Protein (Choose 1)</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Select Protein (Choose 1)</label>
               <div className="grid grid-cols-2 gap-2">
                 {proteins.map(p => (
                   <button
@@ -98,7 +98,7 @@ const CustomizationModal: React.FC<{
                     onClick={() => setProtein(p)}
                     className={clsx(
                       "py-3 px-2 rounded-xl text-[10px] font-bold transition-all border",
-                      protein === p ? "bg-brand-charcoal text-white border-brand-charcoal" : "bg-white text-brand-charcoal border-brand-clay/40"
+                      protein === p ? "bg-brand-dark text-white border-brand-dark" : "bg-white text-brand-dark border-brand-subtle/60"
                     )}
                   >
                     {p}
@@ -109,7 +109,7 @@ const CustomizationModal: React.FC<{
 
             {/* Sauce Selection */}
             <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-brand-muted">Select Sauce (Choose 1)</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Select Sauce (Choose 1)</label>
               <div className="grid grid-cols-2 gap-2">
                 {sauces.map(s => (
                   <button
@@ -117,7 +117,7 @@ const CustomizationModal: React.FC<{
                     onClick={() => setSauce(s)}
                     className={clsx(
                       "py-3 px-2 rounded-xl text-[10px] font-bold transition-all border",
-                      sauce === s ? "bg-brand-charcoal text-white border-brand-charcoal" : "bg-white text-brand-charcoal border-brand-clay/40"
+                      sauce === s ? "bg-brand-dark text-white border-brand-dark" : "bg-white text-brand-dark border-brand-subtle/60"
                     )}
                   >
                     {s}
@@ -128,15 +128,15 @@ const CustomizationModal: React.FC<{
 
             {/* Dislikes Selection */}
             <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-brand-muted">Anything you don't like?</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Anything you don't like?</label>
               <div className="flex flex-wrap gap-2">
                 {dislikes.map(d => (
                   <button
                     key={d}
                     onClick={() => toggleDislike(d)}
                     className={clsx(
-                      "py-2 px-4 rounded-full text-[10px] font-bold transition-all border uppercase tracking-widest",
-                      avoidList.includes(d) ? "bg-red-500 text-white border-red-500 shadow-md" : "bg-white text-brand-charcoal border-brand-clay/40"
+                      "py-3 px-6 rounded-full text-[9px] font-black transition-all border uppercase tracking-[0.2em]",
+                      avoidList.includes(d) ? "bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20" : "bg-white text-brand-primary/40 border-brand-primary/5 hover:border-brand-primary/20"
                     )}
                   >
                     {d}
@@ -148,9 +148,9 @@ const CustomizationModal: React.FC<{
 
           <button
             onClick={() => onConfirm({ base, protein, sauce, avoid: avoidList.join(', ') })}
-            className="w-full py-5 bg-brand-accent text-white rounded-full text-xs font-black uppercase tracking-[0.2em] shadow-xl hover:bg-brand-accent/90 transition-all flex items-center justify-center gap-2"
+            className="w-full py-6 bg-brand-primary text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-brand-primary/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
           >
-            Add to Order <Plus size={16} />
+            Add to Selection <Plus size={16} strokeWidth={3} />
           </button>
         </div>
       </motion.div>
@@ -182,27 +182,27 @@ const RegistrationModal: React.FC<{
         initial={{ scale: 0.9, y: 20, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
         exit={{ scale: 0.9, y: 20, opacity: 0 }}
-        className="bg-white max-w-md w-full rounded-[2.5rem] overflow-hidden shadow-2xl border border-brand-clay/20"
+        className="bg-white max-w-md w-full rounded-[2.5rem] overflow-hidden shadow-2xl border border-brand-primary/10"
       >
-        <div className="p-10 space-y-8 text-center">
+        <div className="p-10 space-y-10 text-center">
           <div className="flex justify-end -mr-4 -mt-4">
-            <button onClick={onClose} className="p-2 hover:bg-brand-clay/10 rounded-full transition-colors"><X size={20} /></button>
+            <button onClick={onClose} className="p-2 hover:bg-brand-primary/5 rounded-full transition-colors text-brand-primary"><X size={20} /></button>
           </div>
 
-          <div className="space-y-2">
-            <h2 className="text-3xl font-serif text-brand-charcoal">Get Started</h2>
-            <p className="text-xs text-brand-muted uppercase tracking-[0.2em]">Enter your details to proceed</p>
+          <div className="space-y-3">
+            <h2 className="text-4xl font-serif text-brand-primary">Get Started</h2>
+            <p className="text-[10px] text-brand-primary/40 uppercase tracking-[0.3em] font-bold">Chef-prepared meals await</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-3">
+            <div className="space-y-4">
               <input
                 required
                 type="email"
                 placeholder="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-brand-clay/10 border border-transparent rounded-2xl px-6 py-4 focus:bg-white focus:border-brand-accent focus:outline-none transition-all placeholder:text-brand-muted/50 text-sm"
+                className="w-full bg-brand-primary/5 border border-transparent rounded-2xl px-8 py-5 focus:bg-white focus:border-brand-primary focus:outline-none transition-all placeholder:text-brand-primary/20 text-sm text-brand-primary"
               />
               <input
                 required
@@ -210,7 +210,7 @@ const RegistrationModal: React.FC<{
                 placeholder="Phone Number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full bg-brand-clay/10 border border-transparent rounded-2xl px-6 py-4 focus:bg-white focus:border-brand-accent focus:outline-none transition-all placeholder:text-brand-muted/50 text-sm"
+                className="w-full bg-brand-primary/5 border border-transparent rounded-2xl px-8 py-5 focus:bg-white focus:border-brand-primary focus:outline-none transition-all placeholder:text-brand-primary/20 text-sm text-brand-primary"
               />
               <input
                 required
@@ -218,19 +218,19 @@ const RegistrationModal: React.FC<{
                 placeholder="ZIP Code"
                 value={zip}
                 onChange={(e) => setZip(e.target.value)}
-                className="w-full bg-brand-clay/10 border border-transparent rounded-2xl px-6 py-4 focus:bg-white focus:border-brand-accent focus:outline-none transition-all placeholder:text-brand-muted/50 text-sm"
+                className="w-full bg-brand-primary/5 border border-transparent rounded-2xl px-8 py-5 focus:bg-white focus:border-brand-primary focus:outline-none transition-all placeholder:text-brand-primary/20 text-sm text-brand-primary"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-5 bg-brand-charcoal text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-brand-accent transition-all mt-4"
+              className="w-full py-6 bg-brand-primary text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-brand-primary/30 hover:scale-[1.02] transition-all mt-6 active:scale-[0.98]"
             >
-              Confirm & Continue
+              Access the Menu
             </button>
           </form>
 
-          <p className="text-[10px] text-brand-muted font-light leading-relaxed px-4">
+          <p className="text-[10px] text-brand-primary/40 font-light leading-relaxed px-4">
             By continuing, you agree to our terms of service and privacy policy.
             We use your info for delivery updates only.
           </p>
@@ -257,11 +257,11 @@ const MenuCard: React.FC<{
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       className={clsx(
-        "relative bg-white rounded-[1.25rem] overflow-hidden shadow-sm transition-all border flex flex-col h-full group/card",
-        isActive ? "border-brand-clay/60 hover:border-brand-accent/30 hover:shadow-xl" : "border-brand-clay/20 grayscale opacity-70"
+        "relative bg-white rounded-[3rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 border flex flex-col h-full group/card",
+        isActive ? "border-brand-primary/5 hover:border-brand-primary/10 hover:shadow-[0_20px_50px_rgba(43,28,112,0.1)] hover:-translate-y-1" : "border-brand-primary/5 grayscale opacity-60"
       )}
     >
-      <div className="aspect-[16/9] relative overflow-hidden">
+      <div className="aspect-[16/10] relative overflow-hidden">
         <img
           src={item.image || PLACEHOLDER_IMAGE}
           className={clsx(
@@ -272,32 +272,32 @@ const MenuCard: React.FC<{
         />
 
         {item.popular && isActive && (
-          <span className="absolute top-3 left-3 bg-brand-accent text-white px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg">
+          <span className="absolute top-4 left-4 bg-brand-accent text-white px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl">
             Popular
           </span>
         )}
 
         {(status !== 'ACTIVE' && status !== 'PREVIEW') && (
-          <div className="absolute inset-0 bg-brand-charcoal/20 backdrop-blur-[1px] flex items-center justify-center">
-            <div className="bg-brand-charcoal/80 text-white px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
-              <Lock size={10} /> Unavailable
+          <div className="absolute inset-0 bg-brand-dark/40 backdrop-blur-[2px] flex items-center justify-center">
+            <div className="bg-brand-dark/90 text-white px-5 py-2 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+              <Lock size={12} /> Unavailable
             </div>
           </div>
         )}
       </div>
 
-      <div className="p-5 flex-1 flex flex-col">
-        <div className="flex justify-between items-start mb-2 gap-4">
-          <h3 className="text-base font-serif leading-tight text-brand-charcoal">{item.name}</h3>
-          <span className="text-base font-serif text-brand-accent whitespace-nowrap">${item.price}</span>
+      <div className="p-8 flex-1 flex flex-col">
+        <div className="flex justify-between items-start mb-4 gap-4">
+          <h3 className="text-2xl font-serif leading-[1.1] text-brand-primary group-hover/card:text-brand-primary transition-colors">{item.name}</h3>
+          <span className="text-xl font-serif text-brand-primary">${item.price}</span>
         </div>
-        <p className="text-[11px] text-brand-muted font-light mb-5 line-clamp-2 leading-relaxed">
+        <p className="text-sm text-brand-primary/40 font-medium mb-8 line-clamp-2 leading-relaxed italic">
           {item.description}
         </p>
 
-        <div className="flex flex-wrap gap-1.5 mb-5 mt-auto">
+        <div className="flex flex-wrap gap-2 mb-10 mt-auto">
           {item.tags?.map(tag => (
-            <span key={tag} className="text-[8px] uppercase tracking-widest font-bold text-brand-muted/70 bg-brand-clay/30 px-2 py-0.5 rounded-md">
+            <span key={tag} className="text-[9px] uppercase tracking-[0.2em] font-black text-brand-primary/40 bg-brand-subtle/30 px-3.5 py-1.5 rounded-full border border-brand-primary/5">
               {tag}
             </span>
           ))}
@@ -307,19 +307,19 @@ const MenuCard: React.FC<{
           onClick={() => onAdd(item, date)}
           disabled={!isActive}
           className={clsx(
-            "w-full py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all font-black uppercase tracking-[0.15em] text-[9px]",
+            "w-full py-5 rounded-[1.25rem] flex items-center justify-center gap-3 transition-all font-black uppercase tracking-[0.3em] text-[9px] active:scale-[0.98]",
             isActive
-              ? "bg-brand-charcoal text-white hover:bg-brand-accent shadow-md"
-              : "bg-brand-clay/20 text-brand-muted cursor-not-allowed border border-dashed border-brand-clay/40"
+              ? "bg-brand-primary text-white hover:scale-[1.02] shadow-xl shadow-brand-primary/20"
+              : "bg-brand-primary/5 text-brand-primary/20 cursor-not-allowed border border-dashed border-brand-primary/10"
           )}
         >
           {isActive ? (
             <>
-              <Plus size={12} />
-              <span>Add to Order</span>
+              <Plus size={16} strokeWidth={3} />
+              <span>Personalize</span>
             </>
           ) : (
-            <span>Kitchen Closed</span>
+            <span>Sold Out</span>
           )}
         </button>
       </div>
@@ -344,20 +344,21 @@ const MiniCalendar: React.FC<{
   }
 
   return (
-    <div className="bg-white border border-brand-clay/30 rounded-[1.25rem] p-5 shadow-sm">
-      <div className="flex justify-between items-center mb-5">
-        <h4 className="font-serif text-base text-brand-charcoal">{monthName}</h4>
-        <div className="flex gap-1">
-          <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="p-1 hover:bg-brand-clay/10 rounded-full transition-colors"><ChevronLeft size={14} /></button>
-          <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="p-1 hover:bg-brand-clay/10 rounded-full transition-colors"><ChevronRight size={14} /></button>
+    <div className="bg-brand-bg border border-brand-primary/5 rounded-[3rem] p-10 shadow-sm relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full -mr-16 -mt-16 blur-2xl" />
+      <div className="flex justify-between items-center mb-8">
+        <h4 className="font-serif text-2xl text-brand-primary leading-none uppercase tracking-tighter">{monthName}</h4>
+        <div className="flex gap-2">
+          <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="p-2.5 bg-brand-subtle text-brand-primary rounded-full hover:scale-110 transition-transform"><ChevronLeft size={16} /></button>
+          <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="p-2.5 bg-brand-subtle text-brand-primary rounded-full hover:scale-110 transition-transform"><ChevronRight size={16} /></button>
         </div>
       </div>
-      <div className="grid grid-cols-7 gap-1 mb-2">
+      <div className="grid grid-cols-7 gap-2 mb-6">
         {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-          <div key={d} className="text-[8px] font-black text-brand-muted/30 text-center uppercase tracking-widest">{d}</div>
+          <div key={d} className="text-[10px] font-black text-brand-primary/20 text-center uppercase tracking-[0.3em]">{d}</div>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-2">
         {daysInMonth.map((day, i) => {
           if (!day) return <div key={`p-${i}`} />;
           const isSelected = toDateKey(day) === toDateKey(selectedDate);
@@ -368,16 +369,16 @@ const MiniCalendar: React.FC<{
               key={day.toISOString()}
               onClick={() => onSelect(day)}
               className={clsx(
-                "aspect-square text-[10px] rounded-lg flex items-center justify-center transition-all relative font-medium",
-                isSelected ? "bg-brand-charcoal text-white shadow-md font-bold" : "hover:bg-brand-clay/10 text-brand-charcoal",
-                status === 'ACTIVE' && !isSelected && "text-brand-accent ring-1 ring-brand-accent/10",
-                status === 'WEEKEND' && !isSelected && "text-brand-muted/20 cursor-not-allowed",
-                (status === 'PAST' || status === 'TODAY_CLOSED') && !isSelected && "text-brand-muted/10"
+                "aspect-square text-[11px] rounded-[1rem] flex items-center justify-center transition-all relative font-black uppercase tracking-tighter",
+                isSelected ? "bg-brand-primary text-white shadow-xl shadow-brand-primary/30 scale-110 z-10" : "hover:bg-brand-primary/5 text-brand-primary/60",
+                status === 'ACTIVE' && !isSelected && "text-brand-primary bg-white border border-brand-primary/5",
+                status === 'WEEKEND' && !isSelected && "text-brand-primary/10 cursor-not-allowed",
+                (status === 'PAST' || status === 'TODAY_CLOSED') && !isSelected && "text-brand-primary/10"
               )}
             >
               {day.getDate()}
               {status === 'ACTIVE' && !isSelected && (
-                <span className="absolute bottom-1 w-1 h-1 bg-brand-accent rounded-full" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-primary rounded-full" />
               )}
             </button>
           );
@@ -441,38 +442,38 @@ export default function MenuPage({ addItem }: { addItem: (i: MenuItem, d: Date, 
   };
 
   return (
-    <div className="bg-brand-cream min-h-screen">
-      <header className="bg-brand-charcoal text-white pt-28 pb-10 px-6 md:px-12">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-brand-accent uppercase tracking-[0.2em] text-[9px] font-black">
-              <CalendarIcon size={12} /> Daily Rotation
+    <div className="bg-white min-h-screen">
+      <header className="bg-brand-bg pt-48 pb-24 px-6 md:px-12 relative overflow-hidden border-b border-brand-primary/5">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 rounded-full -mr-64 -mt-64 blur-[100px]" />
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end gap-12 relative z-10">
+          <div className="space-y-6 text-left">
+            <div className="flex items-center gap-3 text-brand-primary/40 uppercase tracking-[0.4em] text-[10px] font-black border-l-2 border-brand-primary/20 pl-4 py-1">
+              <CalendarIcon size={14} /> Seasonal Rotation
             </div>
-            <h1 className="text-4xl md:text-5xl font-serif tracking-tight text-white">Miami <span className="italic font-light">Curation</span></h1>
+            <h1 className="text-7xl md:text-9xl font-serif tracking-tighter text-brand-primary leading-[0.85]">The Weekly <br /><span className="italic font-light opacity-60">Board.</span></h1>
           </div>
-          <div className="relative w-full md:w-[320px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" size={16} />
+          <div className="relative w-full md:w-[450px]">
+            <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-brand-primary/30" size={20} />
             <input
               type="text"
-              placeholder="Search dishes..."
+              placeholder="Searching for a flavor..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-11 pr-5 text-sm focus:outline-none focus:bg-white/10 focus:ring-1 focus:ring-brand-accent transition-all placeholder:text-brand-muted/40"
+              className="w-full bg-white border border-brand-primary/10 rounded-[2rem] py-6 pl-16 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/5 focus:border-brand-primary/20 transition-all placeholder:text-brand-primary/20 tracking-wider font-medium text-brand-primary shadow-sm"
             />
           </div>
         </div>
       </header>
 
-      <section className="px-6 md:px-12 py-3 sticky top-16 bg-brand-cream/90 backdrop-blur-md z-30 border-b border-brand-clay/10">
+      <section className="px-6 md:px-12 py-10 sticky top-24 bg-white/90 backdrop-blur-3xl z-30 border-b border-brand-primary/5 shadow-sm">
         <div className="max-w-7xl mx-auto">
           <div
             ref={sliderRef}
-            className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 scroll-smooth"
+            className="flex items-center gap-4 overflow-x-auto no-scrollbar py-2 scroll-smooth"
           >
             {calendarDates.map(date => {
               const isSelected = toDateKey(date) === toDateKey(selectedDate);
               const status = getDateStatus(date);
-              const isToday = toDateKey(date) === toDateKey(getEtNow());
 
               return (
                 <button
@@ -480,23 +481,22 @@ export default function MenuPage({ addItem }: { addItem: (i: MenuItem, d: Date, 
                   data-date={toDateKey(date)}
                   onClick={() => setSelectedDate(date)}
                   className={clsx(
-                    "flex flex-col items-center min-w-[64px] py-2.5 rounded-xl transition-all border shrink-0",
+                    "flex flex-col items-center min-w-[90px] py-6 rounded-[2.5rem] transition-all border shrink-0 group/date",
                     isSelected
-                      ? "bg-brand-charcoal text-white border-brand-charcoal shadow-sm"
+                      ? "bg-brand-primary text-white border-brand-primary shadow-2xl shadow-brand-primary/30 scale-[1.05]"
                       : status === 'ACTIVE'
-                        ? "bg-white text-brand-charcoal border-brand-accent/40 shadow-sm"
+                        ? "bg-white text-brand-primary border-brand-primary/10 shadow-sm hover:border-brand-primary/30 hover:bg-brand-primary/[0.02]"
                         : status === 'PREVIEW'
-                          ? "bg-white text-brand-charcoal border-brand-clay/30"
-                          : "bg-white/10 text-brand-muted/30 border-transparent cursor-not-allowed",
-                    isToday && !isSelected && "ring-1 ring-brand-accent/50 ring-offset-2 ring-offset-brand-cream"
+                          ? "bg-white text-brand-primary/40 border-brand-primary/5 shadow-sm hover:border-brand-primary/20"
+                          : "bg-brand-primary/[0.02] text-brand-primary/5 border-transparent cursor-not-allowed opacity-20"
                   )}
                 >
-                  <span className="text-[7px] uppercase tracking-widest font-black mb-0.5 opacity-40">
+                  <span className="text-[8px] uppercase tracking-[0.3em] font-black mb-1 opacity-50 group-hover/date:opacity-100 transition-opacity">
                     {date.toLocaleDateString('en-US', { month: 'short' })}
                   </span>
-                  <span className="text-base font-serif leading-none mb-0.5">{date.getDate()}</span>
-                  <span className="text-[8px] font-bold uppercase tracking-widest opacity-30">
-                    {date.toLocaleDateString('en-US', { weekday: 'short' })}
+                  <span className="text-2xl font-serif leading-none mb-1">{date.getDate()}</span>
+                  <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-30">
+                    {date.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0)}
                   </span>
                 </button>
               );
@@ -506,23 +506,23 @@ export default function MenuPage({ addItem }: { addItem: (i: MenuItem, d: Date, 
       </section>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-16 lg:gap-24">
           <div className="lg:col-span-3">
-            <div className="mb-10 space-y-3 border-b border-brand-clay/40 pb-6">
-              <div className="flex items-center gap-3">
-                <h2 className="text-3xl font-serif capitalize text-brand-charcoal">{selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</h2>
+            <div className="mb-16 space-y-6">
+              <div className="flex flex-col md:flex-row md:items-end gap-6 border-b border-brand-primary/5 pb-8">
+                <h2 className="text-6xl font-serif capitalize text-brand-primary tracking-tighter">{selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</h2>
                 {currentStatus === 'ACTIVE' && (
-                  <span className="flex items-center gap-1.5 px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded-full text-[8px] font-black uppercase tracking-widest">
-                    <CheckCircle2 size={10} /> Active Window
+                  <span className="inline-flex items-center w-fit gap-2 px-6 py-2 bg-brand-primary/5 text-brand-primary rounded-full text-[10px] font-black uppercase tracking-[0.3em] shadow-sm mb-2 border border-brand-primary/10">
+                    <CheckCircle2 size={12} strokeWidth={3} /> Active Now
                   </span>
                 )}
               </div>
-              <p className="text-[12px] text-brand-muted font-light max-w-lg leading-relaxed">
+              <p className="text-lg text-brand-primary/40 font-medium max-w-xl leading-relaxed italic">
                 {currentStatus === 'ACTIVE'
-                  ? `Order by ${CUTOFF_HOUR}:00 AM ET for same-day Miami delivery.`
+                  ? `Ordering is open. Secure your selection by ${CUTOFF_HOUR}:00 AM ET for same-day artisanal delivery.`
                   : currentStatus === 'PREVIEW'
-                    ? `Currently viewing the menu for ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.`
-                    : `Kitchen is closed. We operate Monday through Friday.`}
+                    ? `Curating the experience for ${selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}. Preview the menu below.`
+                    : `Our kitchen is currently in rest mode. Reimagining new flavors for the coming week.`}
               </p>
             </div>
 
@@ -549,10 +549,10 @@ export default function MenuPage({ addItem }: { addItem: (i: MenuItem, d: Date, 
                     </React.Fragment>
                   ))
                 ) : (
-                  <div className="col-span-full py-20 text-center space-y-3 bg-brand-clay/10 rounded-2xl border border-dashed border-brand-clay/30">
-                    <Lock size={24} className="mx-auto text-brand-muted/40" />
-                    <h3 className="text-lg font-serif text-brand-muted">Kitchen Resting</h3>
-                    <p className="text-brand-muted/60 text-[11px] font-light">Our chefs return on business days.</p>
+                  <div className="col-span-full py-24 text-center space-y-4 bg-brand-primary/[0.02] rounded-[2rem] border border-dashed border-brand-primary/10">
+                    <Lock size={32} className="mx-auto text-brand-primary/20" />
+                    <h3 className="text-xl font-serif text-brand-primary/80">Kitchen Resting</h3>
+                    <p className="text-brand-primary/40 text-[12px] font-light max-w-xs mx-auto">Our culinary team is currently sourcing fresh ingredients for the next service window.</p>
                   </div>
                 )}
               </motion.div>
@@ -560,14 +560,27 @@ export default function MenuPage({ addItem }: { addItem: (i: MenuItem, d: Date, 
           </div>
 
           <aside className="lg:col-span-1">
-            <div className="sticky top-40 space-y-6">
+            <div className="sticky top-40 space-y-8">
               <MiniCalendar
                 selectedDate={selectedDate}
                 onSelect={setSelectedDate}
               />
-              <div className="p-6 bg-brand-charcoal text-white rounded-[1.25rem] space-y-3">
-                <h4 className="font-serif text-base text-brand-accent">Miami Delivery</h4>
-                <p className="font-light opacity-60 leading-relaxed text-[11px]">We exclusively serve the Miami metropolitan area. Ordering closes daily at {CUTOFF_HOUR} AM ET.</p>
+              <div className="p-12 bg-brand-primary text-white rounded-[4rem] space-y-8 relative overflow-hidden group shadow-2xl shadow-brand-primary/30">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -mr-24 -mt-24 blur-3xl group-hover:scale-110 transition-transform" />
+                <div className="space-y-4 relative z-10">
+                  <h4 className="font-serif text-4xl text-white leading-tight tracking-tighter">Peak <br />Precision.</h4>
+                  <p className="font-medium opacity-40 leading-relaxed text-[13px] italic">Automated logistics for seamless delivery. Reaching the Miami metropolitan area daily.</p>
+                </div>
+                <div className="pt-8 border-t border-white/5 flex flex-col gap-4 relative z-10">
+                  <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.3em]">
+                    <span className="opacity-40">Daily Cutoff</span>
+                    <span>{CUTOFF_HOUR} AM ET</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.3em]">
+                    <span className="opacity-40">Efficiency</span>
+                    <span>99.8%</span>
+                  </div>
+                </div>
               </div>
             </div>
           </aside>
