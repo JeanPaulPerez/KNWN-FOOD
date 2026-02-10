@@ -24,14 +24,20 @@ export type Weekday = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday'
 
 export interface CartItem extends MenuItem {
   quantity: number;
-  serviceDate: string; 
+  serviceDate: string;
+  customizations?: {
+    base?: string;
+    protein?: string;
+    sauce?: string;
+    avoid?: string;
+  };
 }
 
 export interface OrderPayload {
   name: string;
   email: string;
   phone: string;
-  type: 'delivery'; 
+  type: 'delivery';
   address: {
     street: string;
     city: string;

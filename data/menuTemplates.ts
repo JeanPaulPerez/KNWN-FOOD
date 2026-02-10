@@ -28,23 +28,10 @@ export function getMenuForDate(date: Date): DayMenu | null {
 
   const categories: MenuCategory[] = [
     {
-      categoryName: 'Artisanal Bowls',
+      categoryName: 'Daily Selection',
       items: [
         BASE_ITEMS.bowls[rng(0)],
-        BASE_ITEMS.bowls[rng(1)]
-      ]
-    },
-    {
-      categoryName: 'Executive Plates',
-      items: [
-        BASE_ITEMS.plates[rng(2)],
-        BASE_ITEMS.plates[(rng(3) + 1) % 3]
-      ]
-    },
-    {
-      categoryName: 'Chef’s Sides',
-      items: [
-        BASE_ITEMS.sides[rng(4) % 2]
+        BASE_ITEMS.plates[rng(2)]
       ]
     }
   ];

@@ -19,7 +19,7 @@ export function useCart() {
     }
   }, [items, error]);
 
-  const addItem = useCallback((item: MenuItem, targetDate: Date) => {
+  const addItem = useCallback((item: MenuItem, targetDate: Date, customizations?: CartItem['customizations']) => {
     const activeOrderDay = calculateActiveOrderDay();
     const isActive = toDateKey(targetDate) === toDateKey(activeOrderDay);
 
@@ -31,24 +31,37 @@ export function useCart() {
     const dateStr = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
     setItems(prev => {
-      const cartItemId = `${item.id}-${dateStr}`;
-      const existing = prev.find(i => `${i.id}-${i.serviceDate}` === cartItemId);
-      
+      const customHash = customizations ? btoa(JSON.stringify(customizations)) : 'default';
+      const cartItemId = `${item.id}-${dateStr}-${customHash}`;
+      const existing = prev.find(i => {
+        const iHash = i.customizations ? btoa(JSON.stringify(i.customizations)) : 'default';
+        return `${i.id}-${i.serviceDate}-${iHash}` === cartItemId;
+      });
+
       if (existing) {
-        return prev.map(i => `${i.id}-${i.serviceDate}` === cartItemId ? { ...i, quantity: i.quantity + 1 } : i);
+        return prev.map(i => {
+          const iHash = i.customizations ? btoa(JSON.stringify(i.customizations)) : 'default';
+          return `${i.id}-${i.serviceDate}-${iHash}` === cartItemId ? { ...i, quantity: i.quantity + 1 } : i;
+        });
       }
-      
-      return [...prev, { ...item, quantity: 1, serviceDate: dateStr }];
+
+      return [...prev, { ...item, quantity: 1, serviceDate: dateStr, customizations }];
     });
   }, []);
 
-  const removeItem = useCallback((id: string, serviceDate: string) => {
-    setItems(prev => prev.filter(i => !(i.id === id && i.serviceDate === serviceDate)));
+  const removeItem = useCallback((id: string, serviceDate: string, customizations?: CartItem['customizations']) => {
+    const targetHash = customizations ? btoa(JSON.stringify(customizations)) : 'default';
+    setItems(prev => prev.filter(i => {
+      const iHash = i.customizations ? btoa(JSON.stringify(i.customizations)) : 'default';
+      return !(i.id === id && i.serviceDate === serviceDate && iHash === targetHash);
+    }));
   }, []);
 
-  const updateQuantity = useCallback((id: string, serviceDate: string, delta: number) => {
+  const updateQuantity = useCallback((id: string, serviceDate: string, delta: number, customizations?: CartItem['customizations']) => {
+    const targetHash = customizations ? btoa(JSON.stringify(customizations)) : 'default';
     setItems(prev => prev.map(i => {
-      if (i.id === id && i.serviceDate === serviceDate) {
+      const iHash = i.customizations ? btoa(JSON.stringify(i.customizations)) : 'default';
+      if (i.id === id && i.serviceDate === serviceDate && iHash === targetHash) {
         const newQty = Math.max(0, i.quantity + delta);
         return { ...i, quantity: newQty };
       }
