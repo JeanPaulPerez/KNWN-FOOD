@@ -4,62 +4,69 @@ import { motion } from 'framer-motion';
 
 export default function About() {
   return (
-    <div className="bg-brand-cream min-h-screen">
-      <section className="pt-32 pb-24 px-6 md:px-12 max-w-7xl mx-auto">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+    <div className="bg-brand-subtle min-h-screen">
+      <section className="pt-64 pb-32 px-6 md:px-12 max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-3xl space-y-12"
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-5xl space-y-16"
         >
-          <span className="text-brand-accent uppercase tracking-widest text-xs font-bold">Our Story</span>
-          <h1 className="text-6xl md:text-8xl font-serif leading-[0.95] tracking-tight">
-            Intentional food for <span className="italic font-light">busy lives.</span>
+          <span className="text-brand-primary/40 uppercase tracking-[0.4em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1">The Narrative</span>
+          <h1 className="text-8xl md:text-[10rem] font-serif leading-[0.8] tracking-tighter text-brand-primary">
+            Architecting <br /><span className="italic font-light text-brand-primary/60">Modern Dining.</span>
           </h1>
-          <p className="text-2xl text-brand-muted font-light leading-relaxed">
-            KNWN Food was born from a simple realization: high-end restaurant quality shouldn't require a high-end restaurant reservation.
+          <p className="text-2xl md:text-4xl text-brand-primary/50 font-medium leading-relaxed max-w-3xl italic">
+            KNWN Food was born from a simple realization: high-end restaurant quality should be accessible without the friction of traditional dining.
           </p>
         </motion.div>
       </section>
 
-      <section className="py-24 px-6 md:px-12 bg-white border-y border-brand-clay">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-20">
-          <div className="space-y-8">
-            <h2 className="text-4xl font-serif">The Chef-First Philosophy</h2>
-            <p className="text-brand-muted font-light leading-relaxed">
-              Unlike traditional restaurants that prioritize floor space and table turnover, we prioritize the kitchen. By operating as a ghost kitchen, we redirect our resources into sourcing the finest ingredients and giving our chefs the time they need to prepare every dish with meticulous care.
-            </p>
-            <p className="text-brand-muted font-light leading-relaxed">
-              Our "Tomorrow Only" model is a commitment to sustainability. By knowing exactly what we need to prepare 24 hours in advance, we eliminate nearly all food waste—a stark contrast to the industry average.
-            </p>
+      <section className="py-48 px-6 md:px-12 bg-white rounded-[4rem] mx-4 md:mx-8 mb-8 shadow-2xl shadow-brand-primary/5 border border-brand-primary/5">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
+          <div className="space-y-16">
+            <h2 className="text-7xl font-serif text-brand-primary leading-[0.9] tracking-tighter">The Culinary <br /><span className="italic font-light">Ecosystem.</span></h2>
+            <div className="space-y-8 text-brand-primary/60 font-medium leading-relaxed text-lg">
+              <p>
+                Contrary to standard logistics, we prioritize the integrity of the ingredient. By operating a digital-first kitchen, we redirect our focus into sourcing exceptional products and giving our team the space to innovate.
+              </p>
+              <p className="italic">
+                Our model is a commitment to precision. By identifying demand in advance, we eliminate the structural waste inherent in traditional hospitality.
+              </p>
+            </div>
           </div>
-          <div className="rounded-3xl overflow-hidden aspect-square">
-            <img 
-              src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=1000" 
-              className="w-full h-full object-cover" 
-              alt="Chef at work"
+          <div className="rounded-[4rem] overflow-hidden aspect-[4/5] shadow-[0_40px_100px_rgba(43,28,112,0.1)] relative group">
+            <div className="absolute inset-0 bg-brand-primary/10 group-hover:opacity-0 transition-opacity duration-1000 z-10" />
+            <img
+              src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=1000"
+              className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+              alt="Culinary precision"
             />
           </div>
         </div>
       </section>
 
-      <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto text-center">
-        <div className="max-w-2xl mx-auto space-y-10">
-          <h2 className="text-5xl font-serif">A New Kind of Ritual</h2>
-          <p className="text-xl text-brand-muted font-light leading-relaxed">
-            Ordering for tomorrow is a small act of self-care. It's a commitment to your future self that you'll be well-fed, energized, and inspired.
-          </p>
+      <section className="py-48 px-6 md:px-12 max-w-7xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto space-y-24">
+          <div className="space-y-8">
+            <h2 className="text-7xl font-serif text-brand-primary leading-none tracking-tighter italic">Reimagining <br /><span className="not-italic">Expectations.</span></h2>
+            <p className="text-xl text-brand-primary/40 font-medium leading-relaxed max-w-2xl mx-auto">
+              Planning for tomorrow is a conscious choice. It's a commitment to efficiency, quality, and your own well-being.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 pt-10">
-            <div className="space-y-2">
-              <p className="text-4xl font-serif text-brand-accent">0%</p>
-              <p className="text-[10px] uppercase tracking-widest font-bold">Plastic Waste Goal</p>
+            <div className="space-y-6 p-12 bg-white rounded-[3rem] border border-brand-primary/5 shadow-2xl shadow-brand-primary/5">
+              <p className="text-6xl font-serif text-brand-primary tracking-tighter">0%</p>
+              <p className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-primary/30">Single Use Goal</p>
             </div>
-            <div className="space-y-2">
-              <p className="text-4xl font-serif text-brand-accent">100%</p>
-              <p className="text-[10px] uppercase tracking-widest font-bold">Sustainably Sourced</p>
+            <div className="space-y-6 p-12 bg-brand-primary rounded-[3rem] text-white shadow-2xl shadow-brand-primary/20 scale-110 z-10">
+              <p className="text-6xl font-serif tracking-tighter">100%</p>
+              <p className="text-[10px] uppercase tracking-[0.3em] font-black opacity-40">Artisanal Sourcing</p>
             </div>
-            <div className="space-y-2">
-              <p className="text-4xl font-serif text-brand-accent">15k+</p>
-              <p className="text-[10px] uppercase tracking-widest font-bold">Meals Served</p>
+            <div className="space-y-6 p-12 bg-white rounded-[3rem] border border-brand-primary/5 shadow-2xl shadow-brand-primary/5">
+              <p className="text-6xl font-serif text-brand-primary tracking-tighter">35k+</p>
+              <p className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-primary/30">Curated Orders</p>
             </div>
           </div>
         </div>

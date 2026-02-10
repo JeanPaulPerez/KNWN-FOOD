@@ -13,73 +13,77 @@ export default function ThankYou() {
   }
 
   return (
-    <div className="bg-brand-cream min-h-screen flex items-center justify-center px-6 py-24">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+    <div className="bg-brand-subtle min-h-screen flex items-center justify-center px-6 py-32">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-xl w-full text-center space-y-10"
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-2xl w-full text-center space-y-16"
       >
-        <div className="space-y-6">
-          <motion.div 
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', damping: 12, stiffness: 200, delay: 0.2 }}
-            className="w-20 h-20 bg-brand-accent/10 text-brand-accent rounded-full flex items-center justify-center mx-auto"
+        <div className="space-y-8">
+          <motion.div
+            initial={{ scale: 0, rotate: -20 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', damping: 15, stiffness: 200, delay: 0.2 }}
+            className="w-32 h-32 bg-brand-primary text-white rounded-[2.5rem] flex items-center justify-center mx-auto shadow-2xl shadow-brand-primary/40 rotate-12"
           >
-            <CheckCircle2 size={40} strokeWidth={1.5} />
+            <CheckCircle2 size={56} strokeWidth={1} />
           </motion.div>
-          <h1 className="text-5xl font-serif">Order Received</h1>
-          <p className="text-xl text-brand-muted font-light leading-relaxed">
-            Thank you, <span className="text-brand-charcoal font-medium">{payload.name}</span>. Your culinary journey for <span className="text-brand-charcoal font-medium">{payload.serviceDay}</span> is now confirmed.
-          </p>
-        </div>
-
-        <div className="bg-white border border-brand-clay rounded-3xl p-8 space-y-6 shadow-sm text-left">
-          <div className="flex justify-between items-center pb-4 border-b border-brand-clay/30">
-            <span className="text-brand-muted uppercase tracking-widest text-[10px] font-bold">Reference ID</span>
-            <span className="font-mono text-sm font-semibold">{orderId}</span>
-          </div>
-          
           <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="w-10 h-10 bg-brand-clay/20 rounded-full flex items-center justify-center text-brand-accent shrink-0">
-                <Calendar size={18} />
-              </div>
-              <div>
-                <p className="text-sm font-medium">Scheduled Date</p>
-                <p className="text-xs text-brand-muted">{payload.serviceDay}</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="w-10 h-10 bg-brand-clay/20 rounded-full flex items-center justify-center text-brand-accent shrink-0">
-                <Mail size={18} />
-              </div>
-              <div>
-                <p className="text-sm font-medium">Confirmation Email</p>
-                <p className="text-xs text-brand-muted">Sent to {payload.email}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-4 mt-4 border-t border-brand-clay/30">
-            <p className="text-[10px] text-brand-muted uppercase tracking-[0.15em] leading-relaxed">
-              Orders are typically ready between 11:30 AM and 2:00 PM on the day of service. We will send you another update when your meal is en route.
+            <h1 className="text-7xl font-serif text-brand-primary tracking-tighter leading-none">Order <br /><span className="italic font-light">Confirmed.</span></h1>
+            <p className="text-xl text-brand-primary/40 font-medium leading-relaxed max-w-lg mx-auto italic">
+              Thank you, <span className="text-brand-primary font-black not-italic">{payload.name}</span>. Your culinary experience for {payload.serviceDay} is being orchestrated.
             </p>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link 
-            to="/" 
-            className="px-8 py-4 bg-brand-charcoal text-white rounded-full uppercase tracking-widest text-xs font-bold hover:scale-105 transition-transform"
+        <div className="bg-white border border-brand-primary/5 rounded-[3.5rem] p-12 space-y-10 shadow-2xl shadow-brand-primary/5 text-left relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-brand-primary/5 rounded-full -mr-24 -mt-24 blur-3xl" />
+          <div className="flex justify-between items-center pb-8 border-b border-brand-primary/5">
+            <span className="text-brand-primary/30 uppercase tracking-[0.4em] text-[10px] font-black">LOG ID</span>
+            <span className="font-serif text-2xl text-brand-primary tracking-tighter italic">{orderId}</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="flex gap-6">
+              <div className="w-14 h-14 bg-brand-subtle text-brand-primary rounded-[1.25rem] flex items-center justify-center shrink-0">
+                <Calendar size={24} strokeWidth={1.5} />
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-primary/30">Service Date</p>
+                <p className="text-base font-serif text-brand-primary leading-tight">{payload.serviceDay}</p>
+              </div>
+            </div>
+            <div className="flex gap-6">
+              <div className="w-14 h-14 bg-brand-subtle text-brand-primary rounded-[1.25rem] flex items-center justify-center shrink-0">
+                <Mail size={24} strokeWidth={1.5} />
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-primary/30">Confirmation</p>
+                <p className="text-base font-serif text-brand-primary leading-tight overflow-hidden text-ellipsis">{payload.email}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-brand-primary/5">
+            <p className="text-[11px] text-brand-primary/40 font-medium leading-relaxed italic">
+              Our culinary core initiates preparation between 04:00 and 11:30. A digital update will manifest as your meal transits.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          <Link
+            to="/"
+            className="px-12 py-6 bg-brand-primary text-white rounded-[1.5rem] uppercase tracking-[0.4em] text-[10px] font-black hover:scale-[1.05] transition-all shadow-2xl shadow-brand-primary/30 active:scale-[0.98]"
           >
-            Back to Home
+            Return Home
           </Link>
-          <Link 
-            to="/about" 
-            className="px-8 py-4 border border-brand-clay rounded-full uppercase tracking-widest text-xs font-bold hover:bg-brand-clay/10 transition-colors"
+          <Link
+            to="/about"
+            className="px-12 py-6 border border-brand-primary/10 text-brand-primary rounded-[1.5rem] uppercase tracking-[0.4em] text-[10px] font-black hover:bg-white transition-all active:scale-[0.98]"
           >
-            Our Story
+            The Narrative
           </Link>
         </div>
       </motion.div>
