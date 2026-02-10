@@ -6,6 +6,7 @@ import { ChevronLeft, Loader2, Send, MapPin, AlertCircle, Info } from 'lucide-re
 import { getActiveOrderInfo } from '../utils/dateLogic';
 import { OrderPayload } from '../types';
 import { clsx } from 'clsx';
+import { useUser } from '../store/useUser';
 
 const TAX_RATE = 0.02; // 2%
 const TIP_OPTIONS = [0.08, 0.10, 0.15];
@@ -13,6 +14,7 @@ const TIP_OPTIONS = [0.08, 0.10, 0.15];
 export default function Checkout({ cart }: { cart: any }) {
   const navigate = useNavigate();
   const { date } = getActiveOrderInfo();
+  const { user } = useUser();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [tipRate, setTipRate] = useState<number>(0.10); // Default 10%
@@ -41,7 +43,7 @@ export default function Checkout({ cart }: { cart: any }) {
       type: 'delivery',
       address: {
         street: formData.get('street') as string,
-        city: 'Miami', 
+        city: 'Miami',
         zip: formData.get('zip') as string,
       },
       notes: formData.get('notes') as string,
@@ -60,6 +62,17 @@ export default function Checkout({ cart }: { cart: any }) {
         body: JSON.stringify(payload),
       });
 
+      // Special handling for local development where /api/order might not exist
+      if (!res.ok && window.location.hostname === 'localhost') {
+        console.warn('Backend API not found. Simulating success for local testing.');
+        const mockOrderId = `KNWN-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+        setTimeout(() => {
+          cart.clearCart();
+          navigate('/thank-you', { state: { orderId: mockOrderId, payload } });
+        }, 1200);
+        return;
+      }
+
       if (!res.ok) {
         const errData = await res.json();
         throw new Error(errData.error || 'Order submission failed.');
@@ -69,7 +82,15 @@ export default function Checkout({ cart }: { cart: any }) {
       cart.clearCart();
       navigate('/thank-you', { state: { orderId: data.orderId, payload } });
     } catch (err: any) {
-      setError(err.message || 'Something went wrong.');
+      if (window.location.hostname === 'localhost') {
+        // Fallback for fatal local errors (like network refused)
+        console.warn('Network error. Simulating success for local testing.', err);
+        const mockOrderId = `KNWN-LOCAL-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+        cart.clearCart();
+        navigate('/thank-you', { state: { orderId: mockOrderId, payload } });
+      } else {
+        setError(err.message || 'Something went wrong.');
+      }
     } finally {
       setLoading(false);
     }
@@ -80,7 +101,7 @@ export default function Checkout({ cart }: { cart: any }) {
   return (
     <div className="bg-brand-cream min-h-screen pt-24 pb-32 px-6 md:px-12">
       <div className="max-w-4xl mx-auto">
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-brand-muted hover:text-brand-charcoal transition-colors mb-8 group"
         >
@@ -104,8 +125,8 @@ export default function Checkout({ cart }: { cart: any }) {
                 <div className="grid grid-cols-1 gap-4">
                   <input required name="name" type="text" placeholder="Full Name" className="w-full bg-white border border-brand-clay/50 rounded-xl px-5 py-4 focus:ring-1 focus:ring-brand-accent focus:outline-none placeholder:text-brand-muted/40" />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input required name="email" type="email" placeholder="Email Address" className="w-full bg-white border border-brand-clay/50 rounded-xl px-5 py-4 focus:ring-1 focus:ring-brand-accent focus:outline-none placeholder:text-brand-muted/40" />
-                    <input required name="phone" type="tel" placeholder="Phone Number" className="w-full bg-white border border-brand-clay/50 rounded-xl px-5 py-4 focus:ring-1 focus:ring-brand-accent focus:outline-none placeholder:text-brand-muted/40" />
+                    <input required defaultValue={user?.email} name="email" type="email" placeholder="Email Address" className="w-full bg-white border border-brand-clay/50 rounded-xl px-5 py-4 focus:ring-1 focus:ring-brand-accent focus:outline-none placeholder:text-brand-muted/40" />
+                    <input required defaultValue={user?.phone} name="phone" type="tel" placeholder="Phone Number" className="w-full bg-white border border-brand-clay/50 rounded-xl px-5 py-4 focus:ring-1 focus:ring-brand-accent focus:outline-none placeholder:text-brand-muted/40" />
                   </div>
                 </div>
               </div>
@@ -118,7 +139,7 @@ export default function Checkout({ cart }: { cart: any }) {
                     <div className="bg-brand-clay/20 border border-brand-clay/50 rounded-xl px-5 py-4 text-brand-muted text-sm flex items-center font-medium">
                       Miami, FL
                     </div>
-                    <input required name="zip" type="text" placeholder="Zip Code" className="w-full bg-white border border-brand-clay/50 rounded-xl px-5 py-4 focus:ring-1 focus:ring-brand-accent focus:outline-none placeholder:text-brand-muted/40" />
+                    <input required defaultValue={user?.zip} name="zip" type="text" placeholder="Zip Code" className="w-full bg-white border border-brand-clay/50 rounded-xl px-5 py-4 focus:ring-1 focus:ring-brand-accent focus:outline-none placeholder:text-brand-muted/40" />
                   </div>
                 </div>
               </div>
@@ -133,8 +154,8 @@ export default function Checkout({ cart }: { cart: any }) {
                       onClick={() => setTipRate(rate)}
                       className={clsx(
                         "py-4 rounded-xl border font-bold text-xs uppercase tracking-widest transition-all",
-                        tipRate === rate 
-                          ? "bg-brand-charcoal text-white border-brand-charcoal" 
+                        tipRate === rate
+                          ? "bg-brand-charcoal text-white border-brand-charcoal"
                           : "bg-white text-brand-muted border-brand-clay/50 hover:border-brand-accent"
                       )}
                     >
@@ -161,13 +182,21 @@ export default function Checkout({ cart }: { cart: any }) {
           <div className="lg:col-span-2">
             <div className="bg-white border border-brand-clay/30 rounded-3xl p-8 sticky top-24 space-y-8 shadow-sm">
               <h3 className="uppercase tracking-widest text-xs font-bold border-b border-brand-clay/50 pb-4">Order Review</h3>
-              
+
               <div className="space-y-4 max-h-48 overflow-y-auto pr-2 no-scrollbar">
                 {cart.items.map((item: any) => (
-                  <div key={`${item.id}-${item.serviceDate}`} className="flex justify-between items-start gap-4">
+                  <div key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations || {})}`} className="flex justify-between items-start gap-4">
                     <div className="flex-1">
                       <p className="text-xs font-medium">{item.name}</p>
-                      <p className="text-[10px] text-brand-muted uppercase tracking-widest">Qty: {item.quantity}</p>
+                      <div className="flex justify-between items-center">
+                        <p className="text-[10px] text-brand-muted uppercase tracking-widest">Qty: {item.quantity}</p>
+                      </div>
+                      {item.customizations && (
+                        <p className="text-[9px] text-brand-muted/80 leading-tight mt-1">
+                          {item.customizations.base} • {item.customizations.protein} • {item.customizations.sauce}
+                          {item.customizations.avoid && <span className="block italic mt-0.5">Avoid: {item.customizations.avoid}</span>}
+                        </p>
+                      )}
                     </div>
                     <span className="text-xs font-serif">${(item.price * item.quantity).toFixed(2)}</span>
                   </div>
@@ -198,7 +227,7 @@ export default function Checkout({ cart }: { cart: any }) {
                 Miami Delivery only. Scheduled for {date}.
               </div>
 
-              <button 
+              <button
                 form="order-form"
                 type="submit"
                 disabled={loading}

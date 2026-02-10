@@ -34,9 +34,9 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
 
       <div className="hidden md:flex gap-8 items-center text-sm font-medium tracking-widest uppercase">
         {links.map(link => (
-          <Link 
-            key={link.to} 
-            to={link.to} 
+          <Link
+            key={link.to}
+            to={link.to}
             className={cn(
               "hover:text-brand-accent transition-colors",
               location.pathname === link.to ? "text-brand-accent" : "text-brand-charcoal"
@@ -45,7 +45,7 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
             {link.label}
           </Link>
         ))}
-        <button 
+        <button
           onClick={onOpenCart}
           className="relative p-2 hover:bg-brand-clay/20 rounded-full transition-colors"
         >
@@ -74,16 +74,16 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
 
       <AnimatePresence>
         {isMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             className="absolute top-16 left-0 right-0 bg-brand-cream border-b border-brand-clay p-6 flex flex-col gap-6 md:hidden z-40"
           >
             {links.map(link => (
-              <Link 
-                key={link.to} 
-                to={link.to} 
+              <Link
+                key={link.to}
+                to={link.to}
                 onClick={() => setIsMenuOpen(false)}
                 className="text-2xl font-serif"
               >
@@ -102,14 +102,14 @@ const CartDrawer = ({ isOpen, onClose, cart }: { isOpen: boolean, onClose: () =>
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]"
           />
-          <motion.div 
+          <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -130,8 +130,8 @@ const CartDrawer = ({ isOpen, onClose, cart }: { isOpen: boolean, onClose: () =>
                     <ShoppingBag size={32} className="text-brand-muted" strokeWidth={1} />
                   </div>
                   <p className="text-brand-muted font-light uppercase tracking-widest text-sm">Cart is empty</p>
-                  <Link 
-                    to="/menu" 
+                  <Link
+                    to="/menu"
                     onClick={onClose}
                     className="text-brand-accent font-medium hover:underline flex items-center gap-1"
                   >
@@ -140,7 +140,7 @@ const CartDrawer = ({ isOpen, onClose, cart }: { isOpen: boolean, onClose: () =>
                 </div>
               ) : (
                 cart.items.map((item: any) => (
-                  <div key={`${item.id}-${item.serviceDate}`} className="flex gap-4 group bg-white p-4 rounded-2xl border border-brand-clay/20">
+                  <div key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`} className="flex gap-4 group bg-white p-4 rounded-2xl border border-brand-clay/20">
                     <img src={item.image || 'https://images.unsplash.com/photo-1495147466023-ac5c588e2e94?auto=format&fit=crop&q=80&w=800'} className="w-20 h-20 object-cover rounded-xl" />
                     <div className="flex-1">
                       <div className="flex justify-between items-start">
@@ -151,14 +151,24 @@ const CartDrawer = ({ isOpen, onClose, cart }: { isOpen: boolean, onClose: () =>
                         <Calendar size={12} />
                         <span className="text-[10px] font-bold uppercase tracking-widest">{item.serviceDate}</span>
                       </div>
+
+                      {item.customizations && (
+                        <div className="mt-2 text-[10px] text-brand-muted space-y-0.5 border-l border-brand-clay/40 pl-2">
+                          {item.customizations.base && <div><span className="font-bold">Base:</span> {item.customizations.base}</div>}
+                          {item.customizations.protein && <div><span className="font-bold">Protein:</span> {item.customizations.protein}</div>}
+                          {item.customizations.sauce && <div><span className="font-bold">Sauce:</span> {item.customizations.sauce}</div>}
+                          {item.customizations.avoid && <div><span className="font-bold">Avoid:</span> {item.customizations.avoid}</div>}
+                        </div>
+                      )}
+
                       <div className="flex items-center gap-3 mt-3">
                         <div className="flex items-center border border-brand-clay rounded-full px-2 py-0.5">
-                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1)} className="px-1 text-lg">-</button>
+                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, item.customizations)} className="px-1 text-lg">-</button>
                           <span className="px-3 text-sm">{item.quantity}</span>
-                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1)} className="px-1 text-lg">+</button>
+                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1, item.customizations)} className="px-1 text-lg">+</button>
                         </div>
-                        <button 
-                          onClick={() => cart.removeItem(item.id, item.serviceDate)}
+                        <button
+                          onClick={() => cart.removeItem(item.id, item.serviceDate, item.customizations)}
                           className="text-[10px] uppercase tracking-widest text-brand-muted hover:text-red-500 transition-colors"
                         >
                           Remove
@@ -176,8 +186,8 @@ const CartDrawer = ({ isOpen, onClose, cart }: { isOpen: boolean, onClose: () =>
                   <span className="text-brand-muted uppercase tracking-widest text-xs">Subtotal</span>
                   <span className="text-2xl font-serif">${cart.total}</span>
                 </div>
-                <Link 
-                  to="/checkout" 
+                <Link
+                  to="/checkout"
                   onClick={onClose}
                   className="w-full py-4 bg-brand-charcoal text-white rounded-full flex items-center justify-center gap-2 group hover:bg-brand-charcoal/90 transition-all shadow-lg"
                 >
@@ -200,7 +210,7 @@ export default function App() {
   return (
     <div className="min-h-screen pt-16 selection:bg-brand-accent selection:text-white flex flex-col">
       <Navbar cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} />
-      
+
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -215,7 +225,7 @@ export default function App() {
 
       <AnimatePresence>
         {cart.error && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
