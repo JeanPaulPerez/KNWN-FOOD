@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { MenuItem, CartItem } from '../types';
-import { calculateActiveOrderDay, toDateKey } from '../utils/dateLogic';
+import { calculateActiveOrderDay, toDateKey, getEtNow } from '../utils/dateLogic';
 
 export function useCart() {
   const [items, setItems] = useState<CartItem[]>(() => {
@@ -20,11 +20,12 @@ export function useCart() {
   }, [items, error]);
 
   const addItem = useCallback((item: MenuItem, targetDate: Date, customizations?: CartItem['customizations']) => {
-    const activeOrderDay = calculateActiveOrderDay();
-    const isActive = toDateKey(targetDate) === toDateKey(activeOrderDay);
+    const now = getEtNow();
+    const t = new Date(targetDate); t.setHours(0, 0, 0, 0);
+    const n = new Date(now); n.setHours(0, 0, 0, 0);
 
-    if (!isActive) {
-      setError(`Ordering is currently active for: ${activeOrderDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.`);
+    if (t < n) {
+      setError("Selection is not available for past dates.");
       return;
     }
 
