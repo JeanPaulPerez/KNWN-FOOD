@@ -9,7 +9,7 @@ import { clsx } from 'clsx';
 import { useUser } from '../store/useUser';
 
 const TAX_RATE = 0.02; // 2%
-const TIP_OPTIONS = [0.08, 0.10, 0.15];
+const TIP_OPTIONS = [0, 0.08, 0.10, 0.15];
 
 export default function Checkout({ cart }: { cart: any }) {
   const navigate = useNavigate();
@@ -99,8 +99,8 @@ export default function Checkout({ cart }: { cart: any }) {
   if (cart.items.length === 0) return null;
 
   return (
-    <div className="bg-brand-subtle min-h-screen pt-40 pb-32 px-6 md:px-12">
-      <div className="max-w-4xl mx-auto">
+    <div className="bg-brand-subtle min-h-screen pt-28 md:pt-40 pb-20 md:pb-32 px-4 md:px-12">
+      <div className="max-w-7xl mx-auto">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-3 text-brand-primary/40 hover:text-brand-primary transition-all mb-16 group"
@@ -110,14 +110,15 @@ export default function Checkout({ cart }: { cart: any }) {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-          <div className="lg:col-span-3 space-y-12">
+          <div className="lg:col-span-3 space-y-8 md:space-y-12 order-2 lg:order-1">
             <div>
-              <h1 className="text-7xl font-serif mb-6 text-brand-primary leading-none tracking-tighter">Finalize <br /><span className="italic font-light">Details.</span></h1>
-              <p className="text-brand-primary/40 font-medium flex items-center gap-3 text-sm">
+              <h1 className="text-5xl md:text-7xl font-serif mb-4 md:mb-6 text-brand-primary leading-tight md:leading-none tracking-tighter">Finalize <br /><span className="italic font-light">Details.</span></h1>
+              <p className="text-brand-primary/40 font-medium flex items-center gap-3 text-xs md:text-sm">
                 <MapPin size={18} className="text-brand-primary" />
-                Artisanal service exclusively in <span className="text-brand-primary font-black uppercase tracking-widest text-[10px]">Miami Metropolitan Area</span>
+                Artisanal service exclusively in <span className="text-brand-primary font-black uppercase tracking-widest text-[9px] md:text-[10px]">Miami Metropolitan Area</span>
               </p>
             </div>
+
 
             <form id="order-form" onSubmit={handleSubmit} className="space-y-12">
               <div className="space-y-8">
@@ -135,18 +136,41 @@ export default function Checkout({ cart }: { cart: any }) {
                 <h3 className="uppercase tracking-[0.3em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1 text-brand-primary/40">2. Destination</h3>
                 <div className="space-y-4">
                   <input required name="street" type="text" placeholder="Street Address" className="w-full bg-white border border-brand-primary/5 rounded-[1.5rem] px-8 py-6 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium" />
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-brand-primary/5 border border-brand-primary/5 rounded-[1.5rem] px-8 py-6 text-brand-primary text-sm flex items-center font-black uppercase tracking-widest text-[10px]">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-brand-primary/5 border border-brand-primary/5 rounded-[1.5rem] px-8 py-5 md:py-6 text-brand-primary text-sm flex items-center font-black uppercase tracking-widest text-[9px] md:text-[10px]">
                       Miami, FL
                     </div>
-                    <input required defaultValue={user?.zip} name="zip" type="text" placeholder="Zip Code" className="w-full bg-white border border-brand-primary/5 rounded-[1.5rem] px-8 py-6 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium" />
+                    <input required defaultValue={user?.zip} name="zip" type="text" placeholder="Zip Code" className="w-full bg-white border border-brand-primary/5 rounded-[1.5rem] px-8 py-5 md:py-6 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium" />
+                  </div>
+
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                <h3 className="uppercase tracking-[0.3em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1 text-brand-primary/40">3. Delivery Instructions</h3>
+                <div className="relative group">
+                  <select
+                    required
+                    name="notes"
+                    className="w-full bg-white border border-brand-primary/10 rounded-[1.5rem] px-8 py-6 focus:ring-4 focus:ring-brand-primary/5 focus:outline-none appearance-none text-brand-primary transition-all font-medium cursor-pointer hover:border-brand-primary/30 shadow-sm hover:shadow-md"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Choose an option</option>
+                    <option value="There is a secure drop off location (e.g. locker, mail room, reception)">There is a secure drop off location (e.g. locker, mail room, reception)</option>
+                    <option value="Delivery person is given access to the office">Delivery person is given access to the office</option>
+                    <option value="Others">Others</option>
+                  </select>
+                  <div className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none text-brand-primary/40 group-hover:text-brand-primary group-hover:scale-110 transition-all">
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-8">
-                <h3 className="uppercase tracking-[0.3em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1 text-brand-primary/40">3. Gratitude</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <h3 className="uppercase tracking-[0.3em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1 text-brand-primary/40">4. Gratitude</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {TIP_OPTIONS.map((rate) => (
                     <button
                       key={rate}
@@ -155,19 +179,14 @@ export default function Checkout({ cart }: { cart: any }) {
                       className={clsx(
                         "py-6 rounded-[1.5rem] border font-black text-[10px] uppercase tracking-[0.3em] transition-all",
                         tipRate === rate
-                          ? "bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20"
-                          : "bg-white text-brand-primary/40 border-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary"
+                          ? "bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20 scale-[1.02]"
+                          : "bg-white text-brand-primary/40 border-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary shadow-sm hover:shadow-md"
                       )}
                     >
                       {rate * 100}%
                     </button>
                   ))}
                 </div>
-              </div>
-
-              <div className="space-y-8">
-                <h3 className="uppercase tracking-[0.3em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1 text-brand-primary/40">4. Nuances</h3>
-                <textarea name="notes" placeholder="Special instructions for the culinary core..." rows={4} className="w-full bg-white border border-brand-primary/5 rounded-[1.5rem] px-8 py-6 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none resize-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium italic"></textarea>
               </div>
 
               {error && (
@@ -179,9 +198,10 @@ export default function Checkout({ cart }: { cart: any }) {
             </form>
           </div>
 
-          <div className="lg:col-span-2">
-            <div className="bg-white border border-brand-primary/5 rounded-[3.5rem] p-12 sticky top-32 space-y-12 shadow-2xl shadow-brand-primary/5">
-              <h3 className="uppercase tracking-[0.4em] text-[10px] font-black border-b border-brand-primary/5 pb-8 text-brand-primary/40 text-center">Your Selection</h3>
+          <div className="lg:col-span-2 order-1 lg:order-2">
+            <div className="bg-white border border-brand-primary/5 rounded-3xl md:rounded-[3.5rem] p-8 md:p-12 lg:sticky lg:top-32 space-y-6 md:space-y-12 shadow-2xl shadow-brand-primary/5">
+              <h3 className="uppercase tracking-[0.4em] text-[9px] md:text-[10px] font-black border-b border-brand-primary/5 pb-4 md:pb-8 text-brand-primary/40 text-center">Your Selection</h3>
+
 
               <div className="space-y-8 max-h-[400px] overflow-y-auto pr-2 no-scrollbar">
                 {cart.items.map((item: any) => (
@@ -214,10 +234,11 @@ export default function Checkout({ cart }: { cart: any }) {
                   <span>Gratitude</span>
                   <span className="text-brand-primary font-black">${tip.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-5xl font-serif pt-10 border-t border-brand-primary/5 text-brand-primary tracking-tighter">
+                <div className="flex justify-between text-3xl md:text-5xl font-serif pt-6 md:pt-10 border-t border-brand-primary/5 text-brand-primary tracking-tighter">
                   <span>Investment</span>
                   <span>${finalTotal.toFixed(2)}</span>
                 </div>
+
               </div>
 
               <div className="p-6 bg-brand-primary/5 rounded-[2rem] flex items-start gap-4 text-[11px] text-brand-primary/40 leading-relaxed italic border border-brand-primary/10">
