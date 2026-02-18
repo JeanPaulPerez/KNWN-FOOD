@@ -210,10 +210,20 @@ export default function Checkout({ cart }: { cart: any }) {
                       <p className="text-sm font-black text-brand-primary group-hover:italic transition-all">{item.name}</p>
                       <p className="text-[10px] text-brand-primary/30 uppercase tracking-[0.2em] font-black">Quantity: {item.quantity}</p>
                       {item.customizations && (
-                        <p className="text-[10px] text-brand-primary/60 leading-relaxed italic p-4 bg-brand-subtle/30 rounded-[1.5rem] border border-brand-primary/5">
-                          {item.customizations.base} • {item.customizations.protein} • {item.customizations.sauce}
-                          {item.customizations.avoid && <span className="block not-italic mt-2 text-red-500 font-black uppercase text-[8px] tracking-widest">Exclude: {item.customizations.avoid}</span>}
-                        </p>
+                        <div className="text-[10px] text-brand-primary/60 leading-relaxed italic p-4 bg-brand-subtle/30 rounded-[1.5rem] border border-brand-primary/5 space-y-1">
+                          {item.customizations.base && <div>Base: {item.customizations.base}</div>}
+                          {item.customizations.sauce && <div>Sauce: {item.customizations.sauce}</div>}
+                          {item.customizations.isVegetarian && (
+                            <div className="text-green-600 font-bold">
+                              Vegetariano: Yes
+                              {item.customizations.vegInstructions && (
+                                <span className="block text-[8px] opacity-70">({item.customizations.vegInstructions})</span>
+                              )}
+                            </div>
+                          )}
+                          {item.customizations.swap && <div>Swap: {item.customizations.swap}</div>}
+                          {item.customizations.avoid && <div className="not-italic mt-2 text-red-500 font-black uppercase text-[8px] tracking-widest">Exclude: {item.customizations.avoid}</div>}
+                        </div>
                       )}
                     </div>
                     <span className="text-lg font-serif text-brand-primary">${(item.price * item.quantity).toFixed(2)}</span>

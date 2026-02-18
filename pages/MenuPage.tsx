@@ -32,21 +32,30 @@ const CustomizationModal: React.FC<{
   onClose: () => void;
   onConfirm: (customs: any) => void;
 }> = ({ item, isOpen, onClose, onConfirm }) => {
-  const [base, setBase] = useState('Forbidden Rice');
-  const [protein, setProtein] = useState('Grilled Chicken');
-  const [sauce, setSauce] = useState('Miso-Ginger');
+  const options = item.customizationOptions;
+
+  const [base, setBase] = useState(options?.bases?.[0] || '');
+  const [sauce, setSauce] = useState(options?.sauces?.[0] || '');
+  const [isVegetarian, setIsVegetarian] = useState(false);
+  const [swap, setSwap] = useState(options?.swaps?.[0] || '');
   const [avoidList, setAvoidList] = useState<string[]>([]);
 
-  const bases = ['Forbidden Rice', 'Warm Farro', 'Quinoa Blend'];
-  const proteins = ['Grilled Chicken', 'Seared Tofu'];
-  const sauces = ['Miso-Ginger', 'Spicy Mayo'];
-  const dislikes = ['Onions', 'Cilantro', 'Spicy', 'Nuts', 'Dairy'];
+  // Reset state when item changes or modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setBase(options?.bases?.[0] || '');
+      setSauce(options?.sauces?.[0] || '');
+      setIsVegetarian(false);
+      setSwap(options?.swaps?.[0] || '');
+      setAvoidList([]);
+    }
+  }, [isOpen, item]);
 
   if (!isOpen) return null;
 
-  const toggleDislike = (item: string) => {
+  const toggleDislike = (d: string) => {
     setAvoidList(prev =>
-      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
+      prev.includes(d) ? prev.filter(i => i !== d) : [...prev, d]
     );
   };
 
@@ -58,7 +67,7 @@ const CustomizationModal: React.FC<{
         exit={{ scale: 0.9, y: 20, opacity: 0 }}
         className="bg-brand-bg max-w-lg w-full rounded-[2.5rem] overflow-hidden shadow-2xl border border-brand-primary/10"
       >
-        <div className="p-10 space-y-10">
+        <div className="p-10 space-y-8 overflow-y-auto max-h-[90vh] no-scrollbar">
           <div className="flex justify-between items-start">
             <div>
               <h3 className="text-4xl font-serif text-brand-primary">Customize Your <br /><span className="italic font-light">{item.name}</span></h3>
@@ -72,86 +81,128 @@ const CustomizationModal: React.FC<{
             </button>
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-6">
             {/* Base Selection */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Select Base (Choose 1)</label>
-              <div className="grid grid-cols-3 gap-2">
-                {bases.map(b => (
-                  <button
-                    key={b}
-                    onClick={() => setBase(b)}
-                    className={clsx(
-                      "py-4 px-2 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border",
-                      base === b ? "bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/20" : "bg-white text-brand-primary/60 border-brand-primary/5 hover:border-brand-primary/20"
-                    )}
-                  >
-                    {b}
-                  </button>
-                ))}
+            {options?.bases && options.bases.length > 0 && (
+              <div className="space-y-3">
+                <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Select Base (Choose 1)</label>
+                <div className="grid grid-cols-1 gap-2">
+                  {options.bases.map(b => (
+                    <button
+                      key={b}
+                      onClick={() => setBase(b)}
+                      className={clsx(
+                        "py-3 px-6 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border text-left flex items-center justify-between",
+                        base === b ? "bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/20" : "bg-white text-brand-primary/60 border-brand-primary/5 hover:border-brand-primary/20"
+                      )}
+                    >
+                      {b}
+                      {base === b && <CheckCircle2 size={14} />}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-
-            {/* Protein Selection */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Select Protein (Choose 1)</label>
-              <div className="grid grid-cols-2 gap-2">
-                {proteins.map(p => (
-                  <button
-                    key={p}
-                    onClick={() => setProtein(p)}
-                    className={clsx(
-                      "py-3 px-2 rounded-xl text-[10px] font-bold transition-all border",
-                      protein === p ? "bg-brand-dark text-white border-brand-dark" : "bg-white text-brand-dark border-brand-subtle/60"
-                    )}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-            </div>
+            )}
 
             {/* Sauce Selection */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Select Sauce (Choose 1)</label>
-              <div className="grid grid-cols-2 gap-2">
-                {sauces.map(s => (
-                  <button
-                    key={s}
-                    onClick={() => setSauce(s)}
-                    className={clsx(
-                      "py-3 px-2 rounded-xl text-[10px] font-bold transition-all border",
-                      sauce === s ? "bg-brand-dark text-white border-brand-dark" : "bg-white text-brand-dark border-brand-subtle/60"
-                    )}
-                  >
-                    {s}
-                  </button>
-                ))}
+            {options?.sauces && options.sauces.length > 0 && (
+              <div className="space-y-3">
+                <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Select Sauce (Choose 1)</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {options.sauces.map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setSauce(s)}
+                      className={clsx(
+                        "py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all border text-center",
+                        sauce === s ? "bg-brand-primary text-white border-brand-primary shadow-md" : "bg-white text-brand-primary/40 border-brand-primary/5"
+                      )}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Vegetarian Toggle */}
+            {options?.hasVegetarianOption && (
+              <div className="space-y-3">
+                <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">
+                  {options.hasVegetarianOption.label}
+                </label>
+                <button
+                  onClick={() => setIsVegetarian(!isVegetarian)}
+                  className={clsx(
+                    "w-full py-4 px-6 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border text-left flex items-center justify-between group",
+                    isVegetarian
+                      ? "bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/20"
+                      : "bg-white text-brand-primary/60 border-brand-primary/5 hover:border-brand-primary/20"
+                  )}
+                >
+                  <span className="flex-1 capitalize">{options.hasVegetarianOption.instructions || 'Make it vegetarian'}</span>
+                  <div className={clsx(
+                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                    isVegetarian ? "border-white bg-white/20" : "border-brand-primary/20"
+                  )}>
+                    {isVegetarian && <CheckCircle2 size={12} />}
+                  </div>
+                </button>
+              </div>
+            )}
+
+            {/* Swap Selection */}
+            {options?.swaps && options.swaps.length > 0 && (
+              <div className="space-y-3">
+                <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Sustituciones (Swap)</label>
+                <div className="grid grid-cols-1 gap-2">
+                  {options.swaps.map(sw => (
+                    <button
+                      key={sw}
+                      onClick={() => setSwap(swap === sw ? '' : sw)}
+                      className={clsx(
+                        "py-3 px-6 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border text-left",
+                        swap === sw ? "bg-brand-primary text-white border-brand-primary shadow-lg" : "bg-white text-brand-primary/60 border-brand-primary/5"
+                      )}
+                    >
+                      {sw}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Dislikes Selection */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Anything you don't like?</label>
-              <div className="flex flex-wrap gap-2">
-                {dislikes.map(d => (
-                  <button
-                    key={d}
-                    onClick={() => toggleDislike(d)}
-                    className={clsx(
-                      "py-3 px-6 rounded-full text-[9px] font-black transition-all border uppercase tracking-[0.2em]",
-                      avoidList.includes(d) ? "bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20" : "bg-white text-brand-primary/40 border-brand-primary/5 hover:border-brand-primary/20"
-                    )}
-                  >
-                    {d}
-                  </button>
-                ))}
+            {options?.dislikes && options.dislikes.length > 0 && (
+              <div className="space-y-3">
+                <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Anything you don't like?</label>
+                <div className="flex flex-wrap gap-2">
+                  {options.dislikes.map(d => (
+                    <button
+                      key={d}
+                      onClick={() => toggleDislike(d)}
+                      className={clsx(
+                        "py-3 px-6 rounded-full text-[9px] font-black transition-all border uppercase tracking-[0.2em]",
+                        avoidList.includes(d) ? "bg-red-500 text-white border-red-500 shadow-xl shadow-red-500/20" : "bg-white text-brand-primary/40 border-brand-primary/5 hover:border-brand-primary/20"
+                      )}
+                    >
+                      {d}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <button
-            onClick={() => onConfirm({ base, protein, sauce, avoid: avoidList.join(', ') })}
+            onClick={() => onConfirm({
+              base,
+              sauce,
+              isVegetarian,
+              vegInstructions: isVegetarian ? options?.hasVegetarianOption?.instructions : undefined,
+              swap,
+              avoid: avoidList.join(', ')
+            })}
             className="w-full py-6 bg-brand-primary text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-brand-primary/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
           >
             Add to Selection <Plus size={16} strokeWidth={3} />
@@ -177,22 +228,22 @@ const PromotionalModal: React.FC<{
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 30 }}
-        className="relative bg-brand-primary max-w-6xl w-full rounded-[2rem] md:rounded-[4rem] overflow-hidden flex flex-col md:flex-row shadow-[0_60px_120px_rgba(0,0,0,0.5)] border border-white/10"
+        className="relative bg-brand-primary max-w-6xl w-full rounded-[2rem] md:rounded-[4rem] overflow-hidden flex flex-col md:flex-row shadow-[0_60px_120px_rgba(0,0,0,0.5)] border border-white/10 max-h-[95vh] md:max-h-none overflow-y-auto md:overflow-visible no-scrollbar"
       >
-        <button onClick={onClose} className="absolute top-8 right-8 z-50 text-white/40 hover:text-white transition-colors p-2">
-          <X size={28} />
+        <button onClick={onClose} className="absolute top-4 right-4 md:top-8 md:right-8 z-50 text-white/40 hover:text-white transition-colors p-2 bg-black/20 md:bg-transparent rounded-full backdrop-blur-md md:backdrop-blur-none">
+          <X size={20} className="md:w-7 md:h-7" />
         </button>
 
         {/* Left Side: Visuals */}
-        <div className="md:w-1/2 relative min-h-[350px] md:min-h-[600px] bg-[#FF5C00] overflow-hidden flex items-center justify-center p-8 md:p-12">
+        <div className="md:w-1/2 relative min-h-[280px] md:min-h-[600px] bg-[#FF5C00] overflow-hidden flex items-center justify-center p-6 md:p-12">
           {/* KN Pattern */}
-          <div className="absolute inset-0 opacity-30 flex flex-wrap gap-6 md:gap-12 items-center justify-center pointer-events-none p-4">
+          <div className="absolute inset-0 opacity-30 flex flex-wrap gap-4 md:gap-12 items-center justify-center pointer-events-none p-4">
             {Array.from({ length: 30 }).map((_, i) => (
-              <span key={i} className="text-5xl md:text-9xl font-black text-[#FFD600] leading-none transform -rotate-12 italic tracking-tighter select-none">KN</span>
+              <span key={i} className="text-4xl md:text-9xl font-black text-[#FFD600] leading-none transform -rotate-12 italic tracking-tighter select-none">KN</span>
             ))}
           </div>
 
-          <div className="relative z-10 w-full max-w-[280px] md:max-w-[380px]">
+          <div className="relative z-10 w-full max-w-[200px] md:max-w-[380px]">
             {/* Food Image Container */}
             <div className="relative group">
               <div className="w-full aspect-square bg-[#FDF6E3] rounded-full shadow-[0_40px_80px_rgba(0,0,0,0.3)] p-2 md:p-3 border-4 md:border-8 border-white overflow-hidden transform group-hover:scale-105 transition-transform duration-700">
@@ -204,16 +255,16 @@ const PromotionalModal: React.FC<{
               </div>
 
               {/* Hand-drawn type stickers */}
-              <div className="absolute -top-4 -right-2 md:-top-6 md:-right-6 bg-brand-primary text-white px-4 md:px-6 py-2 md:py-3 rounded-xl text-[8px] md:text-[12px] font-black uppercase tracking-[0.2em] transform rotate-[15deg] shadow-2xl border border-white/20 whitespace-nowrap">No additives</div>
-              <div className="absolute top-12 -left-6 md:-left-12 bg-brand-primary text-white px-4 md:px-6 py-2 md:py-3 rounded-xl text-[8px] md:text-[12px] font-black uppercase tracking-[0.2em] transform rotate-[-20deg] shadow-2xl border border-white/20 whitespace-nowrap">Zero lies</div>
-              <div className="absolute bottom-12 -left-4 md:-left-10 bg-brand-primary text-white px-4 md:px-6 py-3 md:py-4 rounded-xl text-[8px] md:text-[11px] font-black uppercase tracking-[0.2em] transform rotate-[8deg] shadow-2xl border border-white/20 leading-tight">Cooked fresh<br />every morning</div>
+              <div className="absolute -top-4 -right-2 md:-top-6 md:-right-6 bg-brand-primary text-white px-3 md:px-6 py-1.5 md:py-3 rounded-lg md:rounded-xl text-[7px] md:text-[12px] font-black uppercase tracking-[0.2em] transform rotate-[15deg] shadow-2xl border border-white/20 whitespace-nowrap">No additives</div>
+              <div className="absolute top-8 -left-4 md:top-12 md:-left-12 bg-brand-primary text-white px-3 md:px-6 py-1.5 md:py-3 rounded-lg md:rounded-xl text-[7px] md:text-[12px] font-black uppercase tracking-[0.2em] transform rotate-[-20deg] shadow-2xl border border-white/20 whitespace-nowrap">Zero lies</div>
+              <div className="absolute bottom-8 -left-2 md:bottom-12 md:-left-10 bg-brand-primary text-white px-3 md:px-6 py-2 md:py-4 rounded-lg md:rounded-xl text-[7px] md:text-[11px] font-black uppercase tracking-[0.2em] transform rotate-[8deg] shadow-2xl border border-white/20 leading-tight">Cooked fresh<br />every morning</div>
 
               {/* NEW! Starburst Sticker */}
               <motion.div
                 initial={{ scale: 0, rotate: -45 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.5, type: 'spring' }}
-                className="absolute -bottom-6 -right-6 md:-bottom-10 md:-right-10 w-24 h-24 md:w-40 md:h-40 bg-brand-primary text-white flex items-center justify-center font-serif text-2xl md:text-6xl shadow-2xl border-2 md:border-4 border-white/30 z-20"
+                className="absolute -bottom-4 -right-4 md:-bottom-10 md:-right-10 w-16 h-16 md:w-40 md:h-40 bg-brand-primary text-white flex items-center justify-center font-serif text-sm md:text-6xl shadow-2xl border md:border-4 border-white/30 z-20"
                 style={{ clipPath: 'polygon(50% 0%, 63% 38%, 100% 35%, 75% 60%, 85% 100%, 50% 80%, 15% 100%, 25% 60%, 0% 35%, 37% 38%)' }}
               >
                 NEW!
@@ -222,47 +273,47 @@ const PromotionalModal: React.FC<{
           </div>
 
           {/* Ripped Paper Effect Layered */}
-          <div className="absolute bottom-0 left-0 right-0 h-16 md:h-28 bg-[#BADA55]/40 transform translate-y-4"
+          <div className="absolute bottom-0 left-0 right-0 h-10 md:h-28 bg-[#BADA55]/40 transform translate-y-2 md:translate-y-4"
             style={{ clipPath: 'polygon(0% 100%, 100% 100%, 100% 25%, 95% 40%, 90% 20%, 85% 45%, 80% 25%, 75% 50%, 70% 20%, 65% 45%, 60% 30%, 55% 50%, 50% 20%, 45% 45%, 40% 25%, 35% 50%, 30% 20%, 25% 45%, 20% 30%, 15% 55%, 10% 25%, 5% 50%, 0% 15%)' }} />
-          <div className="absolute bottom-0 left-0 right-0 h-12 md:h-24 bg-white"
+          <div className="absolute bottom-0 left-0 right-0 h-8 md:h-24 bg-white"
             style={{ clipPath: 'polygon(0% 100%, 100% 100%, 100% 20%, 94% 45%, 88% 25%, 82% 50%, 75% 30%, 69% 55%, 62% 20%, 55% 50%, 48% 30%, 42% 60%, 35% 25%, 28% 55%, 22% 30%, 15% 55%, 8% 20%, 0% 50%)' }} />
         </div>
 
 
         {/* Right Side: Copy & Actions */}
-        <div className="md:w-1/2 p-12 md:p-24 flex flex-col items-center justify-center text-center space-y-16">
+        <div className="md:w-1/2 p-8 md:p-24 flex flex-col items-center justify-center text-center space-y-8 md:space-y-16">
           {/* Circular Branding Logo */}
-          <div className="relative w-28 h-28 flex items-center justify-center">
+          <div className="relative w-20 h-20 md:w-28 md:h-28 flex items-center justify-center">
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
               className="absolute inset-0 border border-white/20 border-dashed rounded-full"
             />
-            <div className="text-[10px] text-white/40 font-black uppercase tracking-[0.5em] absolute -top-4">Bullsht Free</div>
+            <div className="text-[8px] md:text-[10px] text-white/40 font-black uppercase tracking-[0.5em] absolute -top-4">Bullsht Free</div>
             <img
               src="https://knwnfood.com/wp-content/uploads/2025/09/Recurso-91x.webp"
-              className="w-14 brightness-0 invert opacity-60"
+              className="w-10 md:w-14 brightness-0 invert opacity-60"
               alt="KNWN"
             />
           </div>
 
-          <div className="space-y-6">
-            <h2 className="text-5xl md:text-8xl font-serif text-white tracking-tighter leading-[0.85] uppercase">
+          <div className="space-y-4 md:space-y-6">
+            <h2 className="text-3xl md:text-8xl font-serif text-white tracking-tighter leading-[0.85] uppercase">
               FIRST 100 TO SIGN UP<br />
-              <span className="italic font-light text-white/50 lowercase">get a</span> <span className="text-brand-bg text-brand-primary px-4">FREE LUNCH!</span>
+              <span className="italic font-light text-white/50 lowercase">get a</span> <span className="text-brand-bg text-brand-primary px-3 md:px-4 py-1">FREE LUNCH!</span>
             </h2>
           </div>
 
-          <div className="w-full max-w-md flex flex-col gap-5">
+          <div className="w-full max-w-sm md:max-w-md flex flex-col gap-3 md:gap-5">
             <button
               onClick={onSignUp}
-              className="w-full py-7 bg-[#E67E22] text-white rounded-full text-[12px] md:text-[14px] font-black uppercase tracking-[0.5em] shadow-[0_25px_50px_rgba(230,126,34,0.4)] hover:scale-105 active:scale-95 transition-all"
+              className="w-full py-5 md:py-7 bg-[#E67E22] text-white rounded-full text-[10px] md:text-[14px] font-black uppercase tracking-[0.5em] shadow-[0_25px_50px_rgba(230,126,34,0.4)] hover:scale-105 active:scale-95 transition-all"
             >
               FREE LUNCH
             </button>
             <button
               onClick={onClose}
-              className="w-full py-7 border-2 border-white/20 text-white/40 rounded-full text-[10px] font-black uppercase tracking-[0.4em] hover:text-white hover:border-white/60 transition-all hover:bg-white/5"
+              className="w-full py-5 md:py-7 border-2 border-white/20 text-white/40 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] hover:text-white hover:border-white/60 transition-all hover:bg-white/5"
             >
               NEHHH, I PREFER TO PAY
             </button>
@@ -426,7 +477,7 @@ const MiniCalendar: React.FC<{
 
 const Hero = ({ onFreeLunch }: { onFreeLunch: () => void }) => {
   return (
-    <section className="relative bg-[#D9CFF2] pt-32 md:pt-56 pb-24 px-4 md:px-12 overflow-hidden min-h-[100dvh] md:min-h-[90vh] flex flex-col items-center">
+    <section className="relative bg-[#D9CFF2] pt-24 md:pt-32 pb-24 px-4 md:px-12 overflow-hidden min-h-[100dvh] md:min-h-[90vh] flex flex-col items-center">
       {/* Background patterns */}
       <div className="absolute inset-0 opacity-10 pointer-events-none"
         style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #2B1C70 1px, transparent 0)', backgroundSize: '40px 40px' }} />
@@ -641,9 +692,7 @@ export default function MenuPage({ cart }: { cart: any }) {
               const isSelected = toDateKey(date) === toDateKey(selectedDate);
               const status = getDateStatus(date);
               const weekday = date.getDay();
-              const isMonTue = weekday === 1 || weekday === 2;
               const isWeekendDay = weekday === 0 || weekday === 6;
-              const isFebruary = date.getMonth() === 1;
 
               return (
                 <button
@@ -663,8 +712,10 @@ export default function MenuPage({ cart }: { cart: any }) {
                 >
                   <span
                     className={clsx(
-                      "text-[7px] md:text-[8px] uppercase tracking-[0.2em] md:tracking-[0.3em] font-black mb-1 opacity-50 group-hover/date:opacity-100 transition-opacity",
-                      isFebruary && "text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full opacity-100"
+                      "text-[7px] md:text-[8px] uppercase tracking-[0.2em] md:tracking-[0.3em] font-black mb-1 px-2.5 py-1 rounded-full transition-all",
+                      isSelected
+                        ? "bg-white/10 text-white"
+                        : "text-brand-primary/40 group-hover/date:text-brand-primary/60"
                     )}
                   >
                     {date.toLocaleDateString('en-US', { month: 'short' })}

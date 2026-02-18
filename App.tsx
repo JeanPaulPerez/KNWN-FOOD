@@ -25,7 +25,7 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] bg-brand-subtle/90 backdrop-blur-xl border-b border-brand-primary/10 h-20 md:h-24 flex items-center px-4 md:px-12 justify-between">
       {/* Logo - Left aligned on mobile, Center aligned on desktop */}
-      <div className="flex md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 items-center">
+      <div className="flex items-center">
         <Link to="/" className="block w-32 md:w-56 overflow-hidden">
           <img
             src="https://knwnfood.com/wp-content/uploads/2025/09/Recurso-91x.webp"
@@ -36,14 +36,14 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
       </div>
 
       {/* Desktop Navigation Left (Placeholder for balance if needed) */}
-      <div className="hidden md:flex flex-1"></div>
+      <div className="hidden md:flex"></div>
 
       {/* Desktop Navigation Right */}
       <div className="hidden md:flex gap-8 items-center flex-1 justify-end">
         <Link
           to="/menu"
           className={cn(
-            "text-[10px] uppercase tracking-[0.3em] font-black py-2 px-4 rounded-full border border-transparent transition-all hover:border-brand-primary/20",
+            "text-[15px] uppercase tracking-[0.3em] font-black py-2 px-4 rounded-full border border-transparent transition-all hover:border-brand-primary/20",
             location.pathname === '/menu' ? "text-brand-primary border-brand-primary/20" : "text-brand-primary/60"
           )}
         >
@@ -52,16 +52,16 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
         <Link
           to="/about"
           className={cn(
-            "text-[10px] uppercase tracking-[0.3em] font-black py-2 px-4 rounded-full border border-transparent transition-all hover:border-brand-primary/20",
+            "text-[15px] uppercase tracking-[0.3em] font-black py-2 px-4 rounded-full border border-transparent transition-all hover:border-brand-primary/20",
             location.pathname === '/about' ? "text-brand-primary border-brand-primary/20" : "text-brand-primary/60"
           )}
         >
           Story
         </Link>
-        <div className="flex items-center gap-4 pl-4 border-l border-brand-primary/10">
+        <div className="flex items-center gap-6 pl-4 border-l border-brand-primary/10">
           <button
             onClick={onOpenCart}
-            className="relative p-2.5 bg-brand-primary text-white rounded-full transition-transform hover:scale-110 shadow-lg shadow-brand-primary/20"
+            className="relative p-3 bg-brand-primary text-white rounded-full transition-transform hover:scale-110 shadow-lg shadow-brand-primary/20"
           >
             <ShoppingBag size={18} strokeWidth={2.5} />
             {cartCount > 0 && (
@@ -95,10 +95,10 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -20 }}
+            initial={{ opacity: 5, scale: 0.95, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            className="absolute top-[calc(100%+0.5rem)] left-4 right-4 bg-white/98 backdrop-blur-2xl border border-brand-primary/10 rounded-[2rem] p-8 flex flex-col items-center gap-6 md:hidden z-50 shadow-2xl"
+            className="absolute top-[calc(100%+0.5rem)] left-4 right-4 bg-white backdrop-blur-2xl border border-brand-primary/10 rounded-[2rem] p-8 flex flex-col items-center gap-6 md:hidden z-50 shadow-2xl"
           >
             <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="text-3xl font-serif text-brand-primary">Menu</Link>
             <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-3xl font-serif text-brand-primary">Story</Link>
@@ -127,14 +127,14 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize }: { isOpen: boolean, on
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-brand-primary/20 backdrop-blur-md z-[60]"
+            className="fixed inset-0 bg-brand-primary/40 backdrop-blur-xl z-[110]"
           />
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[70] shadow-2xl flex flex-col"
+            className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[120] shadow-2xl flex flex-col"
           >
             <div className="p-8 border-b border-brand-primary/5 flex justify-between items-center">
               <h2 className="text-2xl font-serif text-brand-primary">Your Selection</h2>
@@ -174,10 +174,18 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize }: { isOpen: boolean, on
 
                       {item.customizations && (
                         <div className="mt-2 text-[9px] text-brand-primary/60 space-y-0.5 border-l-2 border-brand-primary/10 pl-2 font-medium italic">
-                          {item.customizations.base && <div>{item.customizations.base}</div>}
-                          {item.customizations.protein && <div>{item.customizations.protein}</div>}
-                          {item.customizations.sauce && <div>{item.customizations.sauce}</div>}
-                          {item.customizations.avoid && <div>No {item.customizations.avoid}</div>}
+                          {item.customizations.base && <div>Base: {item.customizations.base}</div>}
+                          {item.customizations.sauce && <div>Sauce: {item.customizations.sauce}</div>}
+                          {item.customizations.isVegetarian && (
+                            <div className="text-green-600 font-bold">
+                              Vegetariano: Yes
+                              {item.customizations.vegInstructions && (
+                                <span className="block text-[8px] opacity-70">({item.customizations.vegInstructions})</span>
+                              )}
+                            </div>
+                          )}
+                          {item.customizations.swap && <div>Swap: {item.customizations.swap}</div>}
+                          {item.customizations.avoid && <div className="text-red-400">Excluding: {item.customizations.avoid}</div>}
                         </div>
                       )}
 

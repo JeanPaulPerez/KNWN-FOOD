@@ -5,39 +5,41 @@ export const MENUS: Record<Weekday, DayMenu> = {
   monday: {
     categories: [
       {
-        categoryName: "Signature Bowls",
+        categoryName: "Daily Selection",
         items: [
           {
-            id: "m1",
-            name: "Harissa Roasted Cauliflower Bowl",
-            description: "Spiced cauliflower, black lentils, wild arugula, minted yogurt, and pomegranate seeds.",
-            price: 18,
-            tags: ["Vegan Option", "Gluten-Free"],
-            calories: 520,
-            image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800",
-            popular: true
+            id: "m-med-chicken",
+            name: "Mediterranean Chicken",
+            description: "Brown rice & quinoa mix, Mediterranean chicken breast, leafy greens, cucumber, tomato, and a Tahini-Lemon dressing.",
+            price: 12.90,
+            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/MEDITERRANEAN_CHICKEN_iobysa.png",
+            tags: ["High-Protein", "Fresh"],
+            customizationOptions: {
+              bases: ["Brown rice and quinoa mix", "No rice mix"],
+              sauces: ["Tahini-Lemon dressing", "No sauce"],
+              hasVegetarianOption: {
+                label: "Make it vegetarian?",
+                instructions: "replace protein with mushrooms"
+              },
+              dislikes: ["No leafy greens", "No cucumber", "No tomato"]
+            }
           },
           {
-            id: "m2",
-            name: "Miso Glazed Salmon",
-            description: "Sustainable Atlantic salmon, charred baby bok choy, forbidden rice, ginger-scallion oil.",
-            price: 24,
-            tags: ["High-Protein"],
-            calories: 680,
-            image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80&w=800"
-          }
-        ]
-      },
-      {
-        categoryName: "Small Plates",
-        items: [
-          {
-            id: "m3",
-            name: "Whipped Feta & Honey",
-            description: "Creamy Greek feta, local wildflower honey, toasted sourdough, cracked black pepper.",
-            price: 12,
-            tags: ["Vegetarian"],
-            image: "https://images.unsplash.com/photo-1541529086526-db283c563270?auto=format&fit=crop&q=80&w=800"
+            id: "m-bb-bump",
+            name: "BIBI Bump Rice",
+            description: "Brown rice, Korean-marinated beef, sautéed mushrooms, carrots, zucchini, and a bold gochujang sauce.",
+            price: 15.90,
+            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/BIBI_BAMP_RICE_kczybg.png",
+            tags: ["Nutritious", "Balanced"],
+            customizationOptions: {
+              bases: ["Brown rice", "White rice", "No rice"],
+              sauces: ["Gochujang sauce", "Soy sauce", "No sauce"],
+              hasVegetarianOption: {
+                label: "Make it vegetarian?",
+                instructions: "replace protein with mushrooms"
+              },
+              dislikes: ["No mushrooms", "No carrots", "No zucchini"]
+            }
           }
         ]
       }
@@ -46,26 +48,41 @@ export const MENUS: Record<Weekday, DayMenu> = {
   tuesday: {
     categories: [
       {
-        categoryName: "Chef's Plates",
+        categoryName: "Daily Selection",
         items: [
           {
-            id: "t1",
-            name: "Braised Short Rib Rigatoni",
-            description: "12-hour red wine braised beef, hand-cut pasta, pecorino romano, fresh basil.",
-            price: 26,
-            tags: ["Signature"],
-            calories: 840,
-            image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=800",
-            popular: true
+            id: "t-carne-asada",
+            name: "Carne Asada",
+            description: "Brown rice, Mexican-marinated steak, bell peppers, corn, red onion, black beans, and our Chilanga sauce.",
+            price: 15.90,
+            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CARNE_ASADA_lfjnlg.png",
+            tags: ["Premium", "Steak"],
+            customizationOptions: {
+              bases: ["Brown rice", "White rice", "No rice"],
+              sauces: ["Chilanga sauce", "No sauce"],
+              hasVegetarianOption: {
+                label: "Make it vegetarian?",
+                instructions: "replace protein with mushrooms"
+              },
+              dislikes: ["No bell peppers", "No red onion", "No corn", "No black beans"]
+            }
           },
           {
-            id: "t2",
-            name: "Lemon Thyme Chicken",
-            description: "Free-range breast, heirloom carrots, smashed fingerling potatoes, salsa verde.",
-            price: 22,
-            tags: ["Gluten-Free"],
-            calories: 610,
-            image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=800"
+            id: "t-chicken-lime",
+            name: "Chicken Lime",
+            description: "Quinoa, marinated chicken breast, leafy greens, corn, red onion, tomato, and a creamy lemon dressing.",
+            price: 12.90,
+            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CHICKEN_LIME_rtggkr.png",
+            tags: ["Light", "Zesty"],
+            customizationOptions: {
+              bases: ["Quinoa", "No quinoa"],
+              sauces: ["Lemon creamy dressing", "No sauce"],
+              hasVegetarianOption: {
+                label: "Vegetariano?",
+                instructions: "replace protein with mushrooms"
+              },
+              dislikes: ["No leafy greens", "No corn", "No red onion", "No tomato"]
+            }
           }
         ]
       }
@@ -74,17 +91,41 @@ export const MENUS: Record<Weekday, DayMenu> = {
   wednesday: {
     categories: [
       {
-        categoryName: "Pacific Rim",
+        categoryName: "Daily Selection",
         items: [
           {
-            id: "w1",
-            name: "Spicy Ahi Tuna Poke",
-            description: "Sashimi-grade tuna, edamame, pickled radish, spicy mayo, furikake seasoning.",
-            price: 20,
-            tags: ["Healthy", "High-Protein"],
-            calories: 490,
-            image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800",
-            popular: true
+            id: "w-pesto-pasta",
+            name: "Chicken Pesto Pasta",
+            description: "Fusilli/rotini, shredded chicken breast, mushrooms, capers, pine nuts, and a creamy pesto sauce.",
+            price: 15.90,
+            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CHICKEN_PESTO_PASTA_b8flzw.png",
+            tags: ["Italian", "Comfort"],
+            customizationOptions: {
+              bases: ["Traditional pasta (única)"],
+              sauces: ["Creamy pesto sauce (única)"],
+              hasVegetarianOption: {
+                label: "Make it vegetarian?",
+                instructions: "replace protein with mushrooms"
+              },
+              dislikes: ["No mushrooms", "No capers", "No pine nuts"]
+            }
+          },
+          {
+            id: "w-thai-beef",
+            name: "Thai Beef Salad",
+            description: "Quinoa, Thai-marinated steak, leafy greens, basil, mint, radish, cucumber, red onion, chopped peanuts, Thai dressing.",
+            price: 15.90,
+            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369140/THAI_BEEF_SALAD_ktgza9.png",
+            tags: ["Spicy", "Thai"],
+            customizationOptions: {
+              bases: ["Quinoa", "No quinoa"],
+              sauces: ["Thai dressing", "No sauce"],
+              hasVegetarianOption: {
+                label: "Make it vegetarian?",
+                instructions: "Replace protein with mushrooms"
+              },
+              dislikes: ["No leafy greens", "No basil", "No mint", "No radish", "No cucumber", "No red onion", "No peanuts"]
+            }
           }
         ]
       }
@@ -93,16 +134,37 @@ export const MENUS: Record<Weekday, DayMenu> = {
   thursday: {
     categories: [
       {
-        categoryName: "Garden & Soil",
+        categoryName: "Daily Selection",
         items: [
           {
-            id: "th1",
-            name: "Wild Mushroom Risotto",
-            description: "Arborio rice, seasonal foraged mushrooms, truffle oil, parmesan reggiano.",
-            price: 21,
-            tags: ["Vegetarian", "Gluten-Free"],
-            calories: 580,
-            image: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&q=80&w=800"
+            id: "th-milanesa",
+            name: "Milanesa",
+            description: "Brown rice, milanesa chicken breast, carrot, zucchini, mushrooms, jalapeño mayo sauce.",
+            price: 12.90,
+            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/MILANESA_kqpck6.png",
+            tags: ["Crispy", "Classic"],
+            customizationOptions: {
+              bases: ["Brown rice", "White rice", "No rice"],
+              sauces: ["Jalapeño mayo", "Homemade mayo", "No sauce"],
+              dislikes: ["No carrot", "No zucchini", "No mushrooms"]
+            }
+          },
+          {
+            id: "th-meatballs",
+            name: "Harissa Meatballs",
+            description: "Quinoa, harissa meatballs, leafy greens, cucumber, radish, pickled red onions, feta cheese, creamy Mediterranean dressing.",
+            price: 15.90,
+            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/HARISSA_MEATBALLS_gakt0h.png",
+            tags: ["Mediterranean", "Spicy"],
+            customizationOptions: {
+              bases: ["Quinoa", "No quinoa"],
+              sauces: ["Creamy Mediterranean sauce", "No sauce"],
+              hasVegetarianOption: {
+                label: "Make it vegetarian?",
+                instructions: "Replace protein with mushrooms"
+              },
+              dislikes: ["No leafy greens", "No cucumbers", "No radish", "No pickled red onions", "No feta cheese"]
+            }
           }
         ]
       }
@@ -111,25 +173,38 @@ export const MENUS: Record<Weekday, DayMenu> = {
   friday: {
     categories: [
       {
-        categoryName: "Weekend Warmup",
+        categoryName: "Daily Selection",
         items: [
           {
-            id: "f1",
-            name: "Double Wagyu Burger",
-            description: "Wagyu beef patties, aged cheddar, caramelized onions, truffle aioli, brioche bun.",
-            price: 24,
-            tags: ["Indulgent"],
-            calories: 980,
-            image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800",
-            popular: true
+            id: "f-korean-chicken",
+            name: "Crispy Korean Chicken",
+            description: "Brown rice, crispy Korean chicken breast, glazed red cabbage, zucchini, carrot, red onion, gochujang sauce.",
+            price: 12.90,
+            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CRISPY_KOREAN_CHICKEN_khpm4p.png",
+            tags: ["Korean", "Crispy"],
+            customizationOptions: {
+              bases: ["Brown rice", "White rice", "No rice"],
+              sauces: ["Gochujang sauce", "Soy sauce", "No sauce"],
+              dislikes: ["No red cabbage", "No zucchini", "No carrot", "No red onion"]
+            }
           },
           {
-            id: "f2",
-            name: "Hand-Cut Truffle Fries",
-            description: "Double fried russet potatoes, truffle salt, parsley, garlic dip.",
-            price: 10,
-            tags: ["Vegetarian"],
-            image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&q=80&w=800"
+            id: "f-caesar-salad",
+            name: "Chicken Caesar Salad",
+            description: "Fusilli/rotini, curly kale, marinated chicken breast, paprika-roasted chickpeas, parmesan cheese, creamy lemon dressing.",
+            price: 12.90,
+            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369140/CHICKEN_CESAR_SALAD_vbyfrr.png",
+            tags: ["Classic", "Fresh"],
+            popular: true,
+            customizationOptions: {
+              bases: ["Traditional pasta", "No pasta"],
+              sauces: ["Creamy lemon dressing", "No sauce"],
+              hasVegetarianOption: {
+                label: "Make it vegetarian?",
+                instructions: "Replace protein with mushrooms"
+              },
+              dislikes: ["No chickpeas", "No parmesan cheese", "Replace curly kale for leafy greens"]
+            }
           }
         ]
       }
