@@ -8,6 +8,16 @@ export interface MenuItem {
   calories?: number;
   image: string;
   popular?: boolean;
+  customizationOptions?: {
+    bases?: string[];
+    sauces?: string[];
+    dislikes?: string[];
+    hasVegetarianOption?: {
+      label: string;
+      instructions?: string;
+    };
+    swaps?: string[];
+  };
 }
 
 export interface MenuCategory {
@@ -30,6 +40,9 @@ export interface CartItem extends MenuItem {
     protein?: string;
     sauce?: string;
     avoid?: string;
+    isVegetarian?: boolean;
+    vegInstructions?: string;
+    swap?: string;
   };
 }
 
