@@ -7,7 +7,7 @@ import MenuPage from './pages/MenuPage';
 import Checkout from './pages/Checkout';
 import ThankYou from './pages/ThankYou';
 import About from './pages/About';
-import { useCart } from './store/useCart';
+import { useWooCart } from './store/useWooCart';
 import { useUser } from './store/useUser';
 import RegistrationModal from './components/RegistrationModal';
 import { useNavigate } from 'react-router-dom';
@@ -137,7 +137,14 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize }: { isOpen: boolean, on
             className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[120] shadow-2xl flex flex-col"
           >
             <div className="p-8 border-b border-brand-primary/5 flex justify-between items-center">
-              <h2 className="text-2xl font-serif text-brand-primary">Your Selection</h2>
+              <div className="flex flex-col">
+                <h2 className="text-2xl font-serif text-brand-primary">Your Selection</h2>
+                {cart.syncing && (
+                  <span className="text-[8px] uppercase tracking-widest text-[#E67E22] font-black animate-pulse">
+                    Sincronizando con WooCommerce...
+                  </span>
+                )}
+              </div>
               <button onClick={onClose} className="p-2.5 bg-brand-subtle text-brand-primary rounded-full hover:scale-110 transition-transform">
                 <X size={20} />
               </button>
@@ -233,28 +240,25 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize }: { isOpen: boolean, on
 export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
-  const cart = useCart();
+  const cart = useWooCart();
   const { isRegistered, register } = useUser();
   const navigate = useNavigate();
 
   const handleFinalize = () => {
     setIsCartOpen(false);
-    if (!isRegistered) {
-      setShowRegistration(true);
-    } else {
-      navigate('/checkout');
-    }
+    // Redirigir directamente al carrito de WooCommerce
+    window.location.href = 'https://knwnfood.com/cart/';
   };
 
   const handleRegistrationConfirm = (userData: any) => {
     register(userData);
     setShowRegistration(false);
-    navigate('/checkout');
+    window.location.href = 'https://knwnfood.com/cart/';
   };
 
   const handleSkipToCheckout = () => {
     setShowRegistration(false);
-    navigate('/checkout');
+    window.location.href = 'https://knwnfood.com/cart/';
   };
 
   return (
