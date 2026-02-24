@@ -649,7 +649,7 @@ export default function MenuPage({ cart }: { cart: any }) {
   };
 
   const handleFinalizeClick = () => {
-    window.location.href = 'https://knwnfood.com/cart/';
+    navigate('/checkout');
   };
 
   return (

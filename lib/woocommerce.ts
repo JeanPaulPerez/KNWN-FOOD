@@ -1,13 +1,15 @@
 /**
  * lib/woocommerce.ts
  *
- * Cliente para la WooCommerce REST API y la Store API (cart + checkout).
+ * Cliente headless para WooCommerce Store API.
  *
- * - REST API v3  → productos, órdenes (server-side via proxy)
- * - Store API    → carrito headless con nonce/session cookie (client-side)
+ * - Store API (cart headless) → todas las llamadas van a través de /api/woo-store
+ *   para evitar problemas de CORS. El proxy corre server-side en Vercel.
+ * - REST API v3 (órdenes) → sigue en /api/order (server-side).
+ * - El cart_token de WooCommerce se persiste en localStorage para mantener
+ *   la sesión del carrito entre recargas.
  *
- * IMPORTANTE: Las credenciales (CK/CS) NUNCA se exponen al frontend.
- * Todas las llamadas a la REST API pasan por /api/woo-proxy.
+ * Las credenciales (CK/CS) NUNCA se exponen al frontend.
  */
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -86,37 +88,75 @@ export interface WooOrder {
     total: string;
 }
 
-// ─── Store API (carrito headless — client-side) ────────────────────────────────
+// ─── Configuración ─────────────────────────────────────────────────────────────
 
-const WOO_STORE_URL = import.meta.env.VITE_WC_STORE_URL as string; // e.g. https://knwnfood.com/wp-json/wc/store/v1
+/** Si VITE_WC_STORE_URL está definida, WooCommerce sync está activado */
+const WOO_ENABLED = !!import.meta.env.VITE_WC_STORE_URL;
+
+/** Proxy server-side que evita CORS (Vercel serverless function) */
+const PROXY_BASE = '/api/woo-store';
+
+/** Clave para persistir el cart_token de WooCommerce en localStorage */
+const CART_TOKEN_KEY = 'knwn_cart_token';
+
+// ─── Cart Token ────────────────────────────────────────────────────────────────
+
+function getCartToken(): string | null {
+    try {
+        return localStorage.getItem(CART_TOKEN_KEY);
+    } catch {
+        return null;
+    }
+}
+
+function saveCartToken(token: string | null) {
+    try {
+        if (token) {
+            localStorage.setItem(CART_TOKEN_KEY, token);
+        }
+    } catch {
+        // ignore
+    }
+}
+
+// ─── Proxy fetch ───────────────────────────────────────────────────────────────
 
 /**
- * Obtiene o crea una sesión de carrito WooCommerce.
- * WooCommerce Store API requiere un nonce (X-WC-Store-API-Nonce) para mutaciones.
- * Para sitios headless, usamos un endpoint personalizado o el endpoint de nonce.
+ * Envía una petición al proxy /api/woo-store que reenvía server-side
+ * a la Store API de WooCommerce. El proxy devuelve el Cart-Token
+ * (sesión headless sin cookies).
  */
-async function getStoreNonce(): Promise<string> {
-    const nonceUrl = import.meta.env.VITE_WC_NONCE_URL as string;
-    if (!nonceUrl) return '';
-    try {
-        const res = await fetch(nonceUrl, { credentials: 'include' });
-        if (!res.ok) return '';
-        const data = await res.json();
-        return data.nonce || '';
-    } catch {
-        return '';
-    }
-}
-
-function storeHeaders(nonce?: string): HeadersInit {
-    const h: Record<string, string> = {
+async function proxyFetch(
+    path: string,
+    method: string = 'GET',
+    body?: unknown
+): Promise<Response> {
+    const headers: Record<string, string> = {
         'Content-Type': 'application/json',
     };
-    if (nonce) {
-        h['Nonce'] = nonce;
+
+    // Incluir cart token para identificar la sesión del carrito
+    const token = getCartToken();
+    if (token) {
+        headers['Cart-Token'] = token;
     }
-    return h;
+
+    const res = await fetch(`${PROXY_BASE}?path=${encodeURIComponent(path)}`, {
+        method,
+        headers,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+
+    // Guardar el Cart-Token que devuelve WooCommerce
+    const newToken = res.headers.get('Cart-Token');
+    if (newToken) {
+        saveCartToken(newToken);
+    }
+
+    return res;
 }
+
+// ─── Store API (carrito headless — client-side via proxy) ─────────────────────
 
 /**
  * Agrega un item al carrito de WooCommerce Store API.
@@ -126,17 +166,10 @@ function storeHeaders(nonce?: string): HeadersInit {
 export async function wooAddToCart(
     item: WooCartItemRequest
 ): Promise<WooCartItem | null> {
-    if (!WOO_STORE_URL) return null;
+    if (!WOO_ENABLED) return null;
     try {
-        const nonce = await getStoreNonce();
-        const res = await fetch(`${WOO_STORE_URL}/cart/add-item`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: storeHeaders(nonce),
-            body: JSON.stringify(item),
-        });
-
         console.log('[WooCart] Intentando añadir:', item);
+        const res = await proxyFetch('cart/add-item', 'POST', item);
         console.log('[WooCart] Status:', res.status);
 
         if (!res.ok) {
@@ -157,12 +190,9 @@ export async function wooAddToCart(
  * Obtiene el carrito actual de WooCommerce.
  */
 export async function wooGetCart(): Promise<WooCart | null> {
-    if (!WOO_STORE_URL) return null;
+    if (!WOO_ENABLED) return null;
     try {
-        const res = await fetch(`${WOO_STORE_URL}/cart`, {
-            credentials: 'include',
-            headers: storeHeaders(),
-        });
+        const res = await proxyFetch('cart', 'GET');
         if (!res.ok) return null;
         return await res.json();
     } catch {
@@ -174,15 +204,9 @@ export async function wooGetCart(): Promise<WooCart | null> {
  * Elimina un item del carrito de WooCommerce.
  */
 export async function wooRemoveFromCart(itemKey: string): Promise<boolean> {
-    if (!WOO_STORE_URL) return false;
+    if (!WOO_ENABLED) return false;
     try {
-        const nonce = await getStoreNonce();
-        const res = await fetch(`${WOO_STORE_URL}/cart/remove-item`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: storeHeaders(nonce),
-            body: JSON.stringify({ key: itemKey }),
-        });
+        const res = await proxyFetch('cart/remove-item', 'POST', { key: itemKey });
         return res.ok;
     } catch {
         return false;
@@ -196,15 +220,9 @@ export async function wooUpdateCartItem(
     itemKey: string,
     quantity: number
 ): Promise<boolean> {
-    if (!WOO_STORE_URL) return false;
+    if (!WOO_ENABLED) return false;
     try {
-        const nonce = await getStoreNonce();
-        const res = await fetch(`${WOO_STORE_URL}/cart/update-item`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: storeHeaders(nonce),
-            body: JSON.stringify({ key: itemKey, quantity }),
-        });
+        const res = await proxyFetch('cart/update-item', 'POST', { key: itemKey, quantity });
         return res.ok;
     } catch {
         return false;
@@ -215,14 +233,9 @@ export async function wooUpdateCartItem(
  * Vacía el carrito de WooCommerce.
  */
 export async function wooClearCart(): Promise<boolean> {
-    if (!WOO_STORE_URL) return false;
+    if (!WOO_ENABLED) return false;
     try {
-        const nonce = await getStoreNonce();
-        const res = await fetch(`${WOO_STORE_URL}/cart/items`, {
-            method: 'DELETE',
-            credentials: 'include',
-            headers: storeHeaders(nonce),
-        });
+        const res = await proxyFetch('cart/items', 'DELETE');
         return res.ok;
     } catch {
         return false;

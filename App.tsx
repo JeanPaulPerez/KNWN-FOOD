@@ -246,19 +246,18 @@ export default function App() {
 
   const handleFinalize = () => {
     setIsCartOpen(false);
-    // Redirigir directamente al carrito de WooCommerce
-    window.location.href = 'https://knwnfood.com/cart/';
+    navigate('/checkout');
   };
 
   const handleRegistrationConfirm = (userData: any) => {
     register(userData);
     setShowRegistration(false);
-    window.location.href = 'https://knwnfood.com/cart/';
+    navigate('/checkout');
   };
 
   const handleSkipToCheckout = () => {
     setShowRegistration(false);
-    window.location.href = 'https://knwnfood.com/cart/';
+    navigate('/checkout');
   };
 
   return (
