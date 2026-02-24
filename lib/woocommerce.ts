@@ -1,15 +1,30 @@
 /**
  * lib/woocommerce.ts
  *
- * Cliente headless para WooCommerce Store API.
+ * Cliente headless para WooCommerce Store API y REST API.
  *
- * - Store API (cart headless) → todas las llamadas van a través de /api/woo-store
- *   para evitar problemas de CORS. El proxy corre server-side en Vercel.
- * - REST API v3 (órdenes) → sigue en /api/order (server-side).
- * - El cart_token de WooCommerce se persiste en localStorage para mantener
- *   la sesión del carrito entre recargas.
+ * ARQUITECTURA:
+ * ┌─────────────────────────────────────────────────────────────┐
+ * │  Browser (React App)                                        │
+ * │                                                             │
+ * │  Store API (carrito) ──── fetch con credentials:'include' ─►│
+ * │                                    knwnfood.com/wp-json/    │
+ * │                                    wc/store/v1              │
+ * │                                    └─ WooCommerce setea     │
+ * │                                       cookies de sesión     │
+ * │                                       en el browser         │
+ * │                                                             │
+ * │  Redirect a knwnfood.com/cart/ ──── el browser envía las   │
+ * │                                     cookies → carrito lleno │
+ * └─────────────────────────────────────────────────────────────┘
  *
- * Las credenciales (CK/CS) NUNCA se exponen al frontend.
+ * IMPORTANTE:
+ * - credentials:'include' es esencial → las session cookies de WooCommerce
+ *   se guardan en el browser y se envían al navegar a knwnfood.com/cart/
+ * - La nonce se obtiene del endpoint custom knwn/v1/nonce (plugin WordPress)
+ * - Las credenciales REST API (CK/CS) NUNCA se exponen al frontend
+ * - WordPress necesita CORS configurado para el dominio del frontend
+ *   → ver wordpress/knwn-headless.php
  */
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -88,88 +103,64 @@ export interface WooOrder {
     total: string;
 }
 
-// ─── Configuración ─────────────────────────────────────────────────────────────
+// ─── Store API (carrito headless — llamadas directas con cookies) ──────────────
 
-/** Si VITE_WC_STORE_URL está definida, WooCommerce sync está activado */
-const WOO_ENABLED = !!import.meta.env.VITE_WC_STORE_URL;
-
-/** Proxy server-side que evita CORS (Vercel serverless function) */
-const PROXY_BASE = '/api/woo-store';
-
-/** Clave para persistir el cart_token de WooCommerce en localStorage */
-const CART_TOKEN_KEY = 'knwn_cart_token';
-
-// ─── Cart Token ────────────────────────────────────────────────────────────────
-
-function getCartToken(): string | null {
-    try {
-        return localStorage.getItem(CART_TOKEN_KEY);
-    } catch {
-        return null;
-    }
-}
-
-function saveCartToken(token: string | null) {
-    try {
-        if (token) {
-            localStorage.setItem(CART_TOKEN_KEY, token);
-        }
-    } catch {
-        // ignore
-    }
-}
-
-// ─── Proxy fetch ───────────────────────────────────────────────────────────────
+const WOO_STORE_URL = import.meta.env.VITE_WC_STORE_URL as string;
 
 /**
- * Envía una petición al proxy /api/woo-store que reenvía server-side
- * a la Store API de WooCommerce. El proxy devuelve el Cart-Token
- * (sesión headless sin cookies).
+ * Obtiene el nonce de la Store API desde el endpoint custom de WordPress.
+ * El nonce autentica las mutaciones del carrito (add/remove/update).
+ * El endpoint knwn/v1/nonce debe estar instalado en WordPress.
+ * → ver wordpress/knwn-headless.php
  */
-async function proxyFetch(
-    path: string,
-    method: string = 'GET',
-    body?: unknown
-): Promise<Response> {
-    const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-    };
-
-    // Incluir cart token para identificar la sesión del carrito
-    const token = getCartToken();
-    if (token) {
-        headers['Cart-Token'] = token;
+async function getStoreNonce(): Promise<string> {
+    const nonceUrl = import.meta.env.VITE_WC_NONCE_URL as string;
+    if (!nonceUrl) return '';
+    try {
+        const res = await fetch(nonceUrl, { credentials: 'include' });
+        if (!res.ok) return '';
+        const data = await res.json();
+        return data.nonce || '';
+    } catch {
+        return '';
     }
-
-    const res = await fetch(`${PROXY_BASE}?path=${encodeURIComponent(path)}`, {
-        method,
-        headers,
-        body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
-
-    // Guardar el Cart-Token que devuelve WooCommerce
-    const newToken = res.headers.get('Cart-Token');
-    if (newToken) {
-        saveCartToken(newToken);
-    }
-
-    return res;
 }
 
-// ─── Store API (carrito headless — client-side via proxy) ─────────────────────
+function storeHeaders(nonce?: string): HeadersInit {
+    const h: Record<string, string> = {
+        'Content-Type': 'application/json',
+    };
+    if (nonce) {
+        // Correcto: WooCommerce Store API requiere este header exacto
+        h['X-WC-Store-API-Nonce'] = nonce;
+    }
+    return h;
+}
 
 /**
  * Agrega un item al carrito de WooCommerce Store API.
- * Las customizaciones se incluyen como `item_data` → quedan en el
- * carrito de WooCommerce y persisten hasta el checkout / orden final.
+ *
+ * credentials:'include' → WooCommerce setea una session cookie en el browser.
+ * Esa cookie persiste hasta que el usuario navega a knwnfood.com/cart/,
+ * donde WooCommerce la lee y muestra el carrito con todos los items.
+ *
+ * item_data → las customizaciones se guardan en el carrito de WooCommerce
+ * y aparecen en el admin, correos de confirmación y la orden final.
  */
 export async function wooAddToCart(
     item: WooCartItemRequest
 ): Promise<WooCartItem | null> {
-    if (!WOO_ENABLED) return null;
+    if (!WOO_STORE_URL) return null;
     try {
+        const nonce = await getStoreNonce();
+        const res = await fetch(`${WOO_STORE_URL}/cart/add-item`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: storeHeaders(nonce),
+            body: JSON.stringify(item),
+        });
+
         console.log('[WooCart] Intentando añadir:', item);
-        const res = await proxyFetch('cart/add-item', 'POST', item);
         console.log('[WooCart] Status:', res.status);
 
         if (!res.ok) {
@@ -190,9 +181,12 @@ export async function wooAddToCart(
  * Obtiene el carrito actual de WooCommerce.
  */
 export async function wooGetCart(): Promise<WooCart | null> {
-    if (!WOO_ENABLED) return null;
+    if (!WOO_STORE_URL) return null;
     try {
-        const res = await proxyFetch('cart', 'GET');
+        const res = await fetch(`${WOO_STORE_URL}/cart`, {
+            credentials: 'include',
+            headers: storeHeaders(),
+        });
         if (!res.ok) return null;
         return await res.json();
     } catch {
@@ -204,9 +198,15 @@ export async function wooGetCart(): Promise<WooCart | null> {
  * Elimina un item del carrito de WooCommerce.
  */
 export async function wooRemoveFromCart(itemKey: string): Promise<boolean> {
-    if (!WOO_ENABLED) return false;
+    if (!WOO_STORE_URL) return false;
     try {
-        const res = await proxyFetch('cart/remove-item', 'POST', { key: itemKey });
+        const nonce = await getStoreNonce();
+        const res = await fetch(`${WOO_STORE_URL}/cart/remove-item`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: storeHeaders(nonce),
+            body: JSON.stringify({ key: itemKey }),
+        });
         return res.ok;
     } catch {
         return false;
@@ -220,9 +220,15 @@ export async function wooUpdateCartItem(
     itemKey: string,
     quantity: number
 ): Promise<boolean> {
-    if (!WOO_ENABLED) return false;
+    if (!WOO_STORE_URL) return false;
     try {
-        const res = await proxyFetch('cart/update-item', 'POST', { key: itemKey, quantity });
+        const nonce = await getStoreNonce();
+        const res = await fetch(`${WOO_STORE_URL}/cart/update-item`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: storeHeaders(nonce),
+            body: JSON.stringify({ key: itemKey, quantity }),
+        });
         return res.ok;
     } catch {
         return false;
@@ -233,9 +239,14 @@ export async function wooUpdateCartItem(
  * Vacía el carrito de WooCommerce.
  */
 export async function wooClearCart(): Promise<boolean> {
-    if (!WOO_ENABLED) return false;
+    if (!WOO_STORE_URL) return false;
     try {
-        const res = await proxyFetch('cart/items', 'DELETE');
+        const nonce = await getStoreNonce();
+        const res = await fetch(`${WOO_STORE_URL}/cart/items`, {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: storeHeaders(nonce),
+        });
         return res.ok;
     } catch {
         return false;
@@ -294,7 +305,6 @@ export function customizationsToMeta(
 
 /**
  * Convierte las customizaciones en meta_data para órdenes WooCommerce REST API.
- * Mismo formato, diferente key (meta_data en lugar de item_data).
  */
 export function customizationsToOrderMeta(
     customizations?: Record<string, string | boolean | undefined>,

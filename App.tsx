@@ -223,10 +223,19 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize }: { isOpen: boolean, on
                 </div>
                 <button
                   onClick={onFinalize}
-                  className="w-full py-5 md:py-6 bg-brand-primary text-white rounded-xl md:rounded-[1.5rem] flex items-center justify-center gap-3 group hover:scale-[1.02] transition-all shadow-2xl shadow-brand-primary/30"
+                  disabled={cart.syncing}
+                  className="w-full py-5 md:py-6 bg-brand-primary text-white rounded-xl md:rounded-[1.5rem] flex items-center justify-center gap-3 group hover:scale-[1.02] transition-all shadow-2xl shadow-brand-primary/30 disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
                 >
-                  <span className="uppercase tracking-[0.3em] text-[10px] font-black">Finalize Order</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  {cart.syncing ? (
+                    <span className="uppercase tracking-[0.3em] text-[10px] font-black animate-pulse">
+                      Preparing your cart...
+                    </span>
+                  ) : (
+                    <>
+                      <span className="uppercase tracking-[0.3em] text-[10px] font-black">Checkout</span>
+                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
                 </button>
               </div>
             )}
@@ -244,20 +253,26 @@ export default function App() {
   const { isRegistered, register } = useUser();
   const navigate = useNavigate();
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
+    // Sincronizar con WooCommerce antes de redirigir:
+    // Esto garantiza que el carrito en knwnfood.com/cart/ tenga todos los
+    // items con sus customizaciones (base, salsa, vegetariano, excluir, etc.)
+    await cart.syncAllToWoo();
     setIsCartOpen(false);
-    navigate('/checkout');
+    window.location.href = 'https://knwnfood.com/cart/';
   };
 
-  const handleRegistrationConfirm = (userData: any) => {
+  const handleRegistrationConfirm = async (userData: any) => {
     register(userData);
     setShowRegistration(false);
-    navigate('/checkout');
+    await cart.syncAllToWoo();
+    window.location.href = 'https://knwnfood.com/cart/';
   };
 
-  const handleSkipToCheckout = () => {
+  const handleSkipToCheckout = async () => {
     setShowRegistration(false);
-    navigate('/checkout');
+    await cart.syncAllToWoo();
+    window.location.href = 'https://knwnfood.com/cart/';
   };
 
   return (

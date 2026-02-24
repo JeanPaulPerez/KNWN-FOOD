@@ -236,6 +236,55 @@ export function useWooCart() {
         }
     }, []);
 
+    // ── syncAllToWoo ───────────────────────────────────────────────────────────
+    /**
+     * Sincronización completa garantizada con WooCommerce.
+     *
+     * Llamar antes de redirigir a knwnfood.com/cart/ para asegurar que
+     * TODOS los items con sus customizaciones estén en el carrito de WooCommerce.
+     *
+     * 1. Vacía el carrito de WooCommerce (elimina estado inconsistente)
+     * 2. Re-agrega todos los items locales con sus customizaciones como item_data
+     *    → aparecen en knwnfood.com/cart/, admin, y correos de confirmación
+     */
+    const syncAllToWoo = useCallback(async (): Promise<boolean> => {
+        if (!WOO_ENABLED || items.length === 0) return true;
+        setSyncing(true);
+        try {
+            await wooClearCart();
+
+            const updatedItems = [...items];
+            for (let i = 0; i < updatedItems.length; i++) {
+                const item = updatedItems[i];
+                if (!item._wooProductId) continue;
+
+                const itemData = customizationsToMeta(
+                    item.customizations as Record<string, string | boolean | undefined>,
+                    item.serviceDate,
+                    item.name
+                );
+
+                const wooItem = await wooAddToCart({
+                    id: item._wooProductId,
+                    quantity: item.quantity,
+                    item_data: itemData,
+                });
+
+                if (wooItem?.item_key) {
+                    updatedItems[i] = { ...item, _wooItemKey: wooItem.item_key };
+                }
+            }
+
+            setItems(updatedItems);
+            return true;
+        } catch (e) {
+            console.error('[useWooCart] syncAllToWoo error:', e);
+            return false;
+        } finally {
+            setSyncing(false);
+        }
+    }, [items]);
+
     // ── Totals ─────────────────────────────────────────────────────────────────
     const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
     const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -246,6 +295,7 @@ export function useWooCart() {
         removeItem,
         updateQuantity,
         clearCart,
+        syncAllToWoo,
         total,
         itemCount,
         error,

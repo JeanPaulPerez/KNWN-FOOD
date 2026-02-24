@@ -648,8 +648,9 @@ export default function MenuPage({ cart }: { cart: any }) {
     navigate('/checkout');
   };
 
-  const handleFinalizeClick = () => {
-    navigate('/checkout');
+  const handleFinalizeClick = async () => {
+    await cart.syncAllToWoo();
+    window.location.href = 'https://knwnfood.com/cart/';
   };
 
   return (
@@ -853,10 +854,17 @@ export default function MenuPage({ cart }: { cart: any }) {
                     </div>
                     <button
                       onClick={handleFinalizeClick}
-                      className="w-full py-4 bg-brand-primary text-white rounded-xl flex items-center justify-center gap-2 group hover:scale-[1.02] transition-all shadow-xl shadow-brand-primary/20"
+                      disabled={cart.syncing}
+                      className="w-full py-4 bg-brand-primary text-white rounded-xl flex items-center justify-center gap-2 group hover:scale-[1.02] transition-all shadow-xl shadow-brand-primary/20 disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
                     >
-                      <span className="uppercase tracking-[0.3em] text-[9px] font-black">Finalize</span>
-                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                      {cart.syncing ? (
+                        <span className="uppercase tracking-[0.3em] text-[9px] font-black animate-pulse">Preparing...</span>
+                      ) : (
+                        <>
+                          <span className="uppercase tracking-[0.3em] text-[9px] font-black">Checkout</span>
+                          <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                        </>
+                      )}
                     </button>
                   </div>
                 )}
