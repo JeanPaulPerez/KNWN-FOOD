@@ -14,6 +14,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 12.90,
             image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/MEDITERRANEAN_CHICKEN_iobysa.png",
             tags: ["High-Protein", "Fresh"],
+            wooProductId: 1360,
             customizationOptions: {
               bases: ["Brown rice and quinoa mix", "No rice mix"],
               sauces: ["Tahini-Lemon dressing", "No sauce"],
@@ -31,6 +32,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 15.90,
             image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/BIBI_BAMP_RICE_kczybg.png",
             tags: ["Nutritious", "Balanced"],
+            wooProductId: 1185,
             customizationOptions: {
               bases: ["Brown rice", "White rice", "No rice"],
               sauces: ["Gochujang sauce", "Soy sauce", "No sauce"],
@@ -57,6 +59,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 15.90,
             image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CARNE_ASADA_lfjnlg.png",
             tags: ["Premium", "Steak"],
+            wooProductId: 1449,
             customizationOptions: {
               bases: ["Brown rice", "White rice", "No rice"],
               sauces: ["Chilanga sauce", "No sauce"],
@@ -74,6 +77,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 12.90,
             image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CHICKEN_LIME_rtggkr.png",
             tags: ["Light", "Zesty"],
+            wooProductId: 1450,
             customizationOptions: {
               bases: ["Quinoa", "No quinoa"],
               sauces: ["Lemon creamy dressing", "No sauce"],
@@ -100,6 +104,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 15.90,
             image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CHICKEN_PESTO_PASTA_b8flzw.png",
             tags: ["Italian", "Comfort"],
+            wooProductId: 1452,
             customizationOptions: {
               bases: ["Traditional pasta (única)"],
               sauces: ["Creamy pesto sauce (única)"],
@@ -117,6 +122,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 15.90,
             image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369140/THAI_BEEF_SALAD_ktgza9.png",
             tags: ["Spicy", "Thai"],
+            wooProductId: 1455,
             customizationOptions: {
               bases: ["Quinoa", "No quinoa"],
               sauces: ["Thai dressing", "No sauce"],
@@ -143,6 +149,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 12.90,
             image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/MILANESA_kqpck6.png",
             tags: ["Crispy", "Classic"],
+            wooProductId: 1456,
             customizationOptions: {
               bases: ["Brown rice", "White rice", "No rice"],
               sauces: ["Jalapeño mayo", "Homemade mayo", "No sauce"],
@@ -156,6 +163,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 15.90,
             image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/HARISSA_MEATBALLS_gakt0h.png",
             tags: ["Mediterranean", "Spicy"],
+            wooProductId: 1459,
             customizationOptions: {
               bases: ["Quinoa", "No quinoa"],
               sauces: ["Creamy Mediterranean sauce", "No sauce"],
@@ -182,6 +190,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 12.90,
             image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CRISPY_KOREAN_CHICKEN_khpm4p.png",
             tags: ["Korean", "Crispy"],
+            wooProductId: 1460,
             customizationOptions: {
               bases: ["Brown rice", "White rice", "No rice"],
               sauces: ["Gochujang sauce", "Soy sauce", "No sauce"],
@@ -196,6 +205,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369140/CHICKEN_CESAR_SALAD_vbyfrr.png",
             tags: ["Classic", "Fresh"],
             popular: true,
+            wooProductId: 1463,
             customizationOptions: {
               bases: ["Traditional pasta", "No pasta"],
               sauces: ["Creamy lemon dressing", "No sauce"],

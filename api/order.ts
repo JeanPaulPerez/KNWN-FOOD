@@ -12,16 +12,103 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'Missing required order information.' });
   }
 
-  const orderId = `KNWN-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+  // 1. CREACIÓN DE LA ORDEN EN WOOCOMMERCE
+  let wooOrderId = null;
+  const wcUrl = process.env.VITE_WC_URL;
+  const wcCk = process.env.VITE_WC_CONSUMER_KEY;
+  const wcCs = process.env.VITE_WC_CONSUMER_SECRET;
+
+  if (wcUrl && wcCk && wcCs) {
+    try {
+      // Mapeo de items del frontend a line_items de WooCommerce con meta_data persistente
+      const line_items = payload.items.map((item: any) => {
+        const item_meta = [];
+
+        // Agregar customizaciones como meta_data de la linea
+        if (item.customizations) {
+          if (item.customizations.base) item_meta.push({ key: "Base", value: item.customizations.base });
+          if (item.customizations.protein) item_meta.push({ key: "Proteína", value: item.customizations.protein });
+          if (item.customizations.sauce) item_meta.push({ key: "Salsa", value: item.customizations.sauce });
+          if (item.customizations.avoid) item_meta.push({ key: "Excluir", value: item.customizations.avoid });
+          if (item.customizations.isVegetarian) {
+            item_meta.push({ key: "Vegetariano", value: "Sí" });
+            if (item.customizations.vegInstructions) item_meta.push({ key: "Instrucciones Veg", value: item.customizations.vegInstructions });
+          }
+          if (item.customizations.swap) item_meta.push({ key: "Swap", value: item.customizations.swap });
+        }
+
+        // Fecha de servicio específica para este item
+        if (item.serviceDate) {
+          item_meta.push({ key: "Fecha de Servicio", value: item.serviceDate });
+        }
+
+        return {
+          product_id: item._wooProductId || 0, // Debemos asegurar que el frontend envíe el ID real de WC
+          quantity: item.quantity,
+          meta_data: item_meta
+        };
+      });
+
+      const wooOrderPayload = {
+        payment_method: "cod", // Por defecto Pago contra entrega para esta implementación
+        payment_method_title: "Cash on Delivery",
+        set_paid: false,
+        billing: {
+          first_name: payload.name.split(' ')[0] || payload.name,
+          last_name: payload.name.split(' ').slice(1).join(' ') || "",
+          address_1: payload.address.street,
+          city: payload.address.city,
+          state: "FL",
+          postcode: payload.address.zip,
+          country: "US",
+          email: payload.email,
+          phone: payload.phone
+        },
+        shipping: {
+          first_name: payload.name.split(' ')[0] || payload.name,
+          last_name: payload.name.split(' ').slice(1).join(' ') || "",
+          address_1: payload.address.street,
+          city: payload.address.city,
+          state: "FL",
+          postcode: payload.address.zip,
+          country: "US"
+        },
+        line_items: line_items,
+        customer_note: payload.notes || "",
+        meta_data: [
+          { key: "service_day", value: payload.serviceDay },
+          { key: "order_type", value: "Headless React Order" }
+        ]
+      };
+
+      const auth = Buffer.from(`${wcCk}:${wcCs}`).toString('base64');
+      const response = await fetch(`${wcUrl}/wp-json/wc/v3/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${auth}`
+        },
+        body: JSON.stringify(wooOrderPayload)
+      });
+
+      if (response.ok) {
+        const wooOrder = await response.json();
+        wooOrderId = wooOrder.id;
+      } else {
+        const errLog = await response.json();
+        console.error('WooCommerce API Error:', errLog);
+      }
+    } catch (err) {
+      console.error('Failed to create order in WooCommerce:', err);
+    }
+  }
+
+  const orderId = wooOrderId ? `WC-${wooOrderId}` : `KNWN-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
   const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
 
+  // 2. ENVÍO DE CORREOS (Opcional si WC ya envía correos)
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.warn('⚠️ GMAIL_USER or GMAIL_APP_PASSWORD not set. Emails will not be sent.');
-    return res.status(200).json({
-      success: true,
-      orderId,
-      warning: 'Order processed but emails not sent (system unconfigured).'
-    });
+    return res.status(200).json({ success: true, orderId });
   }
 
   const transporter = nodemailer.createTransport({
@@ -32,17 +119,25 @@ export default async function handler(req: any, res: any) {
     },
   });
 
-  const itemsHtml = payload.items.map((item: any) => `
-    <tr>
-      <td style="padding: 12px; border-bottom: 1px solid #eeeeee;">
-        <div style="font-weight: bold; color: #1a1a1a; font-size: 14px;">${item.name}</div>
-        <div style="font-size: 11px; color: #717171;">Qty: ${item.quantity} × $${item.price.toFixed(2)}</div>
-      </td>
-      <td style="padding: 12px; border-bottom: 1px solid #eeeeee; text-align: right; font-family: serif; font-size: 14px;">
-        $${(item.price * item.quantity).toFixed(2)}
-      </td>
-    </tr>
-  `).join('');
+  const itemsHtml = payload.items.map((item: any) => {
+    const customizations = item.customizations ? Object.entries(item.customizations)
+      .filter(([_, v]) => v)
+      .map(([k, v]) => `<li style="font-size: 11px; color: #717171;">${k}: ${v}</li>`)
+      .join('') : '';
+
+    return `
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #eeeeee;">
+          <div style="font-weight: bold; color: #1a1a1a; font-size: 14px;">${item.name}</div>
+          <div style="font-size: 11px; color: #717171;">Qty: ${item.quantity} × $${item.price.toFixed(2)}</div>
+          <ul style="margin: 5px 0 0 0; padding-left: 15px;">${customizations}</ul>
+        </td>
+        <td style="padding: 12px; border-bottom: 1px solid #eeeeee; text-align: right; font-family: serif; font-size: 14px;">
+          $${(item.price * item.quantity).toFixed(2)}
+        </td>
+      </tr>
+    `;
+  }).join('');
 
   const emailHtml = `
     <!DOCTYPE html>
@@ -51,112 +146,19 @@ export default async function handler(req: any, res: any) {
       <div style="max-width: 600px; margin: auto; background-color: #ffffff; border: 1px solid #e5e1d8; border-radius: 24px; overflow: hidden;">
         <div style="background-color: #1a1a1a; padding: 40px; text-align: center;">
           <h1 style="color: #ffffff; font-family: serif; margin: 0; font-size: 32px;">KNWN<span style="font-style: italic; font-weight: 300;">Food</span></h1>
-          <p style="color: #C5A059; text-transform: uppercase; letter-spacing: 2px; font-size: 10px; margin-top: 10px; font-weight: bold;">New Miami Order</p>
+          <p style="color: #C5A059; text-transform: uppercase; letter-spacing: 2px; font-size: 10px; margin-top: 10px; font-weight: bold;">New Headless Order</p>
         </div>
-        
         <div style="padding: 40px;">
-          <div style="margin-bottom: 30px; border-bottom: 1px solid #eeeeee; padding-bottom: 20px;">
-            <p style="margin: 0; font-size: 12px; color: #717171; text-transform: uppercase;">Order Reference</p>
-            <h2 style="margin: 5px 0 0 0; font-family: monospace; color: #1a1a1a; font-size: 24px;">${orderId}</h2>
-          </div>
-
-          <div style="margin-bottom: 30px;">
-            <p style="margin: 0; font-size: 12px; color: #717171; text-transform: uppercase;">Miami Delivery Address</p>
-            <p style="margin: 5px 0 0 0; font-weight: bold;">${payload.name}</p>
-            <p style="margin: 0;">${payload.address.street}</p>
-            <p style="margin: 0;">Miami, FL ${payload.address.zip}</p>
-            <p style="margin: 10px 0 0 0; font-size: 13px; color: #717171;">Phone: ${payload.phone}</p>
-          </div>
-
+          <h2 style="margin: 0 0 20px 0;">Order #${orderId}</h2>
+          <p><strong>Customer:</strong> ${payload.name}</p>
+          <p><strong>Email:</strong> ${payload.email}</p>
+          <p><strong>Address:</strong> ${payload.address.street}, Miami, FL ${payload.address.zip}</p>
+          <hr style="border: none; border-top: 1px solid #eeeeee; margin: 20px 0;" />
           <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-              <tr style="text-align: left; font-size: 10px; text-transform: uppercase; border-bottom: 2px solid #1a1a1a;">
-                <th style="padding: 12px;">Item</th>
-                <th style="padding: 12px; text-align: right;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHtml}
-            </tbody>
+            ${itemsHtml}
           </table>
-
-          <div style="margin-top: 20px; border-top: 2px solid #1a1a1a; padding-top: 20px;">
-             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <span style="font-size: 13px; color: #717171;">Subtotal</span>
-                <span style="font-size: 13px; font-weight: bold;">$${payload.subtotal.toFixed(2)}</span>
-             </div>
-             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <span style="font-size: 13px; color: #717171;">Tax (2%)</span>
-                <span style="font-size: 13px; font-weight: bold;">$${payload.tax.toFixed(2)}</span>
-             </div>
-             <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                <span style="font-size: 13px; color: #717171;">Tip</span>
-                <span style="font-size: 13px; font-weight: bold;">$${payload.tip.toFixed(2)}</span>
-             </div>
-             <div style="display: flex; justify-content: space-between; padding-top: 15px; border-top: 1px solid #eeeeee;">
-                <span style="font-size: 18px; font-family: serif; font-weight: bold;">Final Total</span>
-                <span style="font-size: 24px; font-family: serif; font-weight: bold; color: #C5A059;">$${payload.total.toFixed(2)}</span>
-             </div>
-          </div>
-
-          ${payload.notes ? `
-            <div style="margin-top: 40px; padding: 20px; background-color: #f9f7f2; border-radius: 12px;">
-              <p style="margin: 0 0 5px 0; font-size: 10px; text-transform: uppercase; font-weight: bold; color: #717171;">Notes</p>
-              <p style="margin: 0; font-style: italic; color: #1a1a1a;">"${payload.notes}"</p>
-            </div>
-          ` : ''}
-
-          <div style="margin-top: 40px; text-align: center; border-top: 1px solid #eeeeee; padding-top: 30px;">
-            <p style="font-size: 11px; color: #717171; text-transform: uppercase;">Received via KNWN Portal • ${timestamp} ET</p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  const customerEmailHtml = `
-    <!DOCTYPE html>
-    <html>
-    <body style="font-family: sans-serif; background-color: #f9f7f2; color: #1a1a1a; margin: 0; padding: 40px;">
-      <div style="max-width: 600px; margin: auto; background-color: #ffffff; border: 1px solid #e5e1d8; border-radius: 24px; overflow: hidden;">
-        <div style="background-color: #1a1a1a; padding: 40px; text-align: center;">
-          <h1 style="color: #ffffff; font-family: serif; margin: 0; font-size: 32px;">KNWN<span style="font-style: italic; font-weight: 300;">Food</span></h1>
-          <p style="color: #C5A059; text-transform: uppercase; letter-spacing: 2px; font-size: 10px; margin-top: 10px; font-weight: bold;">Order Confirmed</p>
-        </div>
-        
-        <div style="padding: 40px;">
-          <div style="margin-bottom: 30px;">
-            <h2 style="font-family: serif; font-size: 24px; margin-top: 0;">Thank you, ${payload.name.split(' ')[0]}.</h2>
-            <p style="color: #717171; font-size: 14px; line-height: 1.6;">Your order has been received and is being prepared by our chef. Below are your order details for ${payload.serviceDay}.</p>
-          </div>
-
-          <div style="margin-bottom: 30px; border-top: 1px solid #eeeeee; padding-top: 20px;">
-            <p style="margin: 0; font-size: 10px; color: #717171; text-transform: uppercase; letter-spacing: 1px;">Order Number</p>
-            <p style="margin: 5px 0 0 0; font-family: monospace; font-weight: bold; font-size: 18px;">${orderId}</p>
-          </div>
-
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <thead style="border-bottom: 2px solid #1a1a1a;">
-              <tr>
-                <th style="padding: 12px; text-align: left; font-size: 10px; text-transform: uppercase;">Item</th>
-                <th style="padding: 12px; text-align: right; font-size: 10px; text-transform: uppercase;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHtml}
-            </tbody>
-          </table>
-
-          <div style="border-top: 2px solid #1a1a1a; padding-top: 20px;">
-             <div style="display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #eeeeee; padding-bottom: 15px;">
-                <span style="font-size: 16px; font-family: serif; font-weight: bold;">Total Paid</span>
-                <span style="font-size: 18px; font-family: serif; font-weight: bold; color: #C5A059;">$${payload.total.toFixed(2)}</span>
-             </div>
-          </div>
-
-          <div style="margin-top: 40px; padding: 20px; background-color: #f9f7f2; border-radius: 12px; text-align: center;">
-            <p style="margin: 0; font-size: 13px; color: #1a1a1a;">Our team will contact you at <strong>${payload.phone}</strong> when your delivery is near.</p>
+          <div style="margin-top: 20px; text-align: right;">
+            <p style="font-size: 18px; font-weight: bold;">Total: $${payload.total.toFixed(2)}</p>
           </div>
         </div>
       </div>
@@ -165,25 +167,17 @@ export default async function handler(req: any, res: any) {
   `;
 
   try {
-    // 1. Send Order Notification to Merchant
     await transporter.sendMail({
       from: `"KNWN Portal" <${process.env.GMAIL_USER}>`,
-      to: "jeanpaul232004@gmail.com",
+      to: process.env.ORDER_RECEIVER_EMAIL || "jeanpaul232004@gmail.com",
       subject: `🚨 NEW ORDER: ${orderId} - ${payload.name}`,
       html: emailHtml,
-    });
-
-    // 2. Send Confirmation to Customer
-    await transporter.sendMail({
-      from: `"KNWN Food" <${process.env.GMAIL_USER}>`,
-      to: payload.email,
-      subject: `Your KNWN Food Order Confirmation [${orderId}]`,
-      html: customerEmailHtml,
     });
 
     return res.status(200).json({ success: true, orderId });
   } catch (error: any) {
     console.error('Email error:', error);
-    return res.status(500).json({ error: 'Order failed to process due to mailing service issues.' });
+    return res.status(200).json({ success: true, orderId, warning: 'Order saved in WC but email failed.' });
   }
 }
+

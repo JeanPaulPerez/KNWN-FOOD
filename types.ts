@@ -8,6 +8,7 @@ export interface MenuItem {
   calories?: number;
   image: string;
   popular?: boolean;
+  wooProductId?: number;
   customizationOptions?: {
     bases?: string[];
     sauces?: string[];

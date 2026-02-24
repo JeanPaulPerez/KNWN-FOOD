@@ -438,8 +438,8 @@ const MiniCalendar: React.FC<{
         </div>
       </div>
       <div className="grid grid-cols-7 gap-2 mb-6">
-        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-          <div key={d} className="text-[10px] font-black text-brand-primary/20 text-center uppercase tracking-[0.3em]">{d}</div>
+        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+          <div key={`${d}-${i}`} className="text-[10px] font-black text-brand-primary/20 text-center uppercase tracking-[0.3em]">{d}</div>
         ))}
       </div>
       <div className="grid grid-cols-7 gap-2">
@@ -631,7 +631,7 @@ export default function MenuPage({ cart }: { cart: any }) {
   const handleCustomizationConfirm = (customs: any) => {
     if (customizingItem) {
       // 1. Add item to cart
-      addItem(customizingItem.item, customizingItem.date, customs);
+      addItem(customizingItem.item, customizingItem.date, customs, customizingItem.item.wooProductId);
 
       // 2. Find next available service date relative to the item's date
       const nextDate = findNextServiceDay(customizingItem.date);
@@ -649,11 +649,7 @@ export default function MenuPage({ cart }: { cart: any }) {
   };
 
   const handleFinalizeClick = () => {
-    if (!isRegistered) {
-      setShowRegistration(true);
-    } else {
-      navigate('/checkout');
-    }
+    window.location.href = 'https://knwnfood.com/cart/';
   };
 
   return (
