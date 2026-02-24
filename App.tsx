@@ -117,7 +117,7 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
 };
 
 
-const CartDrawer = ({ isOpen, onClose, cart, onFinalize }: { isOpen: boolean, onClose: () => void, cart: any, onFinalize: () => void }) => {
+const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpen: boolean, onClose: () => void, cart: any, onFinalize: () => void, isFinalizing?: boolean }) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -246,19 +246,18 @@ export default function App() {
 
   const handleFinalize = () => {
     setIsCartOpen(false);
-    // Redirigir directamente al carrito de WooCommerce
-    window.location.href = 'https://knwnfood.com/cart/';
+    navigate('/checkout');
   };
 
   const handleRegistrationConfirm = (userData: any) => {
     register(userData);
     setShowRegistration(false);
-    window.location.href = 'https://knwnfood.com/cart/';
+    window.location.href = 'https://knwnfood.com/checkout/';
   };
 
   const handleSkipToCheckout = () => {
     setShowRegistration(false);
-    window.location.href = 'https://knwnfood.com/cart/';
+    window.location.href = 'https://knwnfood.com/checkout/';
   };
 
   return (

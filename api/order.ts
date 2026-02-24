@@ -8,15 +8,16 @@ export default async function handler(req: any, res: any) {
 
   const payload = req.body;
 
-  if (!payload.email || !payload.items || payload.items.length === 0) {
+  if (!payload.items || payload.items.length === 0) {
     return res.status(400).json({ error: 'Missing required order information.' });
   }
 
   // 1. CREACIÓN DE LA ORDEN EN WOOCOMMERCE
-  let wooOrderId = null;
-  const wcUrl = process.env.VITE_WC_URL;
-  const wcCk = process.env.VITE_WC_CONSUMER_KEY;
-  const wcCs = process.env.VITE_WC_CONSUMER_SECRET;
+  let wooOrderId: number | null = null;
+  let wooOrderKey: string | null = null;
+  const wcUrl = process.env.WC_URL?.trim();
+  const wcCk = process.env.WC_CONSUMER_KEY?.trim();
+  const wcCs = process.env.WC_CONSUMER_SECRET?.trim();
 
   if (wcUrl && wcCk && wcCs) {
     try {
@@ -50,27 +51,27 @@ export default async function handler(req: any, res: any) {
       });
 
       const wooOrderPayload = {
-        payment_method: "cod", // Por defecto Pago contra entrega para esta implementación
-        payment_method_title: "Cash on Delivery",
+        payment_method: "stripe",
+        payment_method_title: "Credit Card (Stripe)",
         set_paid: false,
         billing: {
-          first_name: payload.name.split(' ')[0] || payload.name,
-          last_name: payload.name.split(' ').slice(1).join(' ') || "",
-          address_1: payload.address.street,
-          city: payload.address.city,
+          first_name: payload.name ? payload.name.split(' ')[0] : "",
+          last_name: payload.name ? payload.name.split(' ').slice(1).join(' ') : "",
+          address_1: payload.address?.street || "",
+          city: payload.address?.city || "",
           state: "FL",
-          postcode: payload.address.zip,
+          postcode: payload.address?.zip || "",
           country: "US",
-          email: payload.email,
-          phone: payload.phone
+          email: payload.email || "pending@knwnfood.com",
+          phone: payload.phone || ""
         },
         shipping: {
-          first_name: payload.name.split(' ')[0] || payload.name,
-          last_name: payload.name.split(' ').slice(1).join(' ') || "",
-          address_1: payload.address.street,
-          city: payload.address.city,
+          first_name: payload.name ? payload.name.split(' ')[0] : "",
+          last_name: payload.name ? payload.name.split(' ').slice(1).join(' ') : "",
+          address_1: payload.address?.street || "",
+          city: payload.address?.city || "",
           state: "FL",
-          postcode: payload.address.zip,
+          postcode: payload.address?.zip || "",
           country: "US"
         },
         line_items: line_items,
@@ -81,19 +82,19 @@ export default async function handler(req: any, res: any) {
         ]
       };
 
-      const auth = Buffer.from(`${wcCk}:${wcCs}`).toString('base64');
-      const response = await fetch(`${wcUrl}/wp-json/wc/v3/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${auth}`
-        },
-        body: JSON.stringify(wooOrderPayload)
-      });
+      const response = await fetch(
+        `${wcUrl}/wp-json/wc/v3/orders?consumer_key=${wcCk}&consumer_secret=${wcCs}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(wooOrderPayload),
+        }
+      );
 
       if (response.ok) {
         const wooOrder = await response.json();
         wooOrderId = wooOrder.id;
+        wooOrderKey = wooOrder.order_key;
       } else {
         const errLog = await response.json();
         console.error('WooCommerce API Error:', errLog);
@@ -106,9 +107,9 @@ export default async function handler(req: any, res: any) {
   const orderId = wooOrderId ? `WC-${wooOrderId}` : `KNWN-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
   const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
 
-  // 2. ENVÍO DE CORREOS (Opcional si WC ya envía correos)
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    return res.status(200).json({ success: true, orderId });
+  // 2. ENVÍO DE CORREOS (solo si tenemos email del cliente)
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD || !payload.email) {
+    return res.status(200).json({ success: true, orderId, wooOrderId, wooOrderKey });
   }
 
   const transporter = nodemailer.createTransport({
@@ -174,10 +175,10 @@ export default async function handler(req: any, res: any) {
       html: emailHtml,
     });
 
-    return res.status(200).json({ success: true, orderId });
+    return res.status(200).json({ success: true, orderId, wooOrderId, wooOrderKey });
   } catch (error: any) {
     console.error('Email error:', error);
-    return res.status(200).json({ success: true, orderId, warning: 'Order saved in WC but email failed.' });
+    return res.status(200).json({ success: true, orderId, wooOrderId, wooOrderKey, warning: 'Order saved in WC but email failed.' });
   }
 }
 
