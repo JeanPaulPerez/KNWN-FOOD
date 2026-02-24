@@ -170,7 +170,7 @@ export default async function handler(req: any, res: any) {
   try {
     await transporter.sendMail({
       from: `"KNWN Portal" <${process.env.GMAIL_USER}>`,
-      to: process.env.ORDER_RECEIVER_EMAIL || "jeanpaul232004@gmail.com",
+      to: process.env.ORDER_RECEIVER_EMAIL,
       subject: `🚨 NEW ORDER: ${orderId} - ${payload.name}`,
       html: emailHtml,
     });
