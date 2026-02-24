@@ -11,7 +11,7 @@
  *   - Checks expiry and usage limits.
  */
 
-const FREE_COUPON_CODE = process.env.FREE_COUPON_CODE ?? '';
+const FREE_COUPON_CODE = (process.env.FREE_COUPON_CODE ?? '').trim().toUpperCase();
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
