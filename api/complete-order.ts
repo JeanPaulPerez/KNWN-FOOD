@@ -1,21 +1,117 @@
 /**
  * api/complete-order.ts
  *
- * Final step: creates the order in WooCommerce (deducts inventory, registers purchase).
+ * SPLIT ORDER LOGIC:
+ * Each item in the cart generates its own separate WooCommerce order.
  *
- * TWO PATHS:
+ * Example: cart with 3 meals → WC Order #1001, #1002, #1003
+ * Each order shares the same: customer info, coupon, payment details.
  *
- * 1. FREE ORDER (isFree: true — e.g. REALFOOD113 coupon applied):
+ * TWO PAYMENT PATHS:
+ *
+ * 1. FREE ORDER (isFree: true — e.g. REALFOOD113):
  *    - Skips Stripe entirely.
- *    - Creates WooCommerce order with status "processing" immediately.
- *    - Used to validate WooCommerce connection and inventory deduction.
+ *    - Creates one WooCommerce order per item, status "processing".
  *
  * 2. PAID ORDER (isFree: false):
- *    - Verifies the Stripe PaymentIntent status is "succeeded" server-side.
- *    - Only THEN creates the WooCommerce order (prevents fraud/double-orders).
- *    - Sets order status to "processing".
+ *    - Verifies Stripe PaymentIntent "succeeded" ONCE before any order is created.
+ *    - Then creates one WooCommerce order per item (all share the same paymentIntentId).
+ *    - If any individual order fails, the others still succeed — errors are collected.
  */
 
+// ─── Helper: build customization meta_data for a single item ──────────────────
+function buildItemMeta(item: any): { key: string; value: string }[] {
+  const meta: { key: string; value: string }[] = [];
+  const c = item.customizations;
+
+  if (c) {
+    if (c.base)             meta.push({ key: 'Base',             value: c.base });
+    if (c.sauce)            meta.push({ key: 'Salsa',            value: c.sauce });
+    if (c.protein)          meta.push({ key: 'Proteína',         value: c.protein });
+    if (c.avoid)            meta.push({ key: 'Excluir',          value: c.avoid });
+    if (c.isVegetarian)     meta.push({ key: 'Vegetariano',      value: 'Sí' });
+    if (c.vegInstructions)  meta.push({ key: 'Instrucciones Veg', value: c.vegInstructions });
+    if (c.swap)             meta.push({ key: 'Swap',             value: c.swap });
+  }
+  if (item.serviceDate) {
+    meta.push({ key: 'Fecha de Servicio', value: item.serviceDate });
+  }
+  return meta;
+}
+
+// ─── Helper: create a single WooCommerce order for one item ───────────────────
+async function createWooOrder(
+  item: any,
+  customerInfo: any,
+  couponCode: string | null,
+  paymentIntentId: string | null,
+  isFree: boolean,
+  wcUrl: string,
+  wcCk: string,
+  wcCs: string,
+): Promise<{ id: number; order_key: string } | null> {
+  const payload = {
+    status: 'processing',
+    set_paid: true,
+    payment_method: isFree ? 'free_coupon' : 'stripe',
+    payment_method_title: isFree ? 'Free (100% Promo)' : 'Credit Card (Stripe)',
+    billing: {
+      first_name: customerInfo.name?.split(' ')[0] || '',
+      last_name:  customerInfo.name?.split(' ').slice(1).join(' ') || '',
+      address_1:  customerInfo.street || '',
+      city:       customerInfo.city || 'Miami',
+      state:      'FL',
+      postcode:   customerInfo.zip || '',
+      country:    'US',
+      email:      customerInfo.email || '',
+      phone:      customerInfo.phone || '',
+    },
+    shipping: {
+      first_name: customerInfo.name?.split(' ')[0] || '',
+      last_name:  customerInfo.name?.split(' ').slice(1).join(' ') || '',
+      address_1:  customerInfo.street || '',
+      city:       customerInfo.city || 'Miami',
+      state:      'FL',
+      postcode:   customerInfo.zip || '',
+      country:    'US',
+    },
+    // One line item per order
+    line_items: [{
+      product_id: item._wooProductId || 0,
+      quantity:   item.quantity,
+      meta_data:  buildItemMeta(item),
+    }],
+    // Coupon applied to each order so WooCommerce shows the correct discounted total
+    coupon_lines: couponCode ? [{ code: couponCode }] : [],
+    customer_note: customerInfo.notes || '',
+    meta_data: [
+      { key: 'order_source',          value: 'headless-react' },
+      { key: 'stripe_payment_intent', value: paymentIntentId || 'N/A (free order)' },
+    ],
+  };
+
+  try {
+    const response = await fetch(
+      `${wcUrl}/wp-json/wc/v3/orders?consumer_key=${wcCk}&consumer_secret=${wcCs}`,
+      {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      }
+    );
+    if (!response.ok) {
+      const err = await response.json();
+      console.error(`[WooCommerce] Failed for item "${item.name}":`, err);
+      return null;
+    }
+    return await response.json();
+  } catch (err) {
+    console.error(`[WooCommerce] Exception for item "${item.name}":`, err);
+    return null;
+  }
+}
+
+// ─── Main handler ─────────────────────────────────────────────────────────────
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -27,7 +123,7 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'No items in order' });
   }
 
-  // ── PAID FLOW: Verify Stripe payment before creating the order ─────────────
+  // ── PAID FLOW: Verify Stripe payment ONCE before creating any orders ────────
   if (!isFree) {
     if (!paymentIntentId) {
       return res.status(400).json({ error: 'Payment confirmation is required' });
@@ -35,121 +131,54 @@ export default async function handler(req: any, res: any) {
     if (!process.env.STRIPE_SECRET_KEY) {
       return res.status(500).json({ error: 'Payment system not configured' });
     }
-
     try {
-      const piRes = await fetch(`https://api.stripe.com/v1/payment_intents/${paymentIntentId}`, {
-        headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}` },
-      });
+      const piRes = await fetch(
+        `https://api.stripe.com/v1/payment_intents/${paymentIntentId}`,
+        { headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}` } }
+      );
       const pi = await piRes.json() as any;
-      // Only proceed if Stripe confirms the payment actually succeeded
       if (pi.status !== 'succeeded') {
         return res.status(400).json({ error: `Payment not confirmed (status: ${pi.status})` });
       }
-    } catch (err: any) {
+    } catch {
       return res.status(400).json({ error: 'Could not verify payment with Stripe' });
     }
   }
 
-  // ── Build WooCommerce line items with customization metadata ───────────────
-  const line_items = items.map((item: any) => {
-    const meta_data: { key: string; value: string }[] = [];
-
-    if (item.customizations) {
-      if (item.customizations.base)        meta_data.push({ key: 'Base', value: item.customizations.base });
-      if (item.customizations.sauce)       meta_data.push({ key: 'Salsa', value: item.customizations.sauce });
-      if (item.customizations.protein)     meta_data.push({ key: 'Proteína', value: item.customizations.protein });
-      if (item.customizations.avoid)       meta_data.push({ key: 'Excluir', value: item.customizations.avoid });
-      if (item.customizations.isVegetarian) meta_data.push({ key: 'Vegetariano', value: 'Sí' });
-      if (item.customizations.vegInstructions) meta_data.push({ key: 'Instrucciones Veg', value: item.customizations.vegInstructions });
-      if (item.customizations.swap)        meta_data.push({ key: 'Swap', value: item.customizations.swap });
-    }
-
-    if (item.serviceDate) {
-      meta_data.push({ key: 'Fecha de Servicio', value: item.serviceDate });
-    }
-
-    return {
-      product_id: item._wooProductId || 0,
-      quantity: item.quantity,
-      meta_data,
-    };
-  });
-
-  // Pass coupon to WooCommerce so it applies the discount natively —
-  // this makes the order total show $0.00 in admin, emails, and confirmations.
-  const coupon_lines = couponCode ? [{ code: couponCode }] : [];
-
-  const wooPayload = {
-    // FREE ORDER: mark as processing directly (bypasses payment gateway)
-    // PAID ORDER: mark as processing after Stripe confirms
-    status: 'processing',
-    set_paid: true,
-    payment_method: isFree ? 'free_coupon' : 'stripe',
-    payment_method_title: isFree ? 'Free (100% Promo)' : 'Credit Card (Stripe)',
-    billing: {
-      first_name: customerInfo.name?.split(' ')[0] || '',
-      last_name: customerInfo.name?.split(' ').slice(1).join(' ') || '',
-      address_1: customerInfo.street || '',
-      city: customerInfo.city || 'Miami',
-      state: 'FL',
-      postcode: customerInfo.zip || '',
-      country: 'US',
-      email: customerInfo.email || '',
-      phone: customerInfo.phone || '',
-    },
-    shipping: {
-      first_name: customerInfo.name?.split(' ')[0] || '',
-      last_name: customerInfo.name?.split(' ').slice(1).join(' ') || '',
-      address_1: customerInfo.street || '',
-      city: customerInfo.city || 'Miami',
-      state: 'FL',
-      postcode: customerInfo.zip || '',
-      country: 'US',
-    },
-    line_items,
-    coupon_lines,
-    customer_note: customerInfo.notes || '',
-    meta_data: [
-      { key: 'order_source', value: 'headless-react' },
-      { key: 'stripe_payment_intent', value: paymentIntentId || 'N/A (free order)' },
-    ],
-  };
-
-  // ── Create order in WooCommerce ────────────────────────────────────────────
   const wcUrl = process.env.WC_URL?.trim();
-  const wcCk = process.env.WC_CONSUMER_KEY?.trim();
-  const wcCs = process.env.WC_CONSUMER_SECRET?.trim();
+  const wcCk  = process.env.WC_CONSUMER_KEY?.trim();
+  const wcCs  = process.env.WC_CONSUMER_SECRET?.trim();
+  const wcReady = !!(wcUrl && wcCk && wcCs);
 
-  let wooOrderId: number | null = null;
-  let wooOrderKey: string | null = null;
+  // ── SPLIT: Create one WooCommerce order per item ───────────────────────────
+  // Orders are created in parallel for speed.
+  const orderResults = await Promise.all(
+    items.map(async (item: any) => {
+      let wooOrderId: number | null = null;
+      let wooOrderKey: string | null = null;
 
-  if (wcUrl && wcCk && wcCs) {
-    try {
-      const response = await fetch(
-        `${wcUrl}/wp-json/wc/v3/orders?consumer_key=${wcCk}&consumer_secret=${wcCs}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(wooPayload),
+      if (wcReady) {
+        const wooOrder = await createWooOrder(
+          item, customerInfo, couponCode, paymentIntentId, isFree,
+          wcUrl!, wcCk!, wcCs!
+        );
+        if (wooOrder) {
+          wooOrderId  = wooOrder.id;
+          wooOrderKey = wooOrder.order_key;
         }
-      );
-
-      if (response.ok) {
-        const order = await response.json();
-        wooOrderId = order.id;
-        wooOrderKey = order.order_key;
-      } else {
-        const errLog = await response.json();
-        console.error('[WooCommerce] Order creation failed:', errLog);
       }
-    } catch (err) {
-      console.error('[WooCommerce] Exception:', err);
-    }
-  }
 
-  const orderId = wooOrderId
-    ? `WC-${wooOrderId}`
-    : `KNWN-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+      return {
+        itemName:   item.name,
+        itemId:     item.id,
+        orderId:    wooOrderId
+          ? `WC-${wooOrderId}`
+          : `KNWN-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
+        wooOrderId,
+        wooOrderKey,
+      };
+    })
+  );
 
-  return res.json({ success: true, orderId, wooOrderId, wooOrderKey });
+  return res.json({ success: true, orders: orderResults });
 }
