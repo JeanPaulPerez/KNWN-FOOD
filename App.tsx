@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, X, Menu as MenuIcon, ChevronRight, AlertTriangle, Calendar, ArrowRight } from 'lucide-react';
+import Home from './pages/Home';
 import MenuPage from './pages/MenuPage';
 import Checkout from './pages/Checkout';
 import ThankYou from './pages/ThankYou';
@@ -10,7 +11,6 @@ import About from './pages/About';
 import { useWooCart } from './store/useWooCart';
 import { useUser } from './store/useUser';
 import RegistrationModal from './components/RegistrationModal';
-import { useNavigate } from 'react-router-dom';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -39,12 +39,12 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
       <div className="hidden md:flex"></div>
 
       {/* Desktop Navigation Right */}
-      <div className="hidden md:flex gap-8 items-center flex-1 justify-end">
+      <div className="hidden md:flex gap-10 items-center flex-1 justify-end font-sans">
         <Link
           to="/menu"
           className={cn(
-            "text-[15px] uppercase tracking-[0.3em] font-black py-2 px-4 rounded-full border border-transparent transition-all hover:border-brand-primary/20",
-            location.pathname === '/menu' ? "text-brand-primary border-brand-primary/20" : "text-brand-primary/60"
+            "text-[13px] uppercase tracking-[0.2em] font-black transition-all hover:text-brand-primary",
+            location.pathname === '/menu' ? "text-brand-primary" : "text-brand-primary/60"
           )}
         >
           Menu
@@ -52,20 +52,29 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
         <Link
           to="/about"
           className={cn(
-            "text-[15px] uppercase tracking-[0.3em] font-black py-2 px-4 rounded-full border border-transparent transition-all hover:border-brand-primary/20",
-            location.pathname === '/about' ? "text-brand-primary border-brand-primary/20" : "text-brand-primary/60"
+            "text-[13px] uppercase tracking-[0.2em] font-black transition-all hover:text-brand-primary",
+            location.pathname === '/about' ? "text-brand-primary" : "text-brand-primary/60"
           )}
         >
-          Story
+          Why Knwn
         </Link>
+
+        <Link
+          to="/menu"
+          className="px-8 py-3 bg-brand-primary text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:scale-105 transition-transform shadow-lg shadow-brand-primary/10 flex items-center gap-2"
+        >
+          Order now
+          <ArrowRight size={14} />
+        </Link>
+
         <div className="flex items-center gap-6 pl-4 border-l border-brand-primary/10">
           <button
             onClick={onOpenCart}
-            className="relative p-3 bg-brand-primary text-white rounded-full transition-transform hover:scale-110 shadow-lg shadow-brand-primary/20"
+            className="relative p-3 bg-white text-brand-primary border border-brand-primary/10 rounded-full transition-transform hover:scale-110"
           >
             <ShoppingBag size={18} strokeWidth={2.5} />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-white text-brand-primary text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-black shadow-sm">
+              <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-black shadow-sm">
                 {cartCount}
               </span>
             )}
@@ -266,7 +275,7 @@ export default function App() {
 
       <main className="flex-1">
         <Routes>
-          <Route path="/" element={<MenuPage cart={cart} />} />
+          <Route path="/" element={<Home />} />
           <Route path="/menu" element={<MenuPage cart={cart} />} />
           <Route path="/checkout" element={<Checkout cart={cart} />} />
           <Route path="/thank-you" element={<ThankYou />} />
