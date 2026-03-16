@@ -1,76 +1,178 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
 export default function About() {
   return (
     <div className="bg-[#F5F3FF] min-h-screen">
-      <section className="pt-32 md:pt-64 pb-16 md:pb-32 px-4 md:px-12 max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-5xl space-y-8 md:space-y-16"
-        >
-          <span className="text-brand-primary/40 uppercase tracking-[0.4em] text-[9px] md:text-[10px] font-black border-l-2 border-brand-primary pl-4 md:pl-6 py-1">The Narrative</span>
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-serif leading-[1] md:leading-[0.8] tracking-tighter text-brand-primary">
-            Architecting <br /><span className="italic font-light text-brand-primary/60">Modern Dining.</span>
-          </h1>
-          <p className="text-lg md:text-2xl lg:text-4xl text-brand-primary/50 font-medium leading-relaxed max-w-3xl italic">
-            KNWN Food was born from a simple realization: high-end restaurant quality should be accessible without the friction of traditional dining.
-          </p>
-        </motion.div>
+
+      {/* ─── HERO ──────────────────────────────────────────────────────────── */}
+      <section className="relative pt-24 pb-20 md:pt-32 md:pb-28 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-4xl space-y-6"
+          >
+            <span className="text-brand-primary/40 uppercase tracking-[0.4em] text-[10px] font-black">Our Story</span>
+            <h1 className="text-5xl sm:text-7xl md:text-8xl font-extrabold leading-[0.9] tracking-tight text-brand-primary">
+              We're just two guys who{' '}
+              <span className="font-serif italic font-normal text-brand-orange">got tired of bad lunch.</span>
+            </h1>
+          </motion.div>
+        </div>
       </section>
 
-      <section className="py-24 md:py-48 px-4 md:px-12 bg-white rounded-3xl md:rounded-[4rem] mx-4 md:mx-8 mb-8 shadow-2xl shadow-brand-primary/5 border border-brand-primary/5">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center">
-          <div className="space-y-8 md:space-y-16 order-2 lg:order-1">
-            <h2 className="text-5xl md:text-7xl font-serif text-brand-primary leading-[0.9] tracking-tighter">The Culinary <br /><span className="italic font-light">Ecosystem.</span></h2>
-            <div className="space-y-6 md:space-y-8 text-brand-primary/60 font-medium leading-relaxed text-base md:text-lg">
-              <p>
-                Contrary to standard logistics, we prioritize the integrity of the ingredient. By operating a digital-first kitchen, we redirect our focus into sourcing exceptional products and giving our team the space to innovate.
-              </p>
-              <p className="italic">
-                Our model is a commitment to precision. By identifying demand in advance, we eliminate the structural waste inherent in traditional hospitality.
-              </p>
+      {/* ─── FOUNDERS ──────────────────────────────────────────────────────── */}
+      <section className="py-16 md:py-24 px-6 bg-white">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+          {/* Image */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="relative"
+          >
+            <div className="rounded-3xl overflow-hidden shadow-2xl shadow-brand-primary/10">
+              <img
+                src="/assets/about/founders.webp"
+                alt="Daniel and Choco, KNWN founders"
+                className="w-full h-[420px] md:h-[580px] object-cover"
+              />
             </div>
-          </div>
-          <div className="rounded-[2.5rem] md:rounded-[4rem] overflow-hidden aspect-square sm:aspect-[4/5] shadow-[0_40px_100px_rgba(43,28,112,0.1)] relative group order-1 lg:order-2">
-            <div className="absolute inset-0 bg-brand-primary/10 group-hover:opacity-0 transition-opacity duration-1000 z-10" />
-            <img
-              src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=1000"
-              className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
-              alt="Culinary precision"
+            {/* Floating sticker */}
+            <motion.img
+              src="/assets/stickers/real-ingredients.png"
+              alt="Real ingredients"
+              animate={{ rotate: [10, 16, 10] }}
+              transition={{ repeat: Infinity, duration: 5 }}
+              className="absolute -bottom-4 -right-4 w-28 md:w-36 drop-shadow-xl z-10"
             />
+          </motion.div>
+
+          {/* Text */}
+          <div className="space-y-7">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-brand-primary leading-tight">
+              Born from frustration.{' '}
+              <span className="font-serif italic font-normal text-brand-orange">Built with purpose.</span>
+            </h2>
+
+            <div className="space-y-4 text-brand-primary/60 leading-relaxed text-sm md:text-base font-medium">
+              <p>
+                We were working long days in Miami — back-to-back meetings, no time to cook, and the same three delivery apps cycling through overpriced mediocrity. The "healthy" options were either boring, expensive, or both.
+              </p>
+              <p>
+                So we started cooking. Not as a side project. As a{' '}
+                <span className="font-bold text-brand-primary">genuine attempt to solve the lunch problem</span>{' '}
+                for people who work hard and eat way worse than they should.
+              </p>
+              <p>
+                KNWN started in a small kitchen. We built the menu around one question:{' '}
+                <span className="font-bold text-brand-primary italic">what would we actually want to eat five days a week?</span>
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 pt-2">
+              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-primary/20">
+                <img src="/assets/about/founders.webp" alt="Daniel" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <p className="font-bold text-brand-primary text-sm">Daniel & Choco</p>
+                <p className="text-brand-primary/40 text-xs">Co-founders, KNWN Food</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-24 md:py-48 px-4 md:px-12 max-w-7xl mx-auto text-center">
-        <div className="max-w-4xl mx-auto space-y-16 md:space-y-24">
-          <div className="space-y-6 md:space-y-8">
-            <h2 className="text-5xl md:text-7xl font-serif text-brand-primary leading-tight md:leading-none tracking-tighter italic">Reimagining <br /><span className="not-italic">Expectations.</span></h2>
-            <p className="text-lg md:text-xl text-brand-primary/40 font-medium leading-relaxed max-w-2xl mx-auto">
-              Planning for tomorrow is a conscious choice. It's a commitment to efficiency, quality, and your own well-being.
-            </p>
-          </div>
+      {/* ─── KITCHEN GALLERY ───────────────────────────────────────────────── */}
+      <section className="py-16 md:py-24 px-6 bg-[#F5F3FF]">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-brand-primary">
+            Inside our{' '}
+            <span className="font-serif italic font-normal">kitchen</span>
+          </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-12 pt-6 md:pt-10">
-            <div className="space-y-4 md:space-y-6 p-8 md:p-12 bg-white rounded-3xl md:rounded-[3rem] border border-brand-primary/5 shadow-2xl shadow-brand-primary/5">
-              <p className="text-4xl md:text-6xl font-serif text-brand-primary tracking-tighter">0%</p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black text-brand-primary/30">Single Use Goal</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="overflow-hidden rounded-3xl shadow-lg h-[300px] md:h-[480px]">
+              <img
+                src="/assets/about/kitchen-1.webp"
+                alt="KNWN kitchen"
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+              />
             </div>
-            <div className="space-y-4 md:space-y-6 p-8 md:p-12 bg-brand-primary rounded-3xl md:rounded-[3rem] text-white shadow-2xl shadow-brand-primary/20 sm:scale-110 z-10 transition-transform">
-              <p className="text-4xl md:text-6xl font-serif tracking-tighter">100%</p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black opacity-40">Artisanal Sourcing</p>
-            </div>
-            <div className="space-y-4 md:space-y-6 p-8 md:p-12 bg-white rounded-3xl md:rounded-[3rem] border border-brand-primary/5 shadow-2xl shadow-brand-primary/5">
-              <p className="text-4xl md:text-6xl font-serif text-brand-primary tracking-tighter">35k+</p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black text-brand-primary/30">Curated Orders</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="overflow-hidden rounded-3xl shadow-lg col-span-2 h-[200px] md:h-[280px]">
+                <img
+                  src="/assets/about/kitchen-2.webp"
+                  alt="Cooking fresh"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+              <div className="overflow-hidden rounded-3xl shadow-lg h-[140px] md:h-[180px]">
+                <img
+                  src="/assets/food-bg/harissa-meatballs.jpg"
+                  alt="Fresh food"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+              <div className="overflow-hidden rounded-3xl shadow-lg h-[140px] md:h-[180px]">
+                <img
+                  src="/assets/food-bg/mediterranean-chicken.jpg"
+                  alt="Mediterranean Chicken"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                />
+              </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* ─── STATS ─────────────────────────────────────────────────────────── */}
+      <section className="py-20 md:py-28 px-6 bg-brand-primary text-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-12 text-center">
+            <div className="space-y-3">
+              <p className="text-5xl md:text-7xl font-extrabold text-brand-lime tracking-tight">0%</p>
+              <p className="text-[10px] uppercase tracking-[0.3em] font-black text-white/40">Frozen ingredients</p>
+            </div>
+            <div className="space-y-3">
+              <p className="text-5xl md:text-7xl font-extrabold tracking-tight">100%</p>
+              <p className="text-[10px] uppercase tracking-[0.3em] font-black text-white/40">Cooked daily from scratch</p>
+            </div>
+            <div className="space-y-3">
+              <p className="text-5xl md:text-7xl font-extrabold text-brand-orange tracking-tight">5k+</p>
+              <p className="text-[10px] uppercase tracking-[0.3em] font-black text-white/40">Lunches delivered</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PHILOSOPHY TEXT ───────────────────────────────────────────────── */}
+      <section className="py-24 md:py-32 px-6 bg-white">
+        <div className="max-w-3xl mx-auto text-center space-y-8">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-primary/30">What We Believe</span>
+          <h2 className="text-3xl md:text-5xl font-extrabold text-brand-primary leading-snug">
+            Real ingredients.{' '}
+            <span className="font-serif italic font-normal text-brand-orange">Real people. Real food.</span>
+          </h2>
+          <p className="text-brand-primary/55 text-base leading-relaxed font-medium">
+            We believe the best lunch isn't the fanciest or the cheapest — it's the one that's cooked with care, made from real food, and doesn't require you to stress about it. That's what we show up to build every single morning.
+          </p>
+          <Link
+            to="/order"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-brand-lime text-brand-primary rounded-full font-bold text-sm hover:opacity-90 transition-opacity shadow-lg"
+          >
+            Try Our Menu <ArrowRight size={16} />
+          </Link>
+        </div>
+      </section>
+
     </div>
   );
 }

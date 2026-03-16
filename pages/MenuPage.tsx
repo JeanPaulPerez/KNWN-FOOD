@@ -24,7 +24,27 @@ import { clsx } from 'clsx';
 import { useUser } from '../store/useUser';
 import RegistrationModal from '../components/RegistrationModal';
 
-const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1495147466023-ac5c588e2e94?auto=format&fit=crop&q=80&w=800";
+const PLACEHOLDER_IMAGE = "/assets/food-bg/korean-crispy-chicken.jpg";
+
+/* map menu item names to real food photos */
+const FOOD_IMAGES: Record<string, { bg: string; cutout: string }> = {
+  'korean crispy chicken': { bg: '/assets/food-bg/korean-crispy-chicken.jpg', cutout: '/assets/food-cutout/korean-crispy-chicken.png' },
+  'pesto pasta': { bg: '/assets/food-bg/pesto-pasta.jpg', cutout: '/assets/food-cutout/pesto-pasta.png' },
+  'chicken cesar salad': { bg: '/assets/food-bg/chicken-cesar-salad.jpg', cutout: '/assets/food-cutout/chicken-cesar-salad.png' },
+  'chicken césar salad': { bg: '/assets/food-bg/chicken-cesar-salad.jpg', cutout: '/assets/food-cutout/chicken-cesar-salad.png' },
+  'thai beef salad': { bg: '/assets/food-bg/thai-beef-salad.jpg', cutout: '/assets/food-cutout/thai-beef-salad.png' },
+  'mediterranean chicken': { bg: '/assets/food-bg/mediterranean-chicken.jpg', cutout: '/assets/food-cutout/mediterranean-chicken.png' },
+  'harissa meatballs': { bg: '/assets/food-bg/harissa-meatballs.jpg', cutout: '/assets/food-cutout/harissa-meatballs.png' },
+  'milanesa': { bg: '/assets/food-bg/milanesa.jpg', cutout: '/assets/food-cutout/milanesa.png' },
+  'chicken lime': { bg: '/assets/food-bg/chicken-lime.jpg', cutout: '/assets/food-cutout/chicken-lime.png' },
+};
+
+function getFoodImage(name: string, type: 'bg' | 'cutout' = 'bg'): string {
+  const key = name.toLowerCase().trim();
+  const match = Object.entries(FOOD_IMAGES).find(([k]) => key.includes(k) || k.includes(key));
+  if (match) return match[1][type];
+  return type === 'bg' ? PLACEHOLDER_IMAGE : PLACEHOLDER_IMAGE;
+}
 
 const CustomizationModal: React.FC<{
   item: MenuItem;
@@ -67,8 +87,8 @@ const CustomizationModal: React.FC<{
           {/* Product image */}
           <div className="relative h-56 bg-brand-bg">
             <img
-              src={item.image || PLACEHOLDER_IMAGE}
-              className="w-full h-full object-cover"
+              src={item.image || getFoodImage(item.name, 'cutout')}
+              className="w-full h-full object-contain p-4"
               alt={item.name}
             />
             <button
@@ -260,7 +280,7 @@ const PromotionalModal: React.FC<{
             <div className="relative group">
               <div className="w-full aspect-square bg-[#FDF6E3] rounded-full shadow-[0_40px_80px_rgba(0,0,0,0.3)] p-2 md:p-3 border-4 md:border-8 border-white overflow-hidden transform group-hover:scale-105 transition-transform duration-700">
                 <img
-                  src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=1000"
+                  src="/assets/food-bg/pesto-pasta.jpg"
                   alt="Special Pesto Pasta"
                   className="w-full h-full object-cover rounded-full"
                 />
@@ -356,9 +376,9 @@ const MenuCard: React.FC<{
       )}
     >
       {/* Food image */}
-      <div className="relative h-52 overflow-hidden bg-brand-bg">
+      <div className="relative h-52 overflow-hidden bg-[#E9FF70]">
         <img
-          src={item.image || PLACEHOLDER_IMAGE}
+          src={item.image || getFoodImage(item.name, 'bg')}
           className={clsx(
             "w-full h-full object-cover transition-transform duration-700",
             isActive && "group-hover/card:scale-105"
@@ -766,7 +786,7 @@ export default function MenuPage({ cart }: { cart: any }) {
                         key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`}
                         className="flex gap-4 group bg-brand-subtle/20 p-4 rounded-[1.5rem] border border-brand-primary/5"
                       >
-                        <img src={item.image || PLACEHOLDER_IMAGE} className="w-16 h-16 object-cover rounded-xl" />
+                        <img src={item.image || getFoodImage(item.name, 'bg')} className="w-16 h-16 object-cover rounded-xl" />
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start gap-2">
                             <h3 className="text-[11px] font-bold leading-tight text-brand-primary truncate">{item.name}</h3>

@@ -202,7 +202,7 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
               ) : (
                 cart.items.map((item: any) => (
                   <div key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`} className="flex gap-3 bg-brand-bg p-3 rounded-2xl border border-gray-100">
-                    <img src={item.image || 'https://images.unsplash.com/photo-1495147466023-ac5c588e2e94?auto=format&fit=crop&q=80&w=800'} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" alt={item.name} />
+                    <img src={item.image || '/assets/food-bg/korean-crispy-chicken.jpg'} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" alt={item.name} />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start gap-2">
                         <h3 className="text-[11px] font-bold leading-tight text-brand-primary truncate">{item.name}</h3>

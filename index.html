@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..800;1,400..800&family=Instrument+Serif:ital@0;1&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
     rel="stylesheet">
   <script>
     tailwind.config = {
@@ -21,15 +21,17 @@
               dark: '#1E1549',
               accent: '#5B5291',
               subtle: '#DDD9ED',
-              bg: '#F8F7FF',
+              bg: '#F5F3FF',
               white: '#FFFFFF',
               lime: '#D4F84A',
-              orange: '#FF8800'
+              orange: '#db5a29',
+              yellow: '#F5C842'
             }
           },
           fontFamily: {
-            sans: ['"Instrument Sans"', 'sans-serif'],
-            serif: ['"Instrument Serif"', 'serif']
+            sans: ['Poppins', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'serif'],
+            handwriting: ['"Nothing You Could Do"', 'cursive']
           },
           borderRadius: {
             '4xl': '2rem',
@@ -42,18 +44,57 @@
     }
   </script>
   <style>
+    @font-face {
+      font-family: 'Poppins';
+      src: url('/assets/fonts/Poppins-Regular.ttf') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Poppins';
+      src: url('/assets/fonts/Poppins-Medium.ttf') format('truetype');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Poppins';
+      src: url('/assets/fonts/Poppins-SemiBold.ttf') format('truetype');
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Poppins';
+      src: url('/assets/fonts/Poppins-Bold.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Poppins';
+      src: url('/assets/fonts/Poppins-ExtraBold.ttf') format('truetype');
+      font-weight: 800;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Nothing You Could Do';
+      src: url('/assets/fonts/NothingYouCouldDo-Regular.ttf') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
     body {
       background-color: #F5F3FF;
       color: #2B1C70;
-      font-family: "Instrument Sans", sans-serif;
+      font-family: 'Poppins', sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
 
-    h1,
-    h2,
-    h3,
-    h4,
     .font-serif {
       font-family: "Instrument Serif", serif;
     }
