@@ -40,7 +40,6 @@ const CustomizationModal: React.FC<{
   const [swap, setSwap] = useState(options?.swaps?.[0] || '');
   const [avoidList, setAvoidList] = useState<string[]>([]);
 
-  // Reset state when item changes or modal opens
   useEffect(() => {
     if (isOpen) {
       setBase(options?.bases?.[0] || '');
@@ -51,147 +50,160 @@ const CustomizationModal: React.FC<{
     }
   }, [isOpen, item]);
 
+  const [quantity, setQuantity] = useState(1);
+
   if (!isOpen) return null;
 
-  const toggleDislike = (d: string) => {
-    setAvoidList(prev =>
-      prev.includes(d) ? prev.filter(i => i !== d) : [...prev, d]
-    );
-  };
-
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-6">
+    <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center bg-black/30 backdrop-blur-sm p-0 md:p-4">
       <motion.div
-        initial={{ scale: 0.9, y: 20, opacity: 0 }}
-        animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.9, y: 20, opacity: 0 }}
-        className="bg-brand-bg max-w-lg w-full rounded-[2.5rem] overflow-hidden shadow-2xl border border-brand-primary/10"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 40 }}
+        className="relative bg-white w-full md:max-w-lg rounded-t-3xl md:rounded-3xl overflow-hidden shadow-2xl max-h-[92dvh] flex flex-col"
       >
-        <div className="p-10 space-y-8 overflow-y-auto max-h-[90vh] no-scrollbar">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-4xl font-serif text-brand-primary">Customize Your <br /><span className="italic font-light">{item.name}</span></h3>
-              <p className="text-[10px] text-brand-primary/40 uppercase tracking-[0.3em] mt-4 font-black">Refining your culinary selection</p>
-            </div>
+        {/* Scrollable content */}
+        <div className="overflow-y-auto flex-1 no-scrollbar">
+          {/* Product image */}
+          <div className="relative h-56 bg-brand-bg">
+            <img
+              src={item.image || PLACEHOLDER_IMAGE}
+              className="w-full h-full object-cover"
+              alt={item.name}
+            />
             <button
               onClick={onClose}
-              className="p-2 hover:bg-brand-subtle/40 rounded-full transition-colors text-brand-primary"
+              className="absolute top-4 left-4 p-2 bg-white/90 backdrop-blur-sm text-brand-primary rounded-full shadow-md hover:bg-white transition-colors"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
 
-          <div className="space-y-6">
-            {/* Base Selection */}
+          {/* Content */}
+          <div className="p-6 space-y-6">
+            {/* Delivery badge */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-orange/10 text-brand-orange rounded-full text-[9px] font-black uppercase tracking-wider">
+              <Calendar size={11} strokeWidth={3} />
+              Scheduled Delivery
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-serif text-brand-primary leading-tight">{item.name}</h2>
+              <p className="text-sm text-brand-primary/50 mt-2 leading-relaxed">{item.description}</p>
+            </div>
+
+            {/* Choose base */}
             {options?.bases && options.bases.length > 0 && (
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Select Base (Choose 1)</label>
-                <div className="grid grid-cols-1 gap-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-black text-brand-primary uppercase tracking-wider">Choose your base</h4>
+                  <span className="text-[9px] bg-brand-orange/10 text-brand-orange px-2 py-1 rounded-full font-black uppercase tracking-wider">Required · Select 1</span>
+                </div>
+                <div className="space-y-2">
                   {options.bases.map(b => (
-                    <button
-                      key={b}
-                      onClick={() => setBase(b)}
-                      className={clsx(
-                        "py-3 px-6 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border text-left flex items-center justify-between",
-                        base === b ? "bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/20" : "bg-white text-brand-primary/60 border-brand-primary/5 hover:border-brand-primary/20"
-                      )}
-                    >
-                      {b}
-                      {base === b && <CheckCircle2 size={14} />}
-                    </button>
+                    <label key={b} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 cursor-pointer hover:border-brand-primary/20 transition-colors">
+                      <input
+                        type="radio"
+                        name="base"
+                        value={b}
+                        checked={base === b}
+                        onChange={() => setBase(b)}
+                        className="accent-brand-primary"
+                      />
+                      <span className="text-sm text-brand-primary">{b}</span>
+                    </label>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Sauce Selection */}
+            {/* Choose sauce */}
             {options?.sauces && options.sauces.length > 0 && (
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Select Sauce (Choose 1)</label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-black text-brand-primary uppercase tracking-wider">Choose your dressing/sauce</h4>
+                  <span className="text-[9px] bg-brand-orange/10 text-brand-orange px-2 py-1 rounded-full font-black uppercase tracking-wider">Required · Select 1</span>
+                </div>
+                <div className="space-y-2">
                   {options.sauces.map(s => (
-                    <button
-                      key={s}
-                      onClick={() => setSauce(s)}
-                      className={clsx(
-                        "py-3 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all border text-center",
-                        sauce === s ? "bg-brand-primary text-white border-brand-primary shadow-md" : "bg-white text-brand-primary/40 border-brand-primary/5"
-                      )}
-                    >
-                      {s}
-                    </button>
+                    <label key={s} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 cursor-pointer hover:border-brand-primary/20 transition-colors">
+                      <input
+                        type="radio"
+                        name="sauce"
+                        value={s}
+                        checked={sauce === s}
+                        onChange={() => setSauce(s)}
+                        className="accent-brand-primary"
+                      />
+                      <span className="text-sm text-brand-primary">{s}</span>
+                    </label>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Vegetarian Toggle */}
+            {/* Vegetarian option */}
             {options?.hasVegetarianOption && (
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">
-                  {options.hasVegetarianOption.label}
+                <h4 className="text-sm font-black text-brand-primary uppercase tracking-wider">Make it vegetarian?</h4>
+                <span className="text-[10px] text-brand-primary/40 font-medium uppercase tracking-wider block -mt-1">Optional</span>
+                <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 cursor-pointer hover:border-brand-primary/20 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={isVegetarian}
+                    onChange={() => setIsVegetarian(!isVegetarian)}
+                    className="accent-brand-primary w-4 h-4 rounded"
+                  />
+                  <span className="text-sm text-brand-primary">Replace protein with mushrooms</span>
                 </label>
-                <button
-                  onClick={() => setIsVegetarian(!isVegetarian)}
-                  className={clsx(
-                    "w-full py-4 px-6 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border text-left flex items-center justify-between group",
-                    isVegetarian
-                      ? "bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/20"
-                      : "bg-white text-brand-primary/60 border-brand-primary/5 hover:border-brand-primary/20"
-                  )}
-                >
-                  <span className="flex-1 capitalize">{options.hasVegetarianOption.instructions || 'Make it vegetarian'}</span>
-                  <div className={clsx(
-                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-                    isVegetarian ? "border-white bg-white/20" : "border-brand-primary/20"
-                  )}>
-                    {isVegetarian && <CheckCircle2 size={12} />}
-                  </div>
-                </button>
               </div>
             )}
 
-            {/* Swap Selection */}
-            {options?.swaps && options.swaps.length > 0 && (
+            {/* Avoid list */}
+            {options?.avoidOptions && options.avoidOptions.length > 0 && (
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Sustituciones (Swap)</label>
-                <div className="grid grid-cols-1 gap-2">
-                  {options.swaps.map(sw => (
-                    <button
-                      key={sw}
-                      onClick={() => setSwap(swap === sw ? '' : sw)}
-                      className={clsx(
-                        "py-3 px-6 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all border text-left",
-                        swap === sw ? "bg-brand-primary text-white border-brand-primary shadow-lg" : "bg-white text-brand-primary/60 border-brand-primary/5"
-                      )}
-                    >
-                      {sw}
-                    </button>
+                <h4 className="text-sm font-black text-brand-primary uppercase tracking-wider">Anything you don't like</h4>
+                <span className="text-[10px] text-brand-primary/40 font-medium uppercase tracking-wider block -mt-1">Optional</span>
+                <div className="space-y-2">
+                  {options.avoidOptions.map(opt => (
+                    <label key={opt} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 cursor-pointer hover:border-brand-primary/20 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={avoidList.includes(opt)}
+                        onChange={() => setAvoidList(prev =>
+                          prev.includes(opt) ? prev.filter(x => x !== opt) : [...prev, opt]
+                        )}
+                        className="accent-brand-primary w-4 h-4 rounded"
+                      />
+                      <span className="text-sm text-brand-primary">No {opt}</span>
+                    </label>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Dislikes Selection */}
-            {options?.dislikes && options.dislikes.length > 0 && (
-              <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Anything you don't like?</label>
-                <div className="flex flex-wrap gap-2">
-                  {options.dislikes.map(d => (
-                    <button
-                      key={d}
-                      onClick={() => toggleDislike(d)}
-                      className={clsx(
-                        "py-3 px-6 rounded-full text-[9px] font-black transition-all border uppercase tracking-[0.2em]",
-                        avoidList.includes(d) ? "bg-red-500 text-white border-red-500 shadow-xl shadow-red-500/20" : "bg-white text-brand-primary/40 border-brand-primary/5 hover:border-brand-primary/20"
-                      )}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Bottom spacer for sticky footer */}
+            <div className="h-20" />
+          </div>
+        </div>
+
+        {/* Sticky footer */}
+        <div className="flex-shrink-0 p-5 border-t border-gray-100 bg-white flex items-center gap-3">
+          {/* Quantity */}
+          <div className="flex items-center bg-brand-bg rounded-full border border-gray-100 p-1">
+            <button
+              onClick={() => setQuantity(q => Math.max(1, q - 1))}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white transition-colors text-brand-primary font-bold"
+            >
+              −
+            </button>
+            <span className="px-3 text-sm text-brand-primary font-black">{quantity}</span>
+            <button
+              onClick={() => setQuantity(q => q + 1)}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white transition-colors text-brand-primary font-bold"
+            >
+              +
+            </button>
           </div>
 
           <button
@@ -203,9 +215,9 @@ const CustomizationModal: React.FC<{
               swap,
               avoid: avoidList.join(', ')
             })}
-            className="w-full py-6 bg-brand-primary text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-brand-primary/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+            className="flex-1 py-4 bg-brand-lime text-brand-primary rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-sm hover:brightness-95 transition-all flex items-center justify-center gap-2"
           >
-            Add to Selection <Plus size={16} strokeWidth={3} />
+            Add to My Week · ${(item.price * quantity).toFixed(2)}
           </button>
         </div>
       </motion.div>
@@ -332,8 +344,6 @@ const MenuCard: React.FC<{
   onAdd: (i: MenuItem, d: Date) => void
 }> = ({ item, status, date, activeOrderDay, onAdd }) => {
   const isActive = status === 'ACTIVE' || status === 'PREVIEW';
-  const isPreview = status === 'PREVIEW';
-  const activeDateFormatted = activeOrderDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
     <motion.div
@@ -341,69 +351,73 @@ const MenuCard: React.FC<{
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       className={clsx(
-        "relative bg-white rounded-[3rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 border flex flex-col h-full group/card",
-        isActive ? "border-brand-primary/5 hover:border-brand-primary/10 hover:shadow-[0_20px_50px_rgba(43,28,112,0.1)] hover:-translate-y-1" : "border-brand-primary/5 grayscale opacity-60"
+        "relative bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-300 flex flex-col h-full group/card",
+        isActive ? "hover:shadow-md hover:-translate-y-0.5" : "opacity-50 grayscale"
       )}
     >
-      <div className="aspect-[16/10] relative overflow-hidden">
+      {/* Food image */}
+      <div className="relative h-52 overflow-hidden bg-brand-bg">
         <img
           src={item.image || PLACEHOLDER_IMAGE}
           className={clsx(
-            "w-full h-full object-cover transition-transform duration-1000",
+            "w-full h-full object-cover transition-transform duration-700",
             isActive && "group-hover/card:scale-105"
           )}
           alt={item.name}
         />
-
         {item.popular && isActive && (
-          <span className="absolute top-4 left-4 bg-brand-accent text-white px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-xl">
+          <span className="absolute top-3 left-3 bg-brand-primary text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">
             Popular
           </span>
         )}
-
-        {(status !== 'ACTIVE' && status !== 'PREVIEW') && (
-          <div className="absolute inset-0 bg-brand-dark/40 backdrop-blur-[2px] flex items-center justify-center">
-            <div className="bg-brand-dark/90 text-white px-5 py-2 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] flex items-center gap-2">
-              <Lock size={12} /> Unavailable
+        {!isActive && (
+          <div className="absolute inset-0 bg-brand-primary/30 backdrop-blur-[1px] flex items-center justify-center">
+            <div className="bg-white/90 text-brand-primary px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5">
+              <Lock size={11} /> Unavailable
             </div>
           </div>
         )}
       </div>
 
-      <div className="p-8 flex-1 flex flex-col">
-        <div className="flex justify-between items-start mb-4 gap-4">
-          <h3 className="text-2xl font-serif leading-[1.1] text-brand-primary group-hover/card:text-brand-primary transition-colors">{item.name}</h3>
-          <span className="text-xl font-serif text-brand-primary">${item.price}</span>
+      {/* Card body */}
+      <div className="p-5 flex-1 flex flex-col gap-3">
+        <div className="flex justify-between items-start gap-3">
+          <h3 className="text-lg font-serif leading-tight text-brand-primary">{item.name}</h3>
+          <span className="text-base font-serif text-brand-primary flex-shrink-0">${item.price}</span>
         </div>
-        <p className="text-sm text-brand-primary/40 font-medium mb-8 line-clamp-2 leading-relaxed italic">
+        <p className="text-xs text-brand-primary/40 leading-relaxed line-clamp-2 flex-1">
           {item.description}
         </p>
 
-        <div className="flex flex-wrap gap-2 mb-10 mt-auto">
-          {item.tags?.map(tag => (
-            <span key={tag} className="text-[9px] uppercase tracking-[0.2em] font-black text-brand-primary/40 bg-brand-subtle/30 px-3.5 py-1.5 rounded-full border border-brand-primary/5">
-              {tag}
-            </span>
-          ))}
-        </div>
+        {/* Tags */}
+        {item.tags && item.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {item.tags.slice(0, 3).map(tag => (
+              <span key={tag} className="text-[9px] uppercase tracking-wider font-bold text-brand-primary/40 bg-brand-bg px-2.5 py-1 rounded-full">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
 
+        {/* CTA button */}
         <button
           onClick={() => onAdd(item, date)}
           disabled={!isActive}
           className={clsx(
-            "w-full py-5 rounded-[1.25rem] flex items-center justify-center gap-3 transition-all font-black uppercase tracking-[0.3em] text-[9px] active:scale-[0.98]",
+            "mt-auto w-full py-3.5 rounded-2xl flex items-center justify-center gap-2 transition-all font-black uppercase tracking-[0.2em] text-[10px] cursor-pointer",
             isActive
-              ? "bg-brand-primary text-white hover:scale-[1.02] shadow-xl shadow-brand-primary/20"
-              : "bg-brand-primary/5 text-brand-primary/20 cursor-not-allowed border border-dashed border-brand-primary/10"
+              ? "bg-brand-lime text-brand-primary hover:brightness-95 active:scale-[0.98] shadow-sm"
+              : "bg-gray-100 text-gray-300 cursor-not-allowed"
           )}
         >
           {isActive ? (
             <>
-              <Plus size={16} strokeWidth={3} />
-              <span>Personalize</span>
+              <Plus size={14} strokeWidth={3} />
+              Add to My Week · ${item.price}
             </>
           ) : (
-            <span>Sold Out</span>
+            <span>Unavailable</span>
           )}
         </button>
       </div>
@@ -477,97 +491,23 @@ const MiniCalendar: React.FC<{
 
 const Hero = ({ onFreeLunch }: { onFreeLunch: () => void }) => {
   return (
-    <section className="relative bg-[#D9CFF2] pt-24 md:pt-32 pb-24 px-4 md:px-12 overflow-hidden min-h-[100dvh] md:min-h-[90vh] flex flex-col items-center">
-      {/* Background patterns */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none"
-        style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #2B1C70 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-
-      <div className="max-w-7xl mx-auto relative z-10 text-center space-y-12 md:space-y-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6 md:space-y-8"
-        >
-          <h1 className="text-4xl sm:text-5xl md:text-[10rem] font-serif text-brand-primary tracking-tighter leading-[0.9] md:leading-[0.8] px-4">
-            Pay Less. <br />
-            Eat Fresh. <span className="italic font-light text-[#E67E22]">Feel Good.</span>
-          </h1>
-          <p className="text-[10px] md:text-sm font-black uppercase tracking-[0.4em] md:tracking-[0.6em] text-brand-primary/40">
-            Bullsht Free. Real. Cooked this morning. Priced right.
-          </p>
-        </motion.div>
-
-        <div className="relative mt-16 md:mt-40 flex flex-col items-center w-full">
-          {/* Main Comparison Container */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            className="relative w-full max-w-6xl px-4 md:px-0"
-          >
-            {/* Split Food Image */}
-            <div className="relative aspect-square sm:aspect-[16/9] md:aspect-[21/9] rounded-[2rem] sm:rounded-[4rem] md:rounded-[6rem] overflow-hidden shadow-2xl border-4 md:border-8 border-white/30">
-              <img
-                src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=1500"
-                alt="Healthier KNWN Bowl vs Traditional"
-                className="w-full h-full object-cover scale-110"
-              />
-              {/* Center Divider Gradient */}
-              <div className="absolute inset-0 flex justify-center">
-                <div className="w-1 md:w-2 h-full bg-white/40 backdrop-blur-2xl shadow-2xl" />
-              </div>
-            </div>
-
-            {/* Comparison Tags - Adjusted for Mobile */}
-            <div className="flex flex-col md:block items-center gap-4 mt-8 md:mt-0">
-              {/* Left Tag (KNWN) */}
-              <div className="md:absolute -left-4 md:-left-24 md:top-1/2 md:-translate-y-1/2 w-full max-w-[320px] md:w-[380px] z-20">
-                <motion.div
-                  whileHover={{ scale: 1.05, rotate: -3 }}
-                  className="bg-brand-primary text-white p-8 md:p-14 rounded-[2rem] md:rounded-[5rem] transform md:-rotate-2 shadow-2xl border border-white/10"
-                >
-                  <div className="text-[10px] md:text-[12px] opacity-60 uppercase tracking-[0.4em] font-black mb-2 md:mb-4">At KNWN</div>
-                  <div className="text-5xl md:text-8xl font-serif mb-2 md:mb-4">$12.90</div>
-                  <div className="text-[10px] md:text-[14px] font-bold leading-relaxed uppercase tracking-[0.3em]">
-                    Cooked this morning <br className="hidden md:block" />Real Food.
-                  </div>
-                </motion.div>
-              </div>
-
-              {/* Right Tag (Traditional) */}
-              <div className="md:absolute -right-4 md:-right-24 md:top-1/2 md:-translate-y-1/2 w-full max-w-[320px] md:w-[380px] z-20">
-                <motion.div
-                  whileHover={{ scale: 1.05, rotate: 3 }}
-                  className="bg-[#E67E22] text-white p-8 md:p-14 rounded-[2rem] md:rounded-[5rem] transform md:rotate-2 shadow-2xl border border-white/10"
-                >
-                  <div className="text-[10px] md:text-[12px] opacity-60 uppercase tracking-[0.4em] font-black mb-2 md:mb-4">Traditional Restaurants</div>
-                  <div className="text-5xl md:text-8xl font-serif mb-2 md:mb-4">$19.35</div>
-                  <div className="text-[10px] md:text-[14px] font-bold leading-relaxed uppercase tracking-[0.3em]">
-                    Plus <br className="hidden md:block" />additional fees
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Floating Controls - Hide on small mobile or reposition */}
-        <div className="fixed bottom-6 left-6 md:bottom-12 md:left-12 z-[110]">
+    <section className="bg-[#F5F3FF] px-4 md:px-12 pt-8 pb-6 border-b border-brand-primary/5">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="text-4xl md:text-6xl font-serif text-brand-primary leading-tight tracking-tight">
+              This Week's Picks
+            </h1>
+            <p className="text-[11px] text-brand-primary/50 font-medium max-w-lg leading-relaxed">
+              All orders require at least 1 day advance notice. You're viewing meals available for tomorrow and beyond. We'll cook and deliver Monday through Friday.
+            </p>
+          </div>
           <button
             onClick={onFreeLunch}
-            className="bg-[#E67E22] text-white px-8 md:px-12 py-4 md:py-6 rounded-full text-[9px] md:text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl hover:scale-110 active:scale-95 transition-all flex items-center gap-2 md:gap-3 border border-white/20"
+            className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 border border-brand-primary/20 rounded-full text-[10px] font-black uppercase tracking-wider text-brand-primary hover:bg-brand-primary hover:text-white transition-all"
           >
-            <CheckCircle2 size={18} strokeWidth={3} /> Free Lunch
+            Free Lunch Offer
           </button>
-        </div>
-
-        <div className="fixed bottom-6 right-6 md:bottom-12 md:right-12 z-[110] flex flex-col items-end gap-4 group">
-          <div className="bg-white/80 backdrop-blur-xl px-6 md:px-10 py-3 md:py-5 rounded-full md:rounded-[2.5rem] shadow-2xl flex items-center gap-3 md:gap-4 border border-brand-primary/5 cursor-pointer hover:bg-white transition-all scale-100 hover:scale-105">
-            <span className="text-[9px] md:text-[11px] font-black text-brand-primary uppercase tracking-[0.3em] hidden sm:block">Contact us</span>
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-brand-primary rounded-full flex items-center justify-center text-white group-hover:rotate-90 transition-transform shadow-xl shadow-brand-primary/20">
-              <X size={20} className="rotate-45" />
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -653,7 +593,7 @@ export default function MenuPage({ cart }: { cart: any }) {
   };
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-[#F5F3FF] min-h-screen">
       <Hero onFreeLunch={togglePromo} />
 
       <header className="bg-white pt-24 pb-8 md:pb-12 px-4 md:px-12 relative overflow-hidden border-b border-brand-primary/5">
@@ -678,7 +618,7 @@ export default function MenuPage({ cart }: { cart: any }) {
         </div>
       </header>
 
-      <section className="px-4 md:px-12 py-6 md:py-10 sticky top-20 md:top-24 bg-white/90 backdrop-blur-3xl z-30 border-b border-brand-primary/5 shadow-sm overflow-hidden">
+      <section className="px-4 md:px-12 py-4 sticky top-[100px] md:top-[116px] bg-white/95 backdrop-blur-md z-30 border-b border-gray-100 shadow-sm overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div
             ref={sliderRef}
@@ -740,6 +680,7 @@ export default function MenuPage({ cart }: { cart: any }) {
                   </span>
                 )}
               </div>
+              <p className="text-[11px] text-brand-primary/40 font-medium mt-1">Delivered by 10 am – 12 pm to your office</p>
               <p className="text-base md:text-lg text-brand-primary/40 font-medium max-w-xl leading-relaxed italic">
                 {currentStatus === 'ACTIVE'
                   ? `Ordering is open. Secure your selection by ${CUTOFF_HOUR}:00 AM ET for same-day artisanal delivery.`
@@ -795,9 +736,19 @@ export default function MenuPage({ cart }: { cart: any }) {
                 <div className="p-8 border-b border-brand-primary/5 flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     <ShoppingBag size={18} className="text-brand-primary" />
-                    <h2 className="text-lg font-serif text-brand-primary">Your Selection</h2>
+                    <h2 className="text-lg font-serif text-brand-primary">My Week Lunch</h2>
                   </div>
                   <span className="bg-brand-primary/5 text-brand-primary text-[10px] px-3 py-1 rounded-full font-black">{cart.itemCount}</span>
+                </div>
+                {/* Progress bar */}
+                <div className="px-8 py-3 border-b border-gray-100">
+                  <div className="flex justify-between mb-1.5">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-brand-primary/30">Week</span>
+                    <span className="text-[9px] font-black text-brand-primary/30">{cart.itemCount}/5</span>
+                  </div>
+                  <div className="w-full h-1 bg-gray-100 rounded-full">
+                    <div className="h-full bg-brand-lime rounded-full transition-all duration-500" style={{ width: `${Math.min((cart.itemCount / 5) * 100, 100)}%` }} />
+                  </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
@@ -853,7 +804,7 @@ export default function MenuPage({ cart }: { cart: any }) {
                     </div>
                     <button
                       onClick={handleFinalizeClick}
-                      className="w-full py-4 bg-brand-primary text-white rounded-xl flex items-center justify-center gap-2 group hover:scale-[1.02] transition-all shadow-xl shadow-brand-primary/20"
+                      className="w-full py-4 bg-brand-lime text-brand-primary rounded-xl flex items-center justify-center gap-2 group hover:brightness-95 transition-all font-black"
                     >
                       <span className="uppercase tracking-[0.3em] text-[9px] font-black">Finalize</span>
                       <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

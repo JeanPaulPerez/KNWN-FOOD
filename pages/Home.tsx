@@ -6,11 +6,11 @@ import { ArrowRight, Check, Clock, Truck, Star, StarHalf, Shield, Utensils, Leaf
 
 const Home = () => {
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col bg-[#F5F3FF]">
 
             {/* ─── HERO ─────────────────────────────────────────────── */}
-            <section className="relative pt-12 pb-24 md:pt-20 md:pb-40 px-6 overflow-hidden bg-white">
-                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <section className="relative pt-20 pb-20 md:pt-20 md:pb-40 px-6 overflow-hidden bg-[#F5F3FF]">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-center">
 
                     {/* Left — copy */}
                     <motion.div
@@ -28,7 +28,7 @@ const Home = () => {
                                 Made this morning.<br />
                                 <span className="text-[#E6672E]">Delivered by lunch.</span>
                             </h1>
-                            <p className="text-brand-primary/60 text-base md:text-lg max-w-md font-medium leading-relaxed">
+                            <p className="text-brand-primary/60 text-base md:text-lg max-w-lg font-medium leading-relaxed">
                                 Stop eating week-old meal prep. We cook fresh daily and deliver to your office or home instantly.
                             </p>
                         </div>
@@ -36,11 +36,11 @@ const Home = () => {
                         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                             <Link
                                 to="/menu"
-                                className="px-7 py-4 bg-brand-primary text-white rounded-xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl shadow-brand-primary/20"
+                                className="px-7 py-4 bg-brand-primary text-white rounded-full flex items-center justify-center gap-3 hover:bg-brand-dark transition-colors shadow-sm"
                             >
                                 <span className="uppercase tracking-[0.15em] text-xs font-black">View Today's Menu</span>
                             </Link>
-                            <button className="px-7 py-4 bg-white text-brand-primary border border-brand-primary/20 rounded-xl hover:bg-brand-subtle/20 transition-all font-black uppercase tracking-[0.15em] text-xs">
+                            <button className="px-7 py-4 bg-white text-brand-primary border border-brand-primary/20 rounded-full hover:bg-brand-subtle/20 transition-all font-black uppercase tracking-[0.15em] text-xs">
                                 How it Works
                             </button>
                         </div>
@@ -58,48 +58,48 @@ const Home = () => {
                     </motion.div>
 
                     {/* Right — image collage */}
-                    <div className="relative">
-                        <div className="relative w-full aspect-square md:aspect-auto md:h-[580px] flex items-center justify-center">
+                    <div className="relative mt-8 lg:mt-0">
+                        <div className="relative w-full aspect-[4/3] sm:aspect-square lg:aspect-auto lg:h-[580px] flex items-center justify-center">
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.85 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 1, delay: 0.2 }}
-                                className="relative w-full h-full"
+                                className="relative w-full h-full max-w-[450px] lg:max-w-none"
                             >
                                 {/* Main bowl */}
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[82%] z-20">
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] lg:w-[82%] z-20">
                                     <img
                                         src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800"
                                         alt="Fresh salad bowl"
-                                        className="w-full h-auto rounded-full shadow-2xl border-8 border-white"
+                                        className="w-full h-auto rounded-full shadow-2xl border-4 md:border-8 border-white"
                                     />
 
                                     {/* "Real Ingredients" sticker */}
                                     <motion.div
                                         animate={{ y: [0, -8, 0] }}
                                         transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-                                        className="absolute -top-6 right-4 px-5 py-2 bg-[#BBF7D0] text-brand-primary rounded-full rotate-12 shadow-md z-30"
+                                        className="absolute -top-4 md:-top-10 right-0 md:-right-4 px-3 md:px-5 py-1.5 md:py-2 bg-[#BBF7D0] text-brand-primary rounded-full rotate-12 shadow-md z-30"
                                     >
-                                        <span className="text-[11px] font-black italic whitespace-nowrap">Real Ingredients</span>
+                                        <span className="text-[9px] md:text-[11px] font-black italic whitespace-nowrap">Real Ingredients</span>
                                     </motion.div>
 
                                     {/* "made fresh this morning" banner */}
-                                    <div className="absolute bottom-10 -left-6 px-6 py-2 bg-[#FDE68A] text-brand-primary rounded-full -rotate-6 shadow-md z-30">
-                                        <span className="text-[10px] font-serif font-black italic whitespace-nowrap">made fresh this morning</span>
+                                    <div className="absolute bottom-6 md:bottom-12 -left-4 md:-left-12 px-4 md:px-6 py-1.5 md:py-2 bg-[#FDE68A] text-brand-primary rounded-full -rotate-6 shadow-md z-30">
+                                        <span className="text-[9px] md:text-[10px] font-serif font-black italic whitespace-nowrap">made fresh this morning</span>
                                     </div>
                                 </div>
 
                                 {/* Small bowl — bottom left */}
-                                <div className="absolute bottom-0 left-0 w-[42%] z-10 -rotate-12">
+                                <div className="absolute bottom-[10%] left-0 w-[38%] lg:w-[42%] z-10 -rotate-12">
                                     <img
                                         src="https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&q=80&w=800"
                                         alt="Quinoa bowl"
-                                        className="w-full h-auto rounded-full shadow-xl border-4 border-white"
+                                        className="w-full h-auto rounded-full shadow-xl border-2 md:border-4 border-white"
                                     />
                                 </div>
 
                                 {/* Small bowl — top right */}
-                                <div className="absolute top-0 right-0 w-[38%] z-0 rotate-6">
+                                <div className="absolute top-[10%] right-0 w-[34%] lg:w-[38%] z-0 rotate-6">
                                     <img
                                         src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800"
                                         alt="Veggie bowl"
@@ -114,15 +114,15 @@ const Home = () => {
             </section>
 
             {/* ─── HOW WE FIX THE LUNCH PROBLEM ────────────────────── */}
-            <section className="py-24 md:py-32 px-6 bg-white overflow-hidden">
-                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <section className="py-20 md:py-32 px-6 bg-white overflow-hidden">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
                     {/* Left — single large image */}
                     <div className="relative">
                         <img
                             src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=900"
                             alt="Fresh food spread"
-                            className="w-full h-[500px] md:h-[620px] object-cover rounded-3xl shadow-xl"
+                            className="w-full h-[320px] md:h-[620px] object-cover rounded-3xl shadow-xl"
                         />
                     </div>
 
@@ -174,7 +174,7 @@ const Home = () => {
 
             {/* ─── 4 PILLARS (dark purple) ──────────────────────────── */}
             <section className="py-20 px-6 bg-brand-primary text-white">
-                <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-10 md:gap-14">
+                <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 lg:gap-14">
 
                     <div className="flex flex-col items-center text-center space-y-4">
                         <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center">
@@ -212,21 +212,21 @@ const Home = () => {
             </section>
 
             {/* ─── OUR MENU SLIDER ──────────────────────────────────── */}
-            <section className="py-24 md:py-32 px-4 md:px-8 bg-[#F5F3FF] overflow-hidden">
-                <div className="max-w-7xl mx-auto space-y-10">
+            <section className="pt-32 pb-24 md:py-32 px-4 md:px-8 bg-[#F5F3FF] overflow-hidden">
+                <div className="max-w-7xl mx-auto space-y-8 md:space-y-10">
 
-                    <div className="text-right pr-4">
-                        <h2 className="text-5xl md:text-7xl font-serif italic text-brand-primary">Our Menu</h2>
+                    <div className="text-right pr-4 mb-2 lg:mb-0">
+                        <h2 className="text-4xl md:text-7xl font-serif italic text-brand-primary">Our Menu</h2>
                     </div>
 
-                    <div className="flex items-center gap-3 md:gap-5">
+                    <div className="flex items-center gap-2 md:gap-5 relative">
                         {/* Prev arrow */}
-                        <button className="flex-shrink-0 w-11 h-11 rounded-full border-2 border-brand-primary flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-all text-lg font-bold">
+                        <button className="flex-shrink-0 w-8 h-8 md:w-11 md:h-11 rounded-full border border-brand-primary flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-all text-sm md:text-lg font-bold z-20">
                             ←
                         </button>
 
                         {/* Card */}
-                        <div className="flex-1 overflow-hidden rounded-[2.5rem] bg-white flex flex-col md:flex-row border border-brand-primary/5 shadow-xl min-h-[420px]">
+                        <div className="flex-1 overflow-hidden rounded-3xl md:rounded-[2.5rem] bg-white flex flex-col md:flex-row border border-brand-primary/5 shadow-xl min-h-[420px]">
 
                             {/* Image — left */}
                             <div className="w-full md:w-1/2 bg-[#E9FF70] flex items-center justify-center p-8 md:p-14 h-[320px] md:h-auto relative overflow-hidden">
@@ -238,9 +238,9 @@ const Home = () => {
                             </div>
 
                             {/* Info — right */}
-                            <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center space-y-5">
-                                <h3 className="text-3xl md:text-5xl font-serif text-brand-primary leading-tight">Crispy Korean Chicken</h3>
-                                <p className="text-brand-primary/60 text-sm leading-relaxed max-w-xs">
+                            <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col justify-center space-y-4 md:space-y-5">
+                                <h3 className="text-2xl md:text-5xl font-serif text-brand-primary leading-tight">Crispy Korean Chicken</h3>
+                                <p className="text-brand-primary/60 text-xs md:text-sm leading-relaxed max-w-xs">
                                     Brown rice, crispy Korean chicken breast, glazed red cabbage, zucchini, carrot, red onion, gochujang sauce.
                                 </p>
 
@@ -266,7 +266,7 @@ const Home = () => {
                         </div>
 
                         {/* Next arrow */}
-                        <button className="flex-shrink-0 w-11 h-11 rounded-full border-2 border-brand-primary flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-all text-lg font-bold">
+                        <button className="flex-shrink-0 w-8 h-8 md:w-11 md:h-11 rounded-full border border-brand-primary flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-all text-sm md:text-lg font-bold z-20">
                             →
                         </button>
                     </div>
@@ -278,8 +278,8 @@ const Home = () => {
             <section className="py-24 md:py-32 px-6 bg-[#E6672E] text-white overflow-hidden">
                 <div className="max-w-5xl mx-auto">
 
-                    <div className="flex flex-col items-center text-center space-y-4 mb-12">
-                        <h2 className="text-5xl md:text-7xl font-serif leading-tight">
+                    <div className="flex flex-col items-center text-center space-y-4 mb-8 md:mb-12">
+                        <h2 className="text-4xl md:text-7xl font-serif leading-tight">
                             Find the <span className="italic">real</span> lunch.
                         </h2>
                     </div>
@@ -298,40 +298,40 @@ const Home = () => {
                     </div>
 
                     {/* Table */}
-                    <div className="overflow-x-auto rounded-[1.75rem] bg-white text-brand-primary shadow-2xl">
-                        <table className="w-full text-center border-collapse">
+                    <div className="overflow-x-auto rounded-2xl md:rounded-[1.75rem] bg-white text-brand-primary shadow-2xl">
+                        <table className="w-full text-center border-collapse min-w-[600px] lg:min-w-full">
                             <thead>
                                 <tr className="border-b border-brand-primary/10">
-                                    <th className="p-5 text-left w-[38%]"></th>
-                                    <th className="p-5 bg-[#E6672E]/10">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary/50">Pricing</span>
+                                    <th className="p-3 md:p-5 text-left w-[35%] lg:w-[38%]"></th>
+                                    <th className="p-3 md:p-5 bg-[#E6672E]/10">
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-brand-primary/50">Pricing</span>
                                     </th>
-                                    <th className="p-5">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary/50">Food Quality</span>
+                                    <th className="p-3 md:p-5">
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-brand-primary/50">Quality</span>
                                     </th>
-                                    <th className="p-5">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary/50">Convenience</span>
+                                    <th className="p-3 md:p-5">
+                                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-brand-primary/50">Ease</span>
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="text-sm">
+                            <tbody className="text-xs md:text-sm">
                                 <tr className="border-b border-brand-primary/10 bg-[#F5F3FF]">
-                                    <td className="p-5 text-left font-black uppercase tracking-widest text-[11px]">KNWN Real Food Lunch</td>
-                                    <td className="p-5"><div className="flex justify-center text-[#E6672E]"><Check size={18} strokeWidth={3} /></div></td>
-                                    <td className="p-5"><div className="flex justify-center text-[#E6672E]"><Check size={18} strokeWidth={3} /></div></td>
-                                    <td className="p-5"><div className="flex justify-center text-[#E6672E]"><Check size={18} strokeWidth={3} /></div></td>
+                                    <td className="p-3 md:p-5 text-left font-black uppercase tracking-widest text-[9px] md:text-[11px]">KNWN Real Food</td>
+                                    <td className="p-3 md:p-5"><div className="flex justify-center text-[#E6672E]"><Check size={18} strokeWidth={3} /></div></td>
+                                    <td className="p-3 md:p-5"><div className="flex justify-center text-[#E6672E]"><Check size={18} strokeWidth={3} /></div></td>
+                                    <td className="p-3 md:p-5"><div className="flex justify-center text-[#E6672E]"><Check size={18} strokeWidth={3} /></div></td>
                                 </tr>
                                 <tr className="border-b border-brand-primary/10">
-                                    <td className="p-5 text-left font-black tracking-widest text-[11px] opacity-45">Meal Prep Service</td>
-                                    <td className="p-5"><div className="flex justify-center text-[#E6672E]"><Check size={18} strokeWidth={3} /></div></td>
-                                    <td className="p-5"></td>
-                                    <td className="p-5"></td>
+                                    <td className="p-3 md:p-5 text-left font-black tracking-widest text-[9px] md:text-[11px] opacity-45">Meal Prep</td>
+                                    <td className="p-3 md:p-5"><div className="flex justify-center text-[#E6672E]"><Check size={18} strokeWidth={3} /></div></td>
+                                    <td className="p-3 md:p-5"></td>
+                                    <td className="p-3 md:p-5"></td>
                                 </tr>
                                 <tr>
-                                    <td className="p-5 text-left font-black tracking-widest text-[11px] opacity-45">Restaurant &amp; Delivery Apps</td>
-                                    <td className="p-5"></td>
-                                    <td className="p-5"></td>
-                                    <td className="p-5"><div className="flex justify-center text-[#E6672E]"><Check size={18} strokeWidth={3} /></div></td>
+                                    <td className="p-3 md:p-5 text-left font-black tracking-widest text-[9px] md:text-[11px] opacity-45">Restaurants</td>
+                                    <td className="p-3 md:p-5"></td>
+                                    <td className="p-3 md:p-5"></td>
+                                    <td className="p-3 md:p-5"><div className="flex justify-center text-[#E6672E]"><Check size={18} strokeWidth={3} /></div></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -406,8 +406,8 @@ const Home = () => {
                     <div className="absolute inset-0 bg-brand-primary/50 backdrop-blur-[2px]" />
                 </div>
 
-                <div className="relative z-10 text-center space-y-10 max-w-4xl px-6">
-                    <h2 className="text-5xl md:text-8xl font-serif text-white leading-tight">
+                <div className="relative z-10 text-center space-y-8 md:space-y-10 max-w-4xl px-6">
+                    <h2 className="text-4xl md:text-8xl font-serif text-white leading-tight">
                         We create <span className="text-[#E6672E] italic">real food</span><br />
                         lunch experiences
                     </h2>
@@ -421,33 +421,33 @@ const Home = () => {
             </section>
 
             {/* ─── FOLLOW US / INSTAGRAM GRID ───────────────────────── */}
-            <section className="py-24 px-6 bg-[#F5F3FF]">
-                <div className="max-w-7xl mx-auto space-y-12">
+            <section className="py-20 md:py-24 px-6 bg-[#F5F3FF]">
+                <div className="max-w-7xl mx-auto space-y-8 md:space-y-12">
                     <h2 className="text-4xl md:text-6xl font-serif italic text-[#E6672E]">Follow Us</h2>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
-                        <div className="aspect-square overflow-hidden rounded-3xl shadow-md">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
+                        <div className="aspect-square overflow-hidden rounded-2xl md:rounded-3xl shadow-md">
                             <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" />
                         </div>
-                        <div className="aspect-square overflow-hidden rounded-3xl shadow-md translate-y-4">
+                        <div className="aspect-square overflow-hidden rounded-2xl md:rounded-3xl shadow-md translate-y-2 md:translate-y-4">
                             <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" />
                         </div>
-                        <div className="aspect-square overflow-hidden rounded-3xl shadow-md">
+                        <div className="aspect-square overflow-hidden rounded-2xl md:rounded-3xl shadow-md">
                             <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" />
                         </div>
-                        <div className="aspect-square overflow-hidden rounded-3xl shadow-md translate-y-4">
+                        <div className="aspect-square overflow-hidden rounded-2xl md:rounded-3xl shadow-md translate-y-2 md:translate-y-4">
                             <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" />
                         </div>
-                        <div className="aspect-square overflow-hidden rounded-3xl shadow-md -translate-y-4">
+                        <div className="aspect-square overflow-hidden rounded-2xl md:rounded-3xl shadow-md -translate-y-2 md:-translate-y-4">
                             <img src="https://images.unsplash.com/photo-1493770348161-369560ae357d?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" />
                         </div>
-                        <div className="aspect-square overflow-hidden rounded-3xl shadow-md">
+                        <div className="aspect-square overflow-hidden rounded-2xl md:rounded-3xl shadow-md">
                             <img src="https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" />
                         </div>
-                        <div className="aspect-square overflow-hidden rounded-3xl shadow-md -translate-y-4">
+                        <div className="aspect-square overflow-hidden rounded-2xl md:rounded-3xl shadow-md -translate-y-2 md:-translate-y-4">
                             <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" />
                         </div>
-                        <div className="aspect-square overflow-hidden rounded-3xl shadow-md">
+                        <div className="aspect-square overflow-hidden rounded-2xl md:rounded-3xl shadow-md">
                             <img src="https://images.unsplash.com/photo-1490818387583-1baba5e638af?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="" />
                         </div>
                     </div>

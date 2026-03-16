@@ -238,7 +238,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   if (cart.items.length === 0) return null;
 
   return (
-    <div className="bg-brand-subtle min-h-screen pt-28 md:pt-40 pb-20 md:pb-32 px-4 md:px-12">
+    <div className="bg-[#F5F3FF] min-h-screen pt-28 md:pt-40 pb-20 md:pb-32 px-4 md:px-12">
       <div className="max-w-7xl mx-auto">
         <button
           onClick={() => navigate(-1)}
@@ -269,22 +269,22 @@ function CheckoutForm({ cart }: { cart: any }) {
 
               {/* 1. Identity */}
               <div className="space-y-8">
-                <h3 className="uppercase tracking-[0.3em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1 text-brand-primary/40">
+                <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
                   1. Identity
                 </h3>
                 <div className="grid grid-cols-1 gap-4">
                   <input
                     required name="name" type="text" placeholder="Full Name"
-                    className="w-full bg-white border border-brand-primary/5 rounded-[1.5rem] px-8 py-6 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
+                    className="w-full bg-white border border-brand-primary/5 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
                   />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input
                       required defaultValue={user?.email} name="email" type="email" placeholder="Email Address"
-                      className="w-full bg-white border border-brand-primary/5 rounded-[1.5rem] px-8 py-6 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
+                      className="w-full bg-white border border-brand-primary/5 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
                     />
                     <input
                       required defaultValue={user?.phone} name="phone" type="tel" placeholder="Phone Number"
-                      className="w-full bg-white border border-brand-primary/5 rounded-[1.5rem] px-8 py-6 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
+                      className="w-full bg-white border border-brand-primary/5 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
                     />
                   </div>
                 </div>
@@ -292,21 +292,21 @@ function CheckoutForm({ cart }: { cart: any }) {
 
               {/* 2. Destination */}
               <div className="space-y-8">
-                <h3 className="uppercase tracking-[0.3em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1 text-brand-primary/40">
+                <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
                   2. Destination
                 </h3>
                 <div className="space-y-4">
                   <input
                     required name="street" type="text" placeholder="Street Address"
-                    className="w-full bg-white border border-brand-primary/5 rounded-[1.5rem] px-8 py-6 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
+                    className="w-full bg-white border border-brand-primary/5 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
                   />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-brand-primary/5 border border-brand-primary/5 rounded-[1.5rem] px-8 py-5 md:py-6 flex items-center font-black uppercase tracking-widest text-[9px] md:text-[10px] text-brand-primary">
+                    <div className="bg-brand-primary/5 border border-brand-primary/5 rounded-xl px-5 py-3.5 flex items-center font-black uppercase tracking-widest text-[9px] md:text-[10px] text-brand-primary">
                       Miami, FL
                     </div>
                     <input
                       required defaultValue={user?.zip} name="zip" type="text" placeholder="Zip Code"
-                      className="w-full bg-white border border-brand-primary/5 rounded-[1.5rem] px-8 py-5 md:py-6 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
+                      className="w-full bg-white border border-brand-primary/5 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
                     />
                   </div>
                 </div>
@@ -314,13 +314,13 @@ function CheckoutForm({ cart }: { cart: any }) {
 
               {/* 3. Delivery Instructions */}
               <div className="space-y-8">
-                <h3 className="uppercase tracking-[0.3em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1 text-brand-primary/40">
+                <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
                   3. Delivery Instructions
                 </h3>
                 <div className="relative group">
                   <select
                     required name="notes" defaultValue=""
-                    className="w-full bg-white border border-brand-primary/10 rounded-[1.5rem] px-8 py-6 focus:ring-4 focus:ring-brand-primary/5 focus:outline-none appearance-none text-brand-primary transition-all font-medium cursor-pointer hover:border-brand-primary/30 shadow-sm hover:shadow-md"
+                    className="w-full bg-white border border-brand-primary/10 rounded-xl px-5 py-3.5 focus:ring-4 focus:ring-brand-primary/5 focus:outline-none appearance-none text-brand-primary transition-all font-medium cursor-pointer hover:border-brand-primary/30 shadow-sm hover:shadow-md"
                   >
                     <option value="" disabled>Choose an option</option>
                     <option value="There is a secure drop off location (e.g. locker, mail room, reception)">
@@ -341,7 +341,7 @@ function CheckoutForm({ cart }: { cart: any }) {
 
               {/* 4. Gratitude (Tip) */}
               <div className="space-y-8">
-                <h3 className="uppercase tracking-[0.3em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1 text-brand-primary/40">
+                <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
                   4. Gratitude
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -363,7 +363,7 @@ function CheckoutForm({ cart }: { cart: any }) {
 
               {/* 5. Promo Code */}
               <div className="space-y-6">
-                <h3 className="uppercase tracking-[0.3em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1 text-brand-primary/40">
+                <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
                   5. Promo Code
                 </h3>
 
@@ -441,7 +441,7 @@ function CheckoutForm({ cart }: { cart: any }) {
                     exit={{ opacity: 0, height: 0 }}
                     className="space-y-6"
                   >
-                    <h3 className="uppercase tracking-[0.3em] text-[10px] font-black border-l-2 border-brand-primary pl-6 py-1 text-brand-primary/40">
+                    <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
                       6. Payment
                     </h3>
                     <div className="bg-white border border-brand-primary/5 rounded-[1.5rem] px-8 py-7 shadow-sm">
@@ -487,7 +487,7 @@ function CheckoutForm({ cart }: { cart: any }) {
 
           {/* ── Right column: order summary ───────────────────────────────── */}
           <div className="lg:col-span-2 order-1 lg:order-2">
-            <div className="bg-white border border-brand-primary/5 rounded-3xl md:rounded-[3.5rem] p-8 md:p-12 lg:sticky lg:top-32 space-y-6 md:space-y-12 shadow-2xl shadow-brand-primary/5">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 md:p-12 lg:sticky lg:top-32 space-y-6 md:space-y-12">
               <h3 className="uppercase tracking-[0.4em] text-[9px] md:text-[10px] font-black border-b border-brand-primary/5 pb-4 md:pb-8 text-brand-primary/40 text-center">
                 Your Selection
               </h3>
@@ -568,10 +568,10 @@ function CheckoutForm({ cart }: { cart: any }) {
                 type="submit"
                 disabled={loading || (!stripe && !isFree)}
                 className={clsx(
-                  'w-full py-8 text-white rounded-[1.5rem] flex items-center justify-center gap-4 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 group active:scale-[0.98]',
+                  'w-full py-8 rounded-xl flex items-center justify-center gap-4 hover:brightness-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-[0.98]',
                   isFree
-                    ? 'bg-green-600 shadow-[0_20px_50px_rgba(22,163,74,0.3)]'
-                    : 'bg-brand-primary shadow-[0_20px_50px_rgba(43,28,112,0.3)]'
+                    ? 'bg-green-600 text-white shadow-[0_20px_50px_rgba(22,163,74,0.3)]'
+                    : 'bg-brand-lime text-brand-primary shadow-lg'
                 )}
               >
                 {loading ? (

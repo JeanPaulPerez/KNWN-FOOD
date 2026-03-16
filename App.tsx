@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, X, Menu as MenuIcon, ChevronRight, AlertTriangle, Calendar, ArrowRight } from 'lucide-react';
+import { ShoppingBag, X, Menu as MenuIcon, ChevronRight, AlertTriangle, Calendar, ArrowRight, Clock, MapPin, User } from 'lucide-react';
 import Home from './pages/Home';
 import MenuPage from './pages/MenuPage';
 import Checkout from './pages/Checkout';
@@ -23,101 +23,109 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] bg-brand-subtle/90 backdrop-blur-xl border-b border-brand-primary/10 h-20 md:h-24 flex items-center px-4 md:px-12 justify-between">
-      {/* Logo - Left aligned on mobile, Center aligned on desktop */}
-      <div className="flex items-center">
-        <Link to="/" className="block w-32 md:w-56 overflow-hidden">
+    <nav className="fixed top-0 left-0 right-0 z-[100] bg-white border-b border-gray-100 flex flex-col">
+      {/* ── Info bar ── */}
+      <div className="w-full bg-white border-b border-gray-100/80 h-9 flex items-center px-4 md:px-12 justify-between">
+        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-brand-orange">
+          <Clock size={11} strokeWidth={3} />
+          <span>Place your order within <span className="underline decoration-dotted">6 hrs 58 mins</span> for next-day lunch delivery</span>
+        </div>
+        <div className="hidden md:flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-brand-primary/50 hover:text-brand-primary cursor-pointer transition-colors">
+          <MapPin size={11} strokeWidth={2.5} />
+          <span>Enter the delivery address</span>
+        </div>
+      </div>
+
+      {/* ── Main nav row ── */}
+      <div className="h-16 md:h-20 flex items-center px-4 md:px-12 justify-between">
+        {/* Logo */}
+        <Link to="/" className="block w-24 md:w-36">
           <img
             src="https://knwnfood.com/wp-content/uploads/2025/09/Recurso-91x.webp"
             alt="KNWN Food Logo"
-            className="w-full h-auto brightness-0 invert"
+            className="w-full h-auto brightness-0"
           />
         </Link>
-      </div>
 
-      {/* Desktop Navigation Left (Placeholder for balance if needed) */}
-      <div className="hidden md:flex"></div>
+        {/* Desktop center nav */}
+        <div className="hidden md:flex items-center gap-10">
+          <Link
+            to="/menu"
+            className={cn(
+              "text-[11px] uppercase tracking-[0.2em] font-bold transition-colors",
+              location.pathname === '/menu' ? "text-brand-primary" : "text-brand-primary/50 hover:text-brand-primary"
+            )}
+          >
+            Menu
+          </Link>
+          <Link
+            to="/about"
+            className={cn(
+              "text-[11px] uppercase tracking-[0.2em] font-bold transition-colors",
+              location.pathname === '/about' ? "text-brand-primary" : "text-brand-primary/50 hover:text-brand-primary"
+            )}
+          >
+            About Us
+          </Link>
+        </div>
 
-      {/* Desktop Navigation Right */}
-      <div className="hidden md:flex gap-10 items-center flex-1 justify-end font-sans">
-        <Link
-          to="/menu"
-          className={cn(
-            "text-[13px] uppercase tracking-[0.2em] font-black transition-all hover:text-brand-primary",
-            location.pathname === '/menu' ? "text-brand-primary" : "text-brand-primary/60"
-          )}
-        >
-          Menu
-        </Link>
-        <Link
-          to="/about"
-          className={cn(
-            "text-[13px] uppercase tracking-[0.2em] font-black transition-all hover:text-brand-primary",
-            location.pathname === '/about' ? "text-brand-primary" : "text-brand-primary/60"
-          )}
-        >
-          Why Knwn
-        </Link>
-
-        <Link
-          to="/menu"
-          className="px-8 py-3 bg-brand-primary text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:scale-105 transition-transform shadow-lg shadow-brand-primary/10 flex items-center gap-2"
-        >
-          Order now
-          <ArrowRight size={14} />
-        </Link>
-
-        <div className="flex items-center gap-6 pl-4 border-l border-brand-primary/10">
+        {/* Desktop right actions */}
+        <div className="hidden md:flex items-center gap-3">
+          <Link
+            to="/menu"
+            className="px-6 py-2.5 bg-brand-primary text-white rounded-full text-[11px] font-black uppercase tracking-[0.15em] hover:bg-brand-dark transition-colors shadow-sm"
+          >
+            Order now
+          </Link>
           <button
             onClick={onOpenCart}
-            className="relative p-3 bg-white text-brand-primary border border-brand-primary/10 rounded-full transition-transform hover:scale-110"
+            className="relative p-2.5 bg-brand-bg rounded-full text-brand-primary hover:bg-brand-subtle/50 transition-colors"
           >
-            <ShoppingBag size={18} strokeWidth={2.5} />
+            <ShoppingBag size={18} strokeWidth={2} />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-black shadow-sm">
+              <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-black">
                 {cartCount}
               </span>
             )}
           </button>
+          <button className="p-2.5 bg-brand-bg rounded-full text-brand-primary hover:bg-brand-subtle/50 transition-colors">
+            <User size={18} strokeWidth={2} />
+          </button>
         </div>
-      </div>
 
-      {/* Mobile Actions */}
-      <div className="md:hidden flex items-center gap-2">
-        <button onClick={onOpenCart} className="relative p-2 bg-brand-primary text-white rounded-full">
-          <ShoppingBag size={16} strokeWidth={2.5} />
-          {cartCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-white text-brand-primary text-[7px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-black">
-              {cartCount}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="p-2 bg-white text-brand-primary rounded-full border border-brand-primary/10 shadow-sm"
-        >
-          {isMenuOpen ? <X size={18} /> : <MenuIcon size={18} />}
-        </button>
+        {/* Mobile actions */}
+        <div className="md:hidden flex items-center gap-2">
+          <button onClick={onOpenCart} className="relative p-2.5 bg-brand-bg text-brand-primary rounded-full">
+            <ShoppingBag size={17} strokeWidth={2} />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-[7px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-black">
+                {cartCount}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2.5 bg-brand-bg text-brand-primary rounded-full"
+          >
+            {isMenuOpen ? <X size={17} /> : <MenuIcon size={17} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 5, scale: 0.95, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            className="absolute top-[calc(100%+0.5rem)] left-4 right-4 bg-white backdrop-blur-2xl border border-brand-primary/10 rounded-[2rem] p-8 flex flex-col items-center gap-6 md:hidden z-50 shadow-2xl"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 px-6 py-8 flex flex-col gap-6 md:hidden z-50 shadow-xl"
           >
-            <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="text-3xl font-serif text-brand-primary">Menu</Link>
-            <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-3xl font-serif text-brand-primary">Story</Link>
-            <div className="w-full pt-6 border-t border-brand-primary/5 flex flex-col items-center gap-4">
-              <span className="text-[10px] uppercase tracking-widest font-black text-brand-primary/40">Connect With Us</span>
-              <div className="flex gap-6 text-brand-primary/60">
-                <a href="#" className="text-xs font-black uppercase tracking-widest">Instagram</a>
-                <a href="#" className="text-xs font-black uppercase tracking-widest">LinkedIn</a>
-              </div>
-            </div>
+            <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="text-2xl font-serif text-brand-primary">Menu</Link>
+            <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-2xl font-serif text-brand-primary">About Us</Link>
+            <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="mt-2 w-full py-4 bg-brand-primary text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] text-center">
+              Order Now
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>
@@ -127,6 +135,9 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
 
 
 const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpen: boolean, onClose: () => void, cart: any, onFinalize: () => void, isFinalizing?: boolean }) => {
+  const MAX_MEALS = 5;
+  const progress = Math.min((cart.itemCount / MAX_MEALS) * 100, 100);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -136,84 +147,80 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-brand-primary/40 backdrop-blur-xl z-[110]"
+            className="fixed inset-0 bg-brand-primary/20 backdrop-blur-sm z-[110]"
           />
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[120] shadow-2xl flex flex-col"
+            className="fixed top-0 right-0 h-full w-full max-w-sm bg-white z-[120] shadow-2xl flex flex-col"
           >
-            <div className="p-8 border-b border-brand-primary/5 flex justify-between items-center">
-              <div className="flex flex-col">
-                <h2 className="text-2xl font-serif text-brand-primary">Your Selection</h2>
+            {/* Header */}
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+              <div>
+                <h2 className="text-lg font-serif text-brand-primary">My Week Lunch</h2>
                 {cart.syncing && (
-                  <span className="text-[8px] uppercase tracking-widest text-[#E67E22] font-black animate-pulse">
-                    Sincronizando con WooCommerce...
-                  </span>
+                  <span className="text-[8px] uppercase tracking-widest text-brand-orange font-black animate-pulse">Syncing...</span>
                 )}
               </div>
-              <button onClick={onClose} className="p-2.5 bg-brand-subtle text-brand-primary rounded-full hover:scale-110 transition-transform">
-                <X size={20} />
+              <button onClick={onClose} className="p-2 bg-brand-bg text-brand-primary rounded-full hover:bg-brand-subtle/50 transition-colors">
+                <X size={18} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {/* Progress bar */}
+            <div className="px-6 py-3 border-b border-gray-100">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-[9px] font-black uppercase tracking-widest text-brand-primary/40">Week Progress</span>
+                <span className="text-[9px] font-black text-brand-primary/40">{cart.itemCount}/{MAX_MEALS} meals</span>
+              </div>
+              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-brand-lime rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Items */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar">
               {cart.items.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-                  <div className="w-20 h-20 bg-brand-subtle rounded-full flex items-center justify-center">
-                    <ShoppingBag size={32} className="text-brand-primary/30" strokeWidth={1.5} />
+                <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-12">
+                  <div className="w-16 h-16 bg-brand-bg rounded-full flex items-center justify-center">
+                    <ShoppingBag size={26} className="text-brand-primary/20" strokeWidth={1.5} />
                   </div>
-                  <p className="text-brand-primary/40 font-black uppercase tracking-[0.2em] text-[10px]">Your basket is currently empty</p>
+                  <p className="text-brand-primary/30 font-black uppercase tracking-[0.2em] text-[9px]">Your week is empty</p>
                   <Link
                     to="/menu"
                     onClick={onClose}
-                    className="px-8 py-3 bg-brand-primary text-white rounded-full text-[10px] uppercase tracking-[0.2em] font-black hover:scale-105 transition-transform"
+                    className="px-6 py-3 bg-brand-primary text-white rounded-full text-[10px] uppercase tracking-[0.2em] font-black hover:bg-brand-dark transition-colors"
                   >
                     Explore Menu
                   </Link>
                 </div>
               ) : (
                 cart.items.map((item: any) => (
-                  <div key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`} className="flex gap-4 md:gap-5 group bg-brand-subtle/30 p-4 md:p-5 rounded-2xl md:rounded-[2rem] border border-brand-primary/5">
-                    <img src={item.image || 'https://images.unsplash.com/photo-1495147466023-ac5c588e2e94?auto=format&fit=crop&q=80&w=800'} className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-xl md:rounded-[1.5rem]" />
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <h3 className="text-sm font-bold leading-tight text-brand-primary">{item.name}</h3>
-                        <span className="text-sm font-serif text-brand-primary">${item.price * item.quantity}</span>
+                  <div key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`} className="flex gap-3 bg-brand-bg p-3 rounded-2xl border border-gray-100">
+                    <img src={item.image || 'https://images.unsplash.com/photo-1495147466023-ac5c588e2e94?auto=format&fit=crop&q=80&w=800'} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" alt={item.name} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-2">
+                        <h3 className="text-[11px] font-bold leading-tight text-brand-primary truncate">{item.name}</h3>
+                        <span className="text-[11px] font-serif text-brand-primary flex-shrink-0">${item.price * item.quantity}</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-brand-primary/40 mt-1">
-                        <Calendar size={12} />
-                        <span className="text-[9px] font-black uppercase tracking-widest">{item.serviceDate}</span>
+                      <div className="flex items-center gap-1 mt-0.5 text-brand-primary/40">
+                        <Calendar size={9} />
+                        <span className="text-[8px] font-black uppercase tracking-widest">{item.serviceDate}</span>
                       </div>
-
-                      {item.customizations && (
-                        <div className="mt-2 text-[9px] text-brand-primary/60 space-y-0.5 border-l-2 border-brand-primary/10 pl-2 font-medium italic">
-                          {item.customizations.base && <div>Base: {item.customizations.base}</div>}
-                          {item.customizations.sauce && <div>Sauce: {item.customizations.sauce}</div>}
-                          {item.customizations.isVegetarian && (
-                            <div className="text-green-600 font-bold">
-                              Vegetariano: Yes
-                              {item.customizations.vegInstructions && (
-                                <span className="block text-[8px] opacity-70">({item.customizations.vegInstructions})</span>
-                              )}
-                            </div>
-                          )}
-                          {item.customizations.swap && <div>Swap: {item.customizations.swap}</div>}
-                          {item.customizations.avoid && <div className="text-red-400">Excluding: {item.customizations.avoid}</div>}
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-4 mt-4">
-                        <div className="flex items-center bg-white rounded-full p-1 border border-brand-primary/5">
-                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, item.customizations)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-brand-subtle transition-colors text-brand-primary">-</button>
-                          <span className="px-4 text-[10px] text-brand-primary font-black">{item.quantity}</span>
-                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1, item.customizations)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-brand-subtle transition-colors text-brand-primary">+</button>
+                      <div className="flex items-center justify-between mt-2.5">
+                        <div className="flex items-center bg-white rounded-full border border-gray-100 p-0.5">
+                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, item.customizations)} className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-brand-bg transition-colors text-brand-primary text-xs font-bold">−</button>
+                          <span className="px-2 text-[9px] text-brand-primary font-black">{item.quantity}</span>
+                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1, item.customizations)} className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-brand-bg transition-colors text-brand-primary text-xs font-bold">+</button>
                         </div>
                         <button
                           onClick={() => cart.removeItem(item.id, item.serviceDate, item.customizations)}
-                          className="text-[9px] uppercase tracking-[0.2em] text-brand-primary/40 hover:text-red-500 transition-colors font-black"
+                          className="text-[8px] uppercase tracking-widest text-brand-primary/25 hover:text-red-400 transition-colors font-black"
                         >
                           Remove
                         </button>
@@ -224,18 +231,19 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
               )}
             </div>
 
+            {/* Footer */}
             {cart.items.length > 0 && (
-              <div className="p-6 md:p-8 border-t border-brand-primary/5 bg-brand-subtle/50">
-                <div className="flex justify-between items-end mb-6 md:mb-8">
-                  <span className="text-brand-primary/40 uppercase tracking-[0.2em] text-[10px] font-black">Total Order</span>
-                  <span className="text-3xl md:text-4xl font-serif text-brand-primary">${cart.total}</span>
+              <div className="p-5 border-t border-gray-100">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Subtotal</span>
+                  <span className="text-2xl font-serif text-brand-primary">${cart.total}</span>
                 </div>
                 <button
                   onClick={onFinalize}
-                  className="w-full py-5 md:py-6 bg-brand-primary text-white rounded-xl md:rounded-[1.5rem] flex items-center justify-center gap-3 group hover:scale-[1.02] transition-all shadow-2xl shadow-brand-primary/30"
+                  className="w-full py-4 bg-brand-lime text-brand-primary rounded-2xl flex items-center justify-center gap-2 group hover:brightness-95 transition-all font-black text-[10px] uppercase tracking-[0.3em] shadow-lg shadow-brand-lime/30"
                 >
-                  <span className="uppercase tracking-[0.3em] text-[10px] font-black">Finalize Order</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  Checkout
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
             )}
@@ -270,7 +278,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen pt-24 selection:bg-brand-primary selection:text-white flex flex-col font-sans bg-brand-subtle">
+    <div className="min-h-screen pt-[100px] md:pt-[116px] selection:bg-brand-primary selection:text-white flex flex-col font-sans bg-[#F5F3FF]">
       <Navbar cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} />
 
       <main className="flex-1">

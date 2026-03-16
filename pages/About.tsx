@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 export default function About() {
   return (
-    <div className="bg-brand-subtle min-h-screen">
+    <div className="bg-[#F5F3FF] min-h-screen">
       <section className="pt-32 md:pt-64 pb-16 md:pb-32 px-4 md:px-12 max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
