@@ -5,11 +5,11 @@ import { ArrowRight, Check, ChevronLeft, ChevronRight, Truck, Clock } from 'luci
 
 /* ─── Customer Favs data ────────────────────────────────────────────────────── */
 const FAVS = [
-  { day: 'Monday',    name: 'Crispy Korean Chicken',   price: '$10.90', img: '/assets/food-bg/korean-crispy-chicken.webp',   desc: 'Brown rice, crispy Korean chicken breast, glazed red cabbage, zucchini, carrot, red onion, gochujang sauce.' },
-  { day: 'Tuesday',   name: 'Pesto Pasta',             price: '$10.90', img: '/assets/food-bg/pesto-pasta.webp',             desc: 'Al dente rigatoni, house-made basil pesto, sun-dried tomatoes, pine nuts, aged parmesan.' },
-  { day: 'Wednesday', name: 'Mediterranean Chicken',   price: '$10.90', img: '/assets/food-bg/mediterranean-chicken.webp',   desc: 'Herb-roasted chicken, quinoa, roasted peppers, kalamata olives, tzatziki, fresh lemon.' },
-  { day: 'Thursday',  name: 'Thai Beef Salad',         price: '$10.90', img: '/assets/food-bg/thai-beef-salad.webp',         desc: 'Marinated beef, rice noodles, fresh herbs, cucumber, peanuts, lime-chili vinaigrette.' },
-  { day: 'Friday',    name: 'Chicken César Salad',     price: '$10.90', img: '/assets/food-bg/chicken-cesar-salad.webp',     desc: 'Grilled chicken breast, romaine, shaved parmesan, house César dressing, sourdough croutons.' },
+  { day: 'Monday',    name: 'Crispy Korean Chicken',   price: '$15.90', img: '/assets/food-bg/korean-crispy-chicken.webp',   desc: 'Brown rice, crispy Korean chicken breast, glazed red cabbage, zucchini, carrot, red onion, gochujang sauce.' },
+  { day: 'Tuesday',   name: 'Pesto Pasta',             price: '$15.90', img: '/assets/food-bg/pesto-pasta.webp',             desc: 'Al dente rigatoni, house-made basil pesto, sun-dried tomatoes, pine nuts, aged parmesan.' },
+  { day: 'Wednesday', name: 'Mediterranean Chicken',   price: '$15.90', img: '/assets/food-bg/mediterranean-chicken.webp',   desc: 'Herb-roasted chicken, quinoa, roasted peppers, kalamata olives, tzatziki, fresh lemon.' },
+  { day: 'Thursday',  name: 'Thai Beef Salad',         price: '$15.90', img: '/assets/food-bg/thai-beef-salad.webp',         desc: 'Marinated beef, rice noodles, fresh herbs, cucumber, peanuts, lime-chili vinaigrette.' },
+  { day: 'Friday',    name: 'Chicken César Salad',     price: '$15.90', img: '/assets/food-bg/chicken-cesar-salad.webp',     desc: 'Grilled chicken breast, romaine, shaved parmesan, house César dressing, sourdough croutons.' },
 ];
 
 /* ─── Instagram photos ────────────────────────────────────────────────────────── */
@@ -69,20 +69,18 @@ export default function Home() {
             {/* CTA */}
             <Link
               to="/menu"
-              className="self-start px-7 py-3.5 bg-brand-primary text-white rounded-full text-xs font-black uppercase tracking-[0.15em] hover:bg-brand-dark transition-colors shadow-sm mt-1"
+              className="w-full sm:self-start sm:w-auto px-7 py-4 sm:py-3.5 bg-brand-orange text-white rounded-full text-xs font-black uppercase tracking-[0.15em] hover:opacity-90 transition-opacity shadow-md mt-1 text-center min-h-[48px] flex items-center justify-center sm:inline-flex"
             >
               Order Now
             </Link>
 
-            {/* perks */}
-            <div className="flex flex-wrap gap-6 mt-1">
-              <span className="flex items-center gap-2 text-[11px] font-semibold text-brand-primary/45">
-                <Truck size={13} strokeWidth={2} className="text-brand-orange" />
-                Free Next Day Delivery
+            {/* perks — pill badges per design */}
+            <div className="flex flex-wrap gap-3 mt-1">
+              <span className="flex items-center gap-2 text-[11px] font-semibold text-white bg-[#2D9455] px-4 py-2 rounded-full">
+                🌿 Free Next Day Delivery
               </span>
-              <span className="flex items-center gap-2 text-[11px] font-semibold text-brand-primary/45">
-                <Clock size={13} strokeWidth={2} className="text-brand-orange" />
-                Order by 10:00 PM
+              <span className="flex items-center gap-2 text-[11px] font-semibold text-white bg-brand-primary px-4 py-2 rounded-full">
+                🕐 Order by 10:00 PM
               </span>
             </div>
           </motion.div>
@@ -129,7 +127,7 @@ export default function Home() {
       </section>
 
       {/* ── 2 · HOW IT WORKS ──────────────────────────────────────────────────── */}
-      <section className="bg-white border-t border-gray-100 py-16 md:py-24 px-6 md:px-16 overflow-hidden">
+      <section id="how-it-works" className="bg-white border-t border-gray-100 py-16 md:py-24 px-6 md:px-16 overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
           {/* LEFT — photo */}
@@ -199,13 +197,13 @@ export default function Home() {
       <section className="bg-brand-primary py-14 px-6 md:px-16">
         <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
           {[
-            { icon: '/assets/icons-values/value-1.png', title: 'Simplifying Lunch',     desc: 'Plan once and handle the week.' },
-            { icon: '/assets/icons-values/value-2.png', title: 'Freshness Guarantee',   desc: 'Never frozen. Never batch made.' },
-            { icon: '/assets/icons-values/value-3.png', title: 'Bullsh*t Free',         desc: 'No additives. No shortcuts.' },
-            { icon: '/assets/icons-values/value-4.png', title: 'Pay Less Eat Better',   desc: 'No delivery app fees. No overpriced salads.' },
+            { icon: '/assets/icons-steps/step-1.svg', title: 'Simplifying Lunch',     desc: 'Plan once and handle the week.' },
+            { icon: '/assets/icons-steps/step-2.svg', title: 'Freshness Guarantee',   desc: 'Never frozen. Never batch made.' },
+            { icon: '/assets/icons-steps/step-3.svg', title: 'Bullsh*t Free',         desc: 'No additives. No shortcuts.' },
+            { icon: '/assets/icons-steps/step-4.svg', title: 'Pay Less Eat Better',   desc: 'No delivery app fees. No overpriced salads.' },
           ].map(v => (
             <div key={v.title} className="flex flex-col items-center text-center gap-4">
-              <img src={v.icon} alt={v.title} className="w-16 h-16 object-contain drop-shadow-lg" />
+              <img src={v.icon} alt={v.title} className="w-14 h-14 object-contain" />
               <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white leading-snug">{v.title}</h4>
               <p className="text-white/40 text-xs leading-relaxed max-w-[150px]">{v.desc}</p>
             </div>
@@ -233,7 +231,7 @@ export default function Home() {
             <button
               onClick={prev}
               aria-label="Previous"
-              className="flex-shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-full border-2 border-brand-primary/25 flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all"
+              className="hidden sm:flex flex-shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-full border-2 border-brand-primary/25 items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all"
             >
               <ChevronLeft size={18} />
             </button>
@@ -275,7 +273,7 @@ export default function Home() {
 
                   <Link
                     to="/menu"
-                    className="self-start mt-1 px-7 py-2.5 bg-brand-orange text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-opacity shadow-md"
+                    className="w-full sm:self-start sm:w-auto mt-1 px-7 py-3 sm:py-2.5 bg-brand-orange text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-opacity shadow-md text-center min-h-[48px] flex items-center justify-center sm:inline-flex"
                   >
                     See Full Menu
                   </Link>
@@ -286,7 +284,7 @@ export default function Home() {
             <button
               onClick={next}
               aria-label="Next"
-              className="flex-shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-full border-2 border-brand-primary/25 flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all"
+              className="hidden sm:flex flex-shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-full border-2 border-brand-primary/25 items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all"
             >
               <ChevronRight size={18} />
             </button>
@@ -305,39 +303,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 5 · DELIVERY ZONE BANNER (ZIP CODE.png as bg) ──────────────────────── */}
-      <section className="relative overflow-hidden">
-        {/* full-width background image */}
+      {/* ── 5 · DELIVERY ZONE BANNER ──────────────────────────────────────────── */}
+      <section className="relative bg-brand-primary overflow-hidden">
+        {/* Delivery moto illustration — far right, mix-blend-mode to knock out white bg */}
         <img
-          src="/assets/zip-banner.png"
+          src="/assets/delivery-moto.png"
           alt=""
           aria-hidden
-          className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
+          className="absolute right-0 bottom-0 h-full object-contain object-right-bottom pointer-events-none select-none"
+          style={{ mixBlendMode: 'screen', maxWidth: '260px' }}
         />
-        {/* content overlay */}
-        <div className="relative z-10 py-8 px-6 md:px-16">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-5 md:gap-10 md:pr-44">
 
-            <p className="text-white font-black text-base md:text-lg leading-snug flex-shrink-0 md:w-52">
-              Check if we deliver to your office.
+        <div className="relative z-10 py-8 px-6 md:px-16">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center gap-5 md:gap-10 pr-0 md:pr-56">
+
+            <p className="text-white font-black text-base md:text-lg leading-snug flex-shrink-0 md:w-56">
+              Check if we deliver<br className="hidden md:block" /> to your office.
             </p>
 
-            <div className="flex items-center gap-3 flex-1 max-w-sm">
+            <div className="flex items-center gap-3 flex-1 max-w-md">
               <div className="flex-1 flex items-center bg-white rounded-full overflow-hidden">
-                <svg className="ml-4 flex-shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2B1C70" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <svg className="ml-4 flex-shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1E0B6E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
                 <input
                   type="text"
-                  placeholder="Enter the ZIP code"
+                  placeholder="Enter ZIP code"
                   className="flex-1 py-3 px-3 text-sm text-brand-primary placeholder-brand-primary/30 outline-none font-medium bg-transparent"
                 />
               </div>
-              <button className="w-11 h-11 flex-shrink-0 rounded-full bg-brand-lime flex items-center justify-center hover:brightness-95 transition-all shadow-sm">
+              <button className="w-11 h-11 flex-shrink-0 rounded-full bg-brand-lime flex items-center justify-center hover:brightness-95 transition-all">
                 <ArrowRight size={17} className="text-brand-primary" strokeWidth={2.5} />
               </button>
             </div>
 
-            <p className="hidden md:block text-white/55 text-xs leading-relaxed flex-shrink-0 md:w-48">
-              Now serving Brickell, Downtown,<br />Bayside and Coral Gables.
+            <p className="hidden lg:block text-white/50 text-xs leading-relaxed flex-shrink-0 max-w-[180px]">
+              Now serving Brickell, Downtown, Bayside and Coral Gables.
             </p>
           </div>
         </div>
@@ -361,7 +362,7 @@ export default function Home() {
           </div>
 
           {/* table */}
-          <div className="rounded-2xl overflow-hidden shadow-2xl bg-white overflow-x-auto">
+          <div className="rounded-2xl overflow-x-auto shadow-2xl bg-white">
             <table className="w-full text-center border-collapse min-w-[520px]">
               <thead>
                 <tr className="border-b border-gray-100">

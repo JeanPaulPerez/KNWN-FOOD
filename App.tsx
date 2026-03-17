@@ -48,20 +48,26 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
         </Link>
 
         {/* Desktop center nav */}
-        <div className="hidden md:flex items-center gap-10">
+        <div className="hidden md:flex items-center gap-8">
           <Link
             to="/menu"
             className={cn(
-              "text-[11px] uppercase tracking-[0.2em] font-bold transition-colors",
+              "text-[11px] uppercase tracking-[0.18em] font-semibold transition-colors",
               location.pathname === '/menu' ? "text-brand-primary" : "text-brand-primary/50 hover:text-brand-primary"
             )}
           >
             Menu
           </Link>
+          <a
+            href="/#how-it-works"
+            className="text-[11px] uppercase tracking-[0.18em] font-semibold text-brand-primary/50 hover:text-brand-primary transition-colors"
+          >
+            How it Works
+          </a>
           <Link
             to="/about"
             className={cn(
-              "text-[11px] uppercase tracking-[0.2em] font-bold transition-colors",
+              "text-[11px] uppercase tracking-[0.18em] font-semibold transition-colors",
               location.pathname === '/about' ? "text-brand-primary" : "text-brand-primary/50 hover:text-brand-primary"
             )}
           >
@@ -73,22 +79,22 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
         <div className="hidden md:flex items-center gap-3">
           <Link
             to="/menu"
-            className="px-6 py-2.5 bg-brand-primary text-white rounded-full text-[11px] font-black uppercase tracking-[0.15em] hover:bg-brand-dark transition-colors shadow-sm"
+            className="px-6 py-2.5 bg-brand-orange text-white rounded-full text-[11px] font-black uppercase tracking-[0.15em] hover:opacity-90 transition-opacity shadow-sm"
           >
             Order now
           </Link>
           <button
             onClick={onOpenCart}
-            className="relative p-2.5 bg-brand-bg rounded-full text-brand-primary hover:bg-brand-subtle/50 transition-colors"
+            className="relative p-2.5 rounded-full text-brand-primary hover:bg-gray-100 transition-colors"
           >
             <ShoppingBag size={18} strokeWidth={2} />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-black">
+              <span className="absolute -top-1 -right-1 bg-brand-orange text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-black">
                 {cartCount}
               </span>
             )}
           </button>
-          <button className="p-2.5 bg-brand-bg rounded-full text-brand-primary hover:bg-brand-subtle/50 transition-colors">
+          <button className="p-2.5 rounded-full text-brand-primary hover:bg-gray-100 transition-colors">
             <User size={18} strokeWidth={2} />
           </button>
         </div>
@@ -121,9 +127,10 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
             exit={{ opacity: 0, y: -8 }}
             className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 px-6 py-8 flex flex-col gap-6 md:hidden z-50 shadow-xl"
           >
-            <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="text-2xl font-serif text-brand-primary">Menu</Link>
-            <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-2xl font-serif text-brand-primary">About Us</Link>
-            <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="mt-2 w-full py-4 bg-brand-primary text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] text-center">
+            <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-brand-primary">Menu</Link>
+            <a href="/#how-it-works" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-brand-primary">How it Works</a>
+            <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-brand-primary">About Us</Link>
+            <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="mt-2 w-full py-4 bg-brand-orange text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] text-center">
               Order Now
             </Link>
           </motion.div>
