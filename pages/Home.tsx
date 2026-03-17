@@ -212,26 +212,39 @@ export default function Home() {
       </section>
 
       {/* ── 4 · CUSTOMER FAVS ─────────────────────────────────────────────────── */}
-      <section className="bg-[#F5F3FF] py-14 md:py-20 px-4 md:px-10 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
+      <section className="bg-[#F5F3FF] py-12 md:py-20 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 md:px-10">
 
-          {/* "Customer Favs" handwriting label — right-aligned */}
-          <div className="flex justify-end mb-3 pr-2">
+          {/* Header row: day badge left, cursive title right */}
+          <div className="flex items-center justify-between mb-6 md:mb-8 px-1">
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={`day-${fav}`}
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.25 }}
+                className="px-5 py-2 bg-brand-lime text-brand-primary rounded-full text-xs font-black uppercase tracking-widest shadow-sm"
+              >
+                {item.day}
+              </motion.span>
+            </AnimatePresence>
             <span
-              className="text-brand-orange text-[2rem] md:text-[2.6rem]"
-              style={{ fontFamily: '"Nothing You Could Do", cursive' }}
+              className="text-[2rem] md:text-[3rem] text-brand-primary"
+              style={{ fontFamily: '"Nothing You Could Do", cursive', transform: 'rotate(-3deg)', display: 'block' }}
             >
-              Customer Favs
+              Customer favs
             </span>
           </div>
 
-          {/* Slider row */}
-          <div className="flex items-center gap-3">
+          {/* Slider */}
+          <div className="relative">
 
+            {/* Left arrow */}
             <button
               onClick={prev}
               aria-label="Previous"
-              className="hidden sm:flex flex-shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-full border-2 border-brand-primary/25 items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white border-2 border-brand-primary/20 text-brand-primary flex items-center justify-center hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all shadow-sm"
             >
               <ChevronLeft size={18} />
             </button>
@@ -239,59 +252,57 @@ export default function Home() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={fav}
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="flex-1 rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-xl min-h-[320px] md:min-h-[360px]"
+                className="relative flex items-center mx-10 md:mx-14 min-h-[280px] md:min-h-[400px]"
               >
-                {/* LEFT — lime bg + circular food photo + day badge */}
-                <div className="relative w-full md:w-[42%] bg-[#D4F84A] flex items-center justify-center p-8 md:p-10 h-[240px] md:h-auto">
-                  <span className="absolute top-4 left-4 px-3 py-1 bg-white text-brand-primary rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm z-10">
-                    {item.day}
-                  </span>
+                {/* Lime card — right side */}
+                <div className="ml-auto w-[78%] md:w-[68%] rounded-[2rem] md:rounded-[2.5rem] bg-brand-lime min-h-[280px] md:min-h-[380px] flex items-center">
+                  <div className="pl-[40%] md:pl-[38%] pr-6 md:pr-10 py-10 md:py-12 flex flex-col gap-3 md:gap-4">
+                    <h3 className="text-xl md:text-2xl font-black text-brand-primary leading-tight">{item.name}</h3>
+                    <p className="text-xs md:text-sm text-brand-primary/70 font-medium leading-relaxed max-w-[260px]">{item.desc}</p>
+                    <div className="flex items-center gap-3 flex-wrap mt-1">
+                      <span className="px-4 py-1.5 bg-brand-primary text-white rounded-full text-sm font-black shadow-sm">
+                        {item.price}
+                      </span>
+                      <span className="text-[10px] font-bold text-brand-primary/60 uppercase tracking-wider">
+                        Delivery Included
+                      </span>
+                    </div>
+                    <Link
+                      to="/menu"
+                      className="self-start mt-2 px-7 py-3 bg-brand-orange text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-opacity shadow-md"
+                    >
+                      See Full Menu
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Bowl — left side, overlapping the lime card */}
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[50%] md:w-[42%] z-20 pointer-events-none">
                   <img
                     src={item.img}
                     alt={item.name}
-                    className="w-[75%] md:w-[85%] aspect-square rounded-full object-cover shadow-2xl border-4 border-white relative z-10"
+                    className="w-full aspect-square object-cover rounded-full shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
                   />
-                </div>
-
-                {/* RIGHT — product info on lime-yellow */}
-                <div className="flex-1 bg-[#E9FF70] flex flex-col justify-center px-7 py-8 md:px-10 md:py-10 gap-4">
-                  <h3 className="text-2xl md:text-3xl font-black text-brand-primary leading-snug">{item.name}</h3>
-                  <p className="text-brand-primary/60 text-sm leading-relaxed max-w-xs font-medium">{item.desc}</p>
-
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <span className="px-4 py-1.5 bg-brand-orange text-white rounded-full text-sm font-black shadow-sm">
-                      {item.price}
-                    </span>
-                    <span className="text-[10px] font-semibold text-brand-primary/50 uppercase tracking-wider">
-                      Delivery included
-                    </span>
-                  </div>
-
-                  <Link
-                    to="/menu"
-                    className="w-full sm:self-start sm:w-auto mt-1 px-7 py-3 sm:py-2.5 bg-brand-orange text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-opacity shadow-md text-center min-h-[48px] flex items-center justify-center sm:inline-flex"
-                  >
-                    See Full Menu
-                  </Link>
                 </div>
               </motion.div>
             </AnimatePresence>
 
+            {/* Right arrow */}
             <button
               onClick={next}
               aria-label="Next"
-              className="hidden sm:flex flex-shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-full border-2 border-brand-primary/25 items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white border-2 border-brand-primary/20 text-brand-primary flex items-center justify-center hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all shadow-sm"
             >
               <ChevronRight size={18} />
             </button>
           </div>
 
-          {/* dots */}
-          <div className="flex justify-center gap-2 mt-5">
+          {/* Dots */}
+          <div className="flex justify-center gap-2 mt-6">
             {FAVS.map((_, i) => (
               <button
                 key={i}

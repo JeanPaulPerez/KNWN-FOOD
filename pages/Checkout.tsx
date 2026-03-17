@@ -1,16 +1,10 @@
 /**
  * pages/Checkout.tsx
  *
- * Full checkout flow with:
- *  - Customer info form
- *  - Promo code input (validates via /api/validate-coupon)
- *  - Stripe CardElement for paid orders
- *  - $0 bypass: if REALFOOD113 (or any 100% coupon), Stripe is skipped
- *    and the order goes directly to WooCommerce as "processing"
- *
- * FLOW SUMMARY:
- *   total > $0  →  Create PaymentIntent → confirmCardPayment → /api/complete-order
- *   total = $0  →  /api/complete-order directly (no Stripe)
+ * Full checkout flow tailored to KNWN design system:
+ * - Customer info, payment method
+ * - Order Summary (right column)
+ * - Integration with existing wooCart logic and /api/complete-order
  */
 
 import React, { useState, useEffect } from 'react';
@@ -18,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ChevronLeft, Loader2, Send, MapPin, AlertCircle,
-  Info, Tag, CheckCircle, X, Lock,
+  Info, Tag, CheckCircle, X, Lock, Check,
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -26,26 +20,22 @@ import { getActiveOrderInfo } from '../utils/dateLogic';
 import { clsx } from 'clsx';
 import { useUser } from '../store/useUser';
 
-// Load Stripe outside of render to avoid recreating on every render
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string);
 
-const TAX_RATE = 0.02;
-const TIP_OPTIONS = [0, 0.08, 0.10, 0.15];
+const TAX_RATE = 0.063; // E.g., Miami tax
 
 const CARD_ELEMENT_OPTIONS = {
   style: {
     base: {
       fontSize: '15px',
-      color: '#1a1a1a',
-      fontFamily: '"Inter", "sans-serif"',
+      color: '#1E0B6E',
+      fontFamily: '"Poppins", sans-serif',
       fontSmoothing: 'antialiased',
-      '::placeholder': { color: '#c4bfdb' },
+      '::placeholder': { color: '#1E0B6E40' },
     },
     invalid: { color: '#ef4444', iconColor: '#ef4444' },
   },
 };
-
-// ─── Inner form (must be inside <Elements>) ────────────────────────────────────
 
 function CheckoutForm({ cart }: { cart: any }) {
   const navigate = useNavigate();
@@ -56,545 +46,393 @@ function CheckoutForm({ cart }: { cart: any }) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [tipRate, setTipRate] = useState<number>(0.10);
+  const [tipRate, setTipRate] = useState<number | 'none'>('none');
+  const [repeatOrder, setRepeatOrder] = useState(true);
 
   // Coupon state
   const [couponInput, setCouponInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState('');
-  const [coupon, setCoupon] = useState<{
-    code: string;
-    discountType: 'percent' | 'fixed_cart';
-    discountValue: number;
-    isFree: boolean;
-  } | null>(null);
+  const [coupon, setCoupon] = useState<{ code: string; discountType: string; discountValue: number; isFree: boolean; } | null>(null);
 
   useEffect(() => {
     if (cart.items.length === 0) navigate('/menu');
   }, [cart.items.length, navigate]);
 
-  // ── Totals ─────────────────────────────────────────────────────────────────
   const subtotal = cart.total;
-  const tax = subtotal * TAX_RATE;
-  const tip = subtotal * tipRate;
-  const preDiscountTotal = subtotal + tax + tip;
-
+  
+  // Calculate discount first
   const discountAmount = coupon
     ? coupon.discountType === 'percent'
-      ? (preDiscountTotal * coupon.discountValue) / 100
-      : Math.min(coupon.discountValue, preDiscountTotal)
+      ? (subtotal * coupon.discountValue) / 100
+      : Math.min(coupon.discountValue, subtotal)
     : 0;
 
-  const finalTotal = Math.max(0, preDiscountTotal - discountAmount);
+  const afterDiscount = Math.max(0, subtotal - discountAmount);
+  const tax = afterDiscount * TAX_RATE;
+  const tipAmount = tipRate === 'none' ? 0 : afterDiscount * tipRate;
+  const finalTotal = afterDiscount + tax + tipAmount;
+  const isFree = finalTotal === 0 && coupon?.isFree;
 
-  /**
-   * isFree: true when a 100% coupon is applied (e.g. REALFOOD113).
-   * This flag controls whether Stripe is shown and whether
-   * /api/create-payment-intent is called at all.
-   */
-  const isFree = finalTotal === 0 && coupon !== null;
-
-  // ── Coupon handlers ────────────────────────────────────────────────────────
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) return;
-    setCouponLoading(true);
-    setCouponError('');
-    setCoupon(null);
-
+    setCouponLoading(true); setCouponError(''); setCoupon(null);
     try {
       const res = await fetch('/api/validate-coupon', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: couponInput.trim() }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: couponInput.trim() }),
       });
       const data = await res.json();
-
-      if (data.valid) {
-        setCoupon({
-          code: data.code,
-          discountType: data.discountType,
-          discountValue: data.discountValue,
-          isFree: data.isFree,
-        });
-      } else {
-        setCouponError(data.error || 'Invalid coupon code');
-      }
-    } catch {
-      setCouponError('Unable to validate coupon. Please try again.');
-    } finally {
-      setCouponLoading(false);
-    }
+      if (data.valid) { setCoupon(data); } else { setCouponError(data.error); }
+    } catch { setCouponError('Error validating coupon. Try again.'); }
+    finally { setCouponLoading(false); setCouponInput(''); }
   };
 
-  const handleRemoveCoupon = () => {
-    setCoupon(null);
-    setCouponInput('');
-    setCouponError('');
-  };
+  const handleRemoveCoupon = () => setCoupon(null);
 
-  // ── Submit handler ─────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    const formData = new FormData(e.currentTarget);
+    setLoading(true); setError('');
+    const form = new FormData(e.currentTarget);
     const customerInfo = {
-      name:   formData.get('name')   as string,
-      email:  formData.get('email')  as string,
-      phone:  formData.get('phone')  as string,
-      street: formData.get('street') as string,
-      city:   'Miami',
-      zip:    formData.get('zip')    as string,
-      notes:  formData.get('notes')  as string,
+      name:   form.get('firstName') + ' ' + form.get('lastName'),
+      email:  form.get('email') as string,
+      phone:  form.get('phone') as string,
+      street: form.get('street') as string,
+      city:   form.get('city') as string,
+      state:  form.get('state') as string,
+      zip:    form.get('zip') as string,
+      notes:  'N/A',
     };
 
     try {
       let paymentIntentId: string | null = null;
-
       if (!isFree) {
-        // ── PAID FLOW ──────────────────────────────────────────────────────
-        // Step 1: Create PaymentIntent on the server
-        if (!stripe || !elements) throw new Error('Payment system not ready. Please refresh.');
-
+        if (!stripe || !elements) throw new Error('Payment not loaded.');
         const piRes = await fetch('/api/create-payment-intent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amountInCents: Math.round(finalTotal * 100),
-            customerEmail: customerInfo.email,
-          }),
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amountInCents: Math.round(finalTotal * 100), customerEmail: customerInfo.email }),
         });
-
-        if (!piRes.ok) {
-          const piErr = await piRes.json();
-          throw new Error(piErr.error || 'Could not initialize payment');
-        }
-
+        if (!piRes.ok) throw new Error((await piRes.json()).error);
         const { clientSecret } = await piRes.json();
-
-        // Step 2: Confirm the card payment client-side with Stripe Elements
-        const cardElement = elements.getElement(CardElement);
-        if (!cardElement) throw new Error('Card field not found');
-
-        const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
-          clientSecret,
-          {
-            payment_method: {
-              card: cardElement,
-              billing_details: {
-                name:  customerInfo.name,
-                email: customerInfo.email,
-              },
-            },
-          }
-        );
-
-        if (stripeError) throw new Error(stripeError.message || 'Payment failed');
-        if (paymentIntent?.status !== 'succeeded') throw new Error('Payment was not completed');
-
-        paymentIntentId = paymentIntent.id;
-
+        const cardEl = elements.getElement(CardElement);
+        if(!cardEl) throw new Error('Missing card info');
+        const { error: sErr, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: { card: cardEl, billing_details: { name: customerInfo.name, email: customerInfo.email } },
+        });
+        if (sErr) throw new Error(sErr.message);
+        paymentIntentId = paymentIntent?.id || null;
       }
-      // ── FREE FLOW: paymentIntentId stays null, server skips Stripe ─────────
-
-      // Step 3: Create the WooCommerce order (both paid and free paths)
       const orderRes = await fetch('/api/complete-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items:           cart.items,
-          customerInfo,
-          couponCode:      coupon?.code || null,
-          paymentIntentId,
-          isFree,
-          total:           finalTotal,
-        }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: cart.items, customerInfo, couponCode: coupon?.code, paymentIntentId, isFree, total: finalTotal }),
       });
-
-      if (!orderRes.ok) {
-        const orderErr = await orderRes.json();
-        throw new Error(orderErr.error || 'Failed to place order');
-      }
-
-      const orderData = await orderRes.json();
+      if (!orderRes.ok) throw new Error((await orderRes.json()).error);
+      const data = await orderRes.json();
       cart.clearCart();
-
-      // Pass the full orders array (one entry per item) to ThankYou
-      navigate('/thank-you', {
-        state: {
-          orders:  orderData.orders,
-          payload: { ...customerInfo, items: cart.items, total: finalTotal },
-        },
-      });
-
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+      navigate('/thank-you', { state: { orders: data.orders, payload: { ...customerInfo, items: cart.items, total: finalTotal } } });
+    } catch (err: any) { setError(err.message); }
+    finally { setLoading(false); }
   };
 
   if (cart.items.length === 0) return null;
 
   return (
-    <div className="bg-[#F5F3FF] min-h-screen pt-28 md:pt-40 pb-20 md:pb-32 px-4 md:px-12">
-      <div className="max-w-7xl mx-auto">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-3 text-brand-primary/40 hover:text-brand-primary transition-all mb-16 group"
-        >
-          <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-          <span className="uppercase tracking-[0.3em] text-[10px] font-black italic">Return to Selection</span>
-        </button>
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-
-          {/* ── Left column: form ─────────────────────────────────────────── */}
-          <div className="lg:col-span-3 space-y-12 order-2 lg:order-1">
-            <div>
-              <h1 className="text-5xl md:text-7xl font-serif mb-4 md:mb-6 text-brand-primary leading-tight md:leading-none tracking-tighter">
-                Finalize <br /><span className="italic font-light">Details.</span>
-              </h1>
-              <p className="text-brand-primary/40 font-medium flex items-center gap-3 text-xs md:text-sm">
-                <MapPin size={18} className="text-brand-primary" />
-                Artisanal service exclusively in{' '}
-                <span className="text-brand-primary font-black uppercase tracking-widest text-[9px] md:text-[10px]">
-                  Miami Metropolitan Area
-                </span>
-              </p>
+    <div className="bg-[#F5F3FF] min-h-screen pt-28 md:pt-40 pb-20 md:pb-32 px-4 md:px-12 font-sans select-none">
+      <div className="max-w-6xl mx-auto">
+        <form id="checkout-form" onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+          
+          {/* ── LEFT COLUMN: FORMS ────────────────────────────────────────── */}
+          <div className="lg:col-span-7 space-y-8">
+            
+            {/* Express Checkout */}
+            <div className="text-center mb-8">
+              <span className="text-brand-primary font-bold text-sm block mb-4">Express Payment</span>
+              <div className="flex items-center gap-3 w-full">
+                <button type="button" className="flex-1 bg-black text-white rounded-[0.5rem] py-3.5 flex justify-center items-center hover:brightness-110 shadow-sm border border-black transition-all">
+                  <span className="font-bold tracking-tight text-lg">Pay</span>
+                </button>
+                <button type="button" className="flex-1 bg-[#00D632] text-[#00691B] rounded-[0.5rem] py-3.5 flex justify-center items-center hover:brightness-110 shadow-sm transition-all font-bold text-lg">
+                  <span className="bg-white/90 px-3 py-0.5 rounded-full inline-flex items-center">
+                    <span className="leading-none transform -translate-y-px">link</span>
+                  </span>
+                </button>
+                <button type="button" className="flex-1 bg-[#FFC439] text-[#003087] rounded-[0.5rem] py-3.5 flex justify-center items-center hover:brightness-110 shadow-sm transition-all font-black text-lg italic">
+                  PayPal
+                </button>
+              </div>
             </div>
 
-            <form id="order-form" onSubmit={handleSubmit} className="space-y-12">
-
-              {/* 1. Identity */}
-              <div className="space-y-8">
-                <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
-                  1. Identity
-                </h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <input
-                    required name="name" type="text" placeholder="Full Name"
-                    className="w-full bg-white border border-brand-primary/5 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
-                  />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      required defaultValue={user?.email} name="email" type="email" placeholder="Email Address"
-                      className="w-full bg-white border border-brand-primary/5 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
-                    />
-                    <input
-                      required defaultValue={user?.phone} name="phone" type="tel" placeholder="Phone Number"
-                      className="w-full bg-white border border-brand-primary/5 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
-                    />
-                  </div>
-                </div>
+            {/* Contact */}
+            <div className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-brand-primary/5">
+              <h2 className="text-2xl font-bold text-brand-primary mb-6">Contact</h2>
+              <div className="space-y-4">
+                <input required type="email" name="email" defaultValue={user?.email} placeholder="Email" className="w-full border border-brand-primary/20 rounded-xl px-5 py-4 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium" />
+                <input required type="tel" name="phone" defaultValue={user?.phone} placeholder="Phone Number" className="w-full border border-brand-primary/20 rounded-xl px-5 py-4 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium" />
+                <label className="flex items-center gap-3 cursor-pointer pt-2 group">
+                  <div className="w-5 h-5 rounded border-2 border-brand-primary/20 bg-white flex items-center justify-center group-hover:border-brand-primary transition-colors"></div>
+                  <span className="text-sm font-semibold text-brand-primary/80 select-none">Send me updates and offers by email and SMS</span>
+                </label>
               </div>
+            </div>
 
-              {/* 2. Destination */}
-              <div className="space-y-8">
-                <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
-                  2. Destination
-                </h3>
-                <div className="space-y-4">
-                  <input
-                    required name="street" type="text" placeholder="Street Address"
-                    className="w-full bg-white border border-brand-primary/5 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
-                  />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-brand-primary/5 border border-brand-primary/5 rounded-xl px-5 py-3.5 flex items-center font-black uppercase tracking-widest text-[9px] md:text-[10px] text-brand-primary">
-                      Miami, FL
+            {/* Delivering To Block (Mocked Delivery details as shown) */}
+            <div className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-brand-primary/5 flex flex-col items-start gap-1">
+              <h2 className="text-2xl font-bold text-brand-primary">Delivering to Manantial</h2>
+              <p className="text-brand-primary/60 font-medium text-base mb-1 tracking-tight">6778 W FLAGLER ST, MIAMI, FL, 33144-2946, United States</p>
+              <button type="button" className="text-brand-orange text-sm font-bold hover:underline underline-offset-4">Edit delivery preferences</button>
+            </div>
+
+            {/* Payment Method */}
+            <div className="bg-white border-2 border-brand-primary/10 rounded-[1.5rem] overflow-hidden shadow-sm">
+              <h2 className="text-2xl font-bold text-brand-primary p-8 pb-4">Payment Method</h2>
+              
+              <div className="px-8 pb-6">
+                <div className="flex flex-col border border-brand-primary/20 rounded-xl overflow-hidden bg-brand-primary/[0.02]">
+                  
+                  {/* Option 1 */}
+                  <div className="flex items-center gap-3 p-4 border-b border-brand-primary/20 cursor-pointer bg-white">
+                    <div className="w-5 h-5 rounded-full border-4 border-brand-primary flex items-center justify-center">
+                      <div className="w-2.5 h-2.5 bg-brand-primary rounded-full" />
                     </div>
-                    <input
-                      required defaultValue={user?.zip} name="zip" type="text" placeholder="Zip Code"
-                      className="w-full bg-white border border-brand-primary/5 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-medium"
-                    />
+                    <span className="font-semibold text-brand-primary">Credit/Debit Card</span>
+                  </div>
+
+                  {/* Option 2, 3 */}
+                  <div className="flex items-center gap-3 p-4 border-b border-brand-primary/20 cursor-pointer hover:bg-white transition-colors">
+                    <div className="w-5 h-5 rounded-full border-2 border-brand-primary/20" />
+                    <span className="font-semibold text-brand-primary/60">PayPal</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-4 cursor-pointer hover:bg-white transition-colors">
+                    <div className="w-5 h-5 rounded-full border-2 border-brand-primary/20" />
+                    <span className="font-semibold text-brand-primary/60">Apple Pay</span>
                   </div>
                 </div>
               </div>
 
-              {/* 3. Delivery Instructions */}
-              <div className="space-y-8">
-                <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
-                  3. Delivery Instructions
-                </h3>
-                <div className="relative group">
-                  <select
-                    required name="notes" defaultValue=""
-                    className="w-full bg-white border border-brand-primary/10 rounded-xl px-5 py-3.5 focus:ring-4 focus:ring-brand-primary/5 focus:outline-none appearance-none text-brand-primary transition-all font-medium cursor-pointer hover:border-brand-primary/30 shadow-sm hover:shadow-md"
-                  >
-                    <option value="" disabled>Choose an option</option>
-                    <option value="There is a secure drop off location (e.g. locker, mail room, reception)">
-                      There is a secure drop off location
-                    </option>
-                    <option value="Delivery person is given access to the office">
-                      Delivery person is given access to the office
-                    </option>
-                    <option value="Others">Others</option>
-                  </select>
-                  <div className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none text-brand-primary/40">
-                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
-                      <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              {/* 4. Gratitude (Tip) */}
-              <div className="space-y-8">
-                <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
-                  4. Gratitude
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {TIP_OPTIONS.map((rate) => (
-                    <button
-                      key={rate} type="button" onClick={() => setTipRate(rate)}
-                      className={clsx(
-                        'py-6 rounded-[1.5rem] border font-black text-[10px] uppercase tracking-[0.3em] transition-all',
-                        tipRate === rate
-                          ? 'bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20 scale-[1.02]'
-                          : 'bg-white text-brand-primary/40 border-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary shadow-sm hover:shadow-md'
-                      )}
-                    >
-                      {rate * 100}%
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 5. Promo Code */}
-              <div className="space-y-6">
-                <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
-                  5. Promo Code
-                </h3>
-
-                {coupon ? (
-                  /* Applied coupon badge */
-                  <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-between bg-green-50 border border-green-200 rounded-[1.5rem] px-8 py-5"
-                  >
-                    <div className="flex items-center gap-3">
-                      <CheckCircle size={18} className="text-green-600 shrink-0" />
-                      <div>
-                        <span className="text-green-700 font-black uppercase tracking-widest text-[11px]">
-                          {coupon.code}
-                        </span>
-                        <p className="text-green-600 text-[10px] mt-0.5">
-                          {coupon.discountType === 'percent'
-                            ? `${coupon.discountValue}% off`
-                            : `$${coupon.discountValue.toFixed(2)} off`}
-                          {coupon.isFree && ' — Order is FREE!'}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button" onClick={handleRemoveCoupon}
-                      className="text-green-400 hover:text-green-700 transition-colors"
-                    >
-                      <X size={18} />
-                    </button>
-                  </motion.div>
-                ) : (
-                  /* Coupon input */
-                  <div className="flex gap-3">
-                    <div className="relative flex-1">
-                      <Tag size={15} className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-primary/30" />
-                      <input
-                        type="text"
-                        value={couponInput}
-                        onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(''); }}
-                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleApplyCoupon(); } }}
-                        placeholder="PROMO CODE"
-                        className="w-full bg-white border border-brand-primary/5 rounded-[1.5rem] pl-12 pr-6 py-5 focus:ring-2 focus:ring-brand-primary/10 focus:outline-none placeholder:text-brand-primary/20 text-brand-primary transition-all font-black uppercase tracking-widest text-sm"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleApplyCoupon}
-                      disabled={couponLoading || !couponInput.trim()}
-                      className="px-8 py-5 bg-brand-primary text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.3em] hover:scale-105 transition-all disabled:opacity-50 disabled:scale-100 whitespace-nowrap"
-                    >
-                      {couponLoading ? <Loader2 size={16} className="animate-spin" /> : 'Apply'}
-                    </button>
-                  </div>
-                )}
-
-                {couponError && (
-                  <motion.div
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    className="flex items-center gap-2 text-red-500 text-[11px] font-medium"
-                  >
-                    <AlertCircle size={14} />
-                    {couponError}
-                  </motion.div>
-                )}
-              </div>
-
-              {/* 6. Payment — shown only when total > $0 */}
-              <AnimatePresence>
-                {!isFree && (
-                  <motion.div
-                    key="payment"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="space-y-6"
-                  >
-                    <h3 className="text-sm font-black text-brand-primary uppercase tracking-wider">
-                      6. Payment
-                    </h3>
-                    <div className="bg-white border border-brand-primary/5 rounded-[1.5rem] px-8 py-7 shadow-sm">
+              {/* Card Inputs */}
+              {!isFree && (
+                <div className="px-8 pb-8 space-y-5">
+                  <div>
+                    <label className="text-xs font-bold text-brand-primary mb-1.5 block">Card Number</label>
+                    <div className="border border-brand-primary/20 rounded-xl px-5 py-4 bg-white shadow-inner">
                       <CardElement options={CARD_ELEMENT_OPTIONS} />
                     </div>
-                    <p className="text-[10px] text-brand-primary/30 font-medium italic flex items-center gap-2">
-                      <Lock size={11} />
-                      Payments are encrypted and processed securely by Stripe. We never store your card details.
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Free order confirmation */}
-              <AnimatePresence>
-                {isFree && (
-                  <motion.div
-                    key="free"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="p-6 bg-green-50 border border-green-200 rounded-[1.5rem] text-center"
-                  >
-                    <p className="text-green-700 font-black uppercase tracking-widest text-[11px]">
-                      Your order is completely free!
-                    </p>
-                    <p className="text-green-600 text-[11px] mt-1">
-                      No payment required — click below to confirm your order.
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Error */}
-              {error && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm">
-                  <AlertCircle size={18} />
-                  {error}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <input type="text" placeholder="MM/YY" className="border border-brand-primary/20 rounded-xl px-4 py-3.5 focus:border-brand-primary text-brand-primary font-medium" />
+                    <input type="text" placeholder="123" className="border border-brand-primary/20 rounded-xl px-4 py-3.5 focus:border-brand-primary text-brand-primary font-medium" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-brand-primary mb-1.5 block">Name on Card</label>
+                    <input type="text" placeholder="John Doe" className="w-full border border-brand-primary/20 rounded-xl px-4 py-3.5 focus:border-brand-primary text-brand-primary font-medium" />
+                  </div>
                 </div>
               )}
-            </form>
+            </div>
+
+            {/* Billing Address (Dirección de facturación) */}
+            <div className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-brand-primary/5 space-y-4">
+              <h2 className="text-xl font-bold text-brand-primary mb-4">Dirección de facturación</h2>
+              
+              <div className="relative">
+                <select className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 appearance-none font-medium text-brand-primary focus:border-brand-primary outline-none cursor-pointer">
+                  <option>Estados Unidos</option>
+                </select>
+                <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">País / Región</label>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative">
+                  <input required name="firstName" type="text" defaultValue="Maria" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Nombre</label>
+                </div>
+                <div className="relative">
+                  <input required name="lastName" type="text" defaultValue="Salas" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Apellidos</label>
+                </div>
+              </div>
+
+              <div className="relative">
+                <input required name="street" type="text" defaultValue="6778 West Flagler Street" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Dirección</label>
+              </div>
+
+              <div className="relative">
+                <input type="text" placeholder="Casa, apartamento, etc. (opcional)" className="w-full border border-brand-primary/20 rounded-xl px-4 py-4 font-medium text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/40" />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="relative">
+                  <input required name="city" type="text" defaultValue="Miami" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Ciudad</label>
+                </div>
+                <div className="relative col-span-1">
+                  <select name="state" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 appearance-none font-medium text-brand-primary focus:border-brand-primary outline-none">
+                    <option>Florida</option>
+                  </select>
+                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Estado</label>
+                </div>
+                <div className="relative">
+                  <input required name="zip" type="text" defaultValue="33144" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Código postal</label>
+                </div>
+              </div>
+            </div>
+            
           </div>
 
-          {/* ── Right column: order summary ───────────────────────────────── */}
-          <div className="lg:col-span-2 order-1 lg:order-2">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 md:p-12 lg:sticky lg:top-32 space-y-6 md:space-y-12">
-              <h3 className="uppercase tracking-[0.4em] text-[9px] md:text-[10px] font-black border-b border-brand-primary/5 pb-4 md:pb-8 text-brand-primary/40 text-center">
-                Your Selection
-              </h3>
-
-              {/* Items */}
-              <div className="space-y-8 max-h-[400px] overflow-y-auto pr-2 no-scrollbar">
-                {cart.items.map((item: any) => (
-                  <div
-                    key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations || {})}`}
-                    className="flex justify-between items-start gap-6 group"
-                  >
-                    <div className="flex-1 space-y-2">
-                      <p className="text-sm font-black text-brand-primary group-hover:italic transition-all">{item.name}</p>
-                      <p className="text-[10px] text-brand-primary/30 uppercase tracking-[0.2em] font-black">Qty: {item.quantity}</p>
-                      {item.customizations && (
-                        <div className="text-[10px] text-brand-primary/60 leading-relaxed italic p-4 bg-brand-subtle/30 rounded-[1.5rem] border border-brand-primary/5 space-y-1">
-                          {item.customizations.base   && <div>Base: {item.customizations.base}</div>}
-                          {item.customizations.sauce  && <div>Sauce: {item.customizations.sauce}</div>}
-                          {item.customizations.isVegetarian && <div className="text-green-600 font-bold">Vegetarian: Yes</div>}
-                          {item.customizations.avoid  && <div className="not-italic text-red-500 font-black uppercase text-[8px] tracking-widest">Exclude: {item.customizations.avoid}</div>}
+          {/* ── RIGHT COLUMN: SUMMARY ─────────────────────────────────────── */}
+          <div className="lg:col-span-5 relative mt-4 md:mt-0">
+            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-brand-primary/5 sticky top-32">
+              <h2 className="text-2xl md:text-[1.7rem] font-bold text-brand-primary leading-tight mb-6">Order Summary</h2>
+              
+              {/* Group items by Service Date */}
+              <div className="space-y-6">
+                {Object.entries(
+                  cart.items.reduce((acc: any, it: any) => {
+                    const ds = it.serviceDate.split(',')[0]; // "Wednesday", "Thursday"
+                    const dateFull = ds; // Using serviceDate format
+                    if(!acc[dateFull]) acc[dateFull] = [];
+                    acc[dateFull].push(it);
+                    return acc;
+                  }, {})
+                ).map(([day, items]: any, i) => (
+                  <div key={i} className="space-y-4">
+                    <h4 className="text-sm font-bold text-brand-primary">{day}</h4>
+                    {items.map((item: any) => (
+                      <div key={item.id} className="flex gap-4 items-center">
+                        <img src={item.image || '/assets/food-bg/thai-beef-salad.jpg'} className="w-16 h-16 rounded-full object-cover shadow-md border-2 border-white bg-gray-100" />
+                        <div className="flex-1">
+                          <h5 className="text-[12px] font-bold text-brand-primary">{item.name}</h5>
+                          <div className="flex items-center gap-2 mt-1 -ml-1">
+                            <span className="w-6 h-6 rounded-full flex items-center justify-center text-brand-primary/50 text-xs font-bold bg-transparent">−</span>
+                            <span className="text-xs font-bold border border-brand-primary/20 rounded-md px-3 py-0.5">{item.quantity}</span>
+                            <span className="w-6 h-6 rounded-full flex items-center justify-center text-brand-primary/50 text-xs font-bold">+</span>
+                            <span className="text-brand-orange text-xs ml-auto pr-2">🗑</span>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    <span className="text-lg font-serif text-brand-primary">${(item.price * item.quantity).toFixed(2)}</span>
+                        <span className="font-bold text-brand-primary text-sm">${(item.price * item.quantity).toFixed(2)}</span>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
 
-              {/* Totals */}
-              <div className="space-y-4 pt-10 border-t border-brand-primary/5">
-                <div className="flex justify-between text-brand-primary/40 text-[10px] font-black uppercase tracking-[0.3em]">
-                  <span>Subtotal</span>
-                  <span className="text-brand-primary">${subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-brand-primary/40 text-[10px] font-black uppercase tracking-[0.3em]">
-                  <span>Service Tax</span>
-                  <span className="text-brand-primary">${tax.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-brand-primary/40 text-[10px] font-black uppercase tracking-[0.3em]">
-                  <span>Gratitude</span>
-                  <span className="text-brand-primary">${tip.toFixed(2)}</span>
-                </div>
-
-                {/* Discount line — animated in/out */}
-                <AnimatePresence>
-                  {coupon && discountAmount > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="flex justify-between text-green-600 text-[10px] font-black uppercase tracking-[0.3em]"
-                    >
-                      <span>Discount ({coupon.code})</span>
-                      <span>-${discountAmount.toFixed(2)}</span>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Final total */}
-                <div className={clsx(
-                  'flex justify-between text-3xl md:text-5xl font-serif pt-6 md:pt-10 border-t border-brand-primary/5 tracking-tighter transition-colors duration-300',
-                  isFree ? 'text-green-600' : 'text-brand-primary'
-                )}>
-                  <span>Total</span>
-                  <span>{isFree ? 'FREE' : `$${finalTotal.toFixed(2)}`}</span>
+              {/* Repeat Order Alert */}
+              <div className="mt-8 bg-brand-primary/5 border border-brand-primary/10 rounded-2xl p-5 flex items-start gap-4">
+                <button
+                  type="button"
+                  onClick={() => setRepeatOrder(!repeatOrder)}
+                  className={clsx("w-6 h-6 rounded-md flex items-center justify-center mt-0.5 shrink-0 transition-all shadow-sm", repeatOrder ? "bg-brand-primary" : "bg-white border border-brand-primary/20")}
+                >
+                  {repeatOrder && <Check size={14} className="text-white" strokeWidth={3} />}
+                </button>
+                <div className="cursor-pointer" onClick={() => setRepeatOrder(!repeatOrder)}>
+                  <p className="font-bold text-brand-primary leading-tight text-sm">Repeat this order next week?</p>
+                  <p className="text-xs text-brand-primary/60 font-medium leading-snug mt-1">Edit or pause until 10 PM the day before delivery.</p>
                 </div>
               </div>
 
-              {/* Delivery info */}
-              <div className="p-6 bg-brand-primary/5 rounded-[2rem] flex items-start gap-4 text-[11px] text-brand-primary/40 leading-relaxed italic border border-brand-primary/10">
-                <Info size={18} className="shrink-0 text-brand-primary" />
-                Scheduled for artisanal preparation on {date}. Delivery optimized for peak temperature.
+              {/* Promo code */}
+              <div className="mt-6 flex gap-2">
+                <input
+                  type="text" placeholder="Promo Code" value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                  className="flex-1 border border-brand-primary/20 rounded-xl px-4 py-3 text-sm font-semibold text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/40"
+                />
+                <button
+                  type="button" onClick={handleApplyCoupon}
+                  className="bg-brand-primary text-white rounded-xl px-6 font-bold text-sm tracking-wider hover:brightness-110"
+                >
+                  Apply
+                </button>
+              </div>
+              {coupon && (
+                <div className="mt-2 text-[10px] text-green-600 font-bold uppercase bg-green-50 px-3 py-1.5 rounded-md inline-block">
+                  Code applied: {coupon.code} (-${discountAmount.toFixed(2)})
+                </div>
+              )}
+
+              {/* Tips block (Agregar propina) */}
+              <div className="mt-6 border border-brand-primary/10 bg-[#FAFAFC] rounded-2xl p-6">
+                <h4 className="font-bold text-brand-primary text-sm mb-1">Agregar propina</h4>
+                <p className="text-xs text-brand-primary/60 mb-4 flex gap-2 items-center">
+                  <div className="w-3 h-3 rounded bg-[#00A9E0] text-white flex items-center justify-center"><Check size={8} strokeWidth={4} /></div>
+                  Da una muestra de apoyo al equipo de Manantial Market
+                </p>
+                
+                <div className="grid grid-cols-4 gap-2 mb-3">
+                  {[0.10, 0.15, 0.20, 'none'].map((val) => {
+                    const isActive = tipRate === val;
+                    const amount = typeof val === 'number' ? (afterDiscount * val).toFixed(2) : null;
+                    return (
+                      <button
+                        key={val} type="button" onClick={() => setTipRate(val as number|'none')}
+                        className={clsx(
+                          "py-3 flex flex-col items-center justify-center rounded-xl border font-bold transition-all shadow-sm bg-white",
+                          isActive ? "border-[#00D632] shadow-[#00D632]/20 shadow-md ring-1 ring-[#00D632]" 
+                                   : "border-gray-200 text-brand-primary/60 hover:border-gray-300"
+                        )}
+                      >
+                        <span className={clsx("text-sm", isActive && "text-brand-primary")}>{val === 'none' ? 'Ninguno' : `${val}%`}</span>
+                        {amount && <span className={clsx("text-[10px] opacity-60", isActive && "text-brand-primary font-medium")}>${amount}</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+                
+                <div className="flex border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
+                  <div className="px-4 py-3 text-xs text-brand-primary/40 font-semibold flex-1">Propina personalizada</div>
+                  <div className="flex items-center gap-1 border-r border-gray-200 px-3 opacity-30"><span className="px-1 text-lg">−</span><span className="px-1 text-lg">+</span></div>
+                  <button type="button" className="px-4 py-3 text-[11px] font-bold text-brand-primary/50 bg-gray-50 uppercase hover:bg-gray-100 transition-colors">Agregar propina</button>
+                </div>
+                <p className="text-[10px] text-brand-primary/60 font-medium italic mt-4 text-center">Muchas gracias.</p>
               </div>
 
-              {/* Submit button */}
-              <button
-                form="order-form"
-                type="submit"
-                disabled={loading || (!stripe && !isFree)}
-                className={clsx(
-                  'w-full py-8 rounded-xl flex items-center justify-center gap-4 hover:brightness-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed group active:scale-[0.98]',
-                  isFree
-                    ? 'bg-green-600 text-white shadow-[0_20px_50px_rgba(22,163,74,0.3)]'
-                    : 'bg-brand-lime text-brand-primary shadow-lg'
-                )}
-              >
-                {loading ? (
-                  <Loader2 className="animate-spin" size={24} />
-                ) : (
-                  <>
-                    <span className="uppercase tracking-[0.4em] text-[10px] font-black">
-                      {isFree ? 'Confirm Free Order' : 'Authorize Payment'}
-                    </span>
-                    <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </>
-                )}
-              </button>
+              {/* Order Total */}
+              <div className="mt-8 space-y-4 font-semibold text-sm">
+                <h3 className="text-2xl font-bold text-brand-primary mb-6">Order Total</h3>
+                <div className="flex justify-between text-brand-primary/70">
+                  <span>Subtotal</span><span>${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-brand-primary/70">
+                  <span>Discounts</span><span>-${discountAmount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-brand-primary/70">
+                  <span>Shipping</span><span className="uppercase text-brand-primary">FREE</span>
+                </div>
+                <div className="flex justify-between text-brand-primary/70 pb-4 border-b border-brand-primary/10">
+                  <span>Tax</span><span>${tax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-xl font-black text-brand-primary pt-2">
+                  <span>Total</span><span>${finalTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {error && (
+                <div className="bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-200 flex gap-2 items-center mt-4">
+                  <AlertCircle size={14} />{error}
+                </div>
+              )}
+
+              {/* CTA Buttons */}
+              <div className="mt-8 flex flex-col gap-3">
+                <button
+                  type="submit" disabled={loading}
+                  className="w-full bg-brand-primary text-white py-5 rounded-xl font-bold text-lg flex justify-center items-center gap-3 hover:brightness-110 shadow-[0_15px_30px_rgba(23,11,85,0.2)] transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {loading ? <Loader2 size={24} className="animate-spin" /> : <>Place Order <span className="text-[#D4E84F] text-2xl font-light transform translate-y-[-2px]">⟶</span></>}
+                </button>
+                <button type="button" onClick={() => navigate('/menu')} className="w-full bg-white border border-brand-primary/10 text-brand-primary py-4 rounded-xl font-bold text-sm tracking-wider flex justify-center items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
+                  <span className="text-xl transform -translate-y-[1px]">←</span> Continue Shopping
+                </button>
+              </div>
+
             </div>
           </div>
-
-        </div>
+        </form>
       </div>
     </div>
   );
 }
-
-// ─── Outer wrapper that provides the Stripe context ───────────────────────────
 
 export default function Checkout({ cart }: { cart: any }) {
   return (

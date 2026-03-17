@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, X, Menu as MenuIcon, ChevronRight, AlertTriangle, Calendar, ArrowRight, Clock, MapPin, User } from 'lucide-react';
+import { ShoppingBag, X, Menu as MenuIcon, ChevronRight, AlertTriangle, Calendar, ArrowRight, User } from 'lucide-react';
 import Home from './pages/Home';
 import MenuPage from './pages/MenuPage';
 import Checkout from './pages/Checkout';
@@ -23,19 +23,7 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] bg-white border-b border-gray-100 flex flex-col">
-      {/* ── Info bar ── */}
-      <div className="w-full bg-white border-b border-gray-100/80 h-9 flex items-center px-4 md:px-12 justify-between">
-        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-brand-orange">
-          <Clock size={11} strokeWidth={3} />
-          <span>Place your order within <span className="underline decoration-dotted">6 hrs 58 mins</span> for next-day lunch delivery</span>
-        </div>
-        <div className="hidden md:flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-brand-primary/50 hover:text-brand-primary cursor-pointer transition-colors">
-          <MapPin size={11} strokeWidth={2.5} />
-          <span>Enter the delivery address</span>
-        </div>
-      </div>
-
+    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#F5F3FF] flex flex-col">
       {/* ── Main nav row ── */}
       <div className="h-16 md:h-20 flex items-center px-4 md:px-12 justify-between">
         {/* Logo */}
@@ -50,6 +38,15 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
         {/* Desktop center nav */}
         <div className="hidden md:flex items-center gap-8">
           <Link
+            to="/"
+            className={cn(
+              "text-[11px] uppercase tracking-[0.18em] font-semibold transition-colors",
+              location.pathname === '/' ? "text-brand-primary" : "text-brand-primary/50 hover:text-brand-primary"
+            )}
+          >
+            Home
+          </Link>
+          <Link
             to="/menu"
             className={cn(
               "text-[11px] uppercase tracking-[0.18em] font-semibold transition-colors",
@@ -58,12 +55,6 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
           >
             Menu
           </Link>
-          <a
-            href="/#how-it-works"
-            className="text-[11px] uppercase tracking-[0.18em] font-semibold text-brand-primary/50 hover:text-brand-primary transition-colors"
-          >
-            How it Works
-          </a>
           <Link
             to="/about"
             className={cn(
@@ -79,7 +70,7 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
         <div className="hidden md:flex items-center gap-3">
           <Link
             to="/menu"
-            className="px-6 py-2.5 bg-brand-orange text-white rounded-full text-[11px] font-black uppercase tracking-[0.15em] hover:opacity-90 transition-opacity shadow-sm"
+            className="px-6 py-2.5 bg-brand-primary text-white rounded-full text-[11px] font-black uppercase tracking-[0.15em] hover:opacity-90 transition-opacity shadow-sm"
           >
             Order now
           </Link>
@@ -127,8 +118,8 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
             exit={{ opacity: 0, y: -8 }}
             className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 px-6 py-8 flex flex-col gap-6 md:hidden z-50 shadow-xl"
           >
+            <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-brand-primary">Home</Link>
             <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-brand-primary">Menu</Link>
-            <a href="/#how-it-works" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-brand-primary">How it Works</a>
             <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-brand-primary">About Us</Link>
             <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="mt-2 w-full py-4 bg-brand-orange text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] text-center">
               Order Now
@@ -276,25 +267,25 @@ export default function App() {
   const handleRegistrationConfirm = (userData: any) => {
     register(userData);
     setShowRegistration(false);
-    window.location.href = 'https://knwnfood.com/checkout/';
+    navigate('/checkout');
   };
 
   const handleSkipToCheckout = () => {
     setShowRegistration(false);
-    window.location.href = 'https://knwnfood.com/checkout/';
+    navigate('/checkout');
   };
 
   return (
-    <div className="min-h-screen pt-[100px] md:pt-[116px] selection:bg-brand-primary selection:text-white flex flex-col font-sans bg-[#F5F3FF]">
+    <div className="min-h-screen pt-[64px] md:pt-[80px] selection:bg-brand-primary selection:text-white flex flex-col font-sans bg-[#F5F3FF]">
       <Navbar cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} />
 
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<MenuPage cart={cart} />} />
+          <Route path="/about" element={<About />} />
           <Route path="/checkout" element={<Checkout cart={cart} />} />
           <Route path="/thank-you" element={<ThankYou />} />
-          <Route path="/about" element={<About />} />
         </Routes>
       </main>
 
@@ -346,24 +337,24 @@ export default function App() {
             <h4 className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black mb-6 md:mb-8 text-white/40">Explore</h4>
             <ul className="space-y-3 md:space-y-4 text-white/80 text-[10px] md:text-xs font-black uppercase tracking-widest">
               <li><Link to="/menu" className="hover:text-white transition-colors">Menu</Link></li>
-              <li><Link to="/about" className="hover:text-white transition-colors">Story</Link></li>
-              <li><Link to="/about" className="hover:text-white transition-colors">Values</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">Story</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">Values</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black mb-6 md:mb-8 text-white/40">Connect</h4>
             <ul className="space-y-3 md:space-y-4 text-white/80 text-[10px] md:text-xs font-black uppercase tracking-widest">
-              <li><a href="#" className="hover:text-white transition-colors">Instagram</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">LinkedIn</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Newsletter</a></li>
+              <li><Link to="/" className="hover:text-white transition-colors">Instagram</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">LinkedIn</Link></li>
+              <li><Link to="/" className="hover:text-white transition-colors">Newsletter</Link></li>
             </ul>
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-16 md:mt-24 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[8px] md:text-[9px] tracking-[0.3em] text-white/20 uppercase font-black text-center md:text-left">
           <p>© 2024 KNWN FOOD. ARCHITECTING TOMORROW'S DINING.</p>
           <div className="flex gap-6 md:gap-8">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+            <Link to="/" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/" className="hover:text-white transition-colors">Terms of Service</Link>
           </div>
         </div>
       </footer>

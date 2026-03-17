@@ -1,243 +1,257 @@
-
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Check, Plus, X, Leaf, MapPin } from 'lucide-react';
+import { MENUS } from '../data/menus';
+import { MenuItem, Weekday } from '../types';
 import {
-  getEtNow,
-  getDateStatus,
-  generateDatesForCalendar,
   calculateActiveOrderDay,
+  getDateStatus,
+  getEtNow,
+  isWeekend,
   findNextServiceDay,
-  DateStatus,
-  CUTOFF_HOUR,
-  toDateKey
 } from '../utils/dateLogic';
-import { getMenuForDate } from '../data/menuTemplates';
-import { MenuItem } from '../types';
-import {
-  Plus, Search, Lock, Calendar as CalendarIcon,
-  ChevronLeft, ChevronRight, CheckCircle2, X,
-  ShoppingBag, ArrowRight, Calendar
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { useUser } from '../store/useUser';
-import RegistrationModal from '../components/RegistrationModal';
 
-const PLACEHOLDER_IMAGE = "/assets/food-bg/korean-crispy-chicken.jpg";
-
-/* map menu item names to real food photos */
-const FOOD_IMAGES: Record<string, { bg: string; cutout: string }> = {
-  'korean crispy chicken': { bg: '/assets/food-bg/korean-crispy-chicken.jpg', cutout: '/assets/food-cutout/korean-crispy-chicken.png' },
-  'pesto pasta': { bg: '/assets/food-bg/pesto-pasta.jpg', cutout: '/assets/food-cutout/pesto-pasta.png' },
-  'chicken cesar salad': { bg: '/assets/food-bg/chicken-cesar-salad.jpg', cutout: '/assets/food-cutout/chicken-cesar-salad.png' },
-  'chicken césar salad': { bg: '/assets/food-bg/chicken-cesar-salad.jpg', cutout: '/assets/food-cutout/chicken-cesar-salad.png' },
-  'thai beef salad': { bg: '/assets/food-bg/thai-beef-salad.jpg', cutout: '/assets/food-cutout/thai-beef-salad.png' },
-  'mediterranean chicken': { bg: '/assets/food-bg/mediterranean-chicken.jpg', cutout: '/assets/food-cutout/mediterranean-chicken.png' },
-  'harissa meatballs': { bg: '/assets/food-bg/harissa-meatballs.jpg', cutout: '/assets/food-cutout/harissa-meatballs.png' },
-  'milanesa': { bg: '/assets/food-bg/milanesa.jpg', cutout: '/assets/food-cutout/milanesa.png' },
-  'chicken lime': { bg: '/assets/food-bg/chicken-lime.jpg', cutout: '/assets/food-cutout/chicken-lime.png' },
+// ─── Image map ───────────────────────────────────────────────────────────────
+const FOOD_IMAGES: Record<string, string> = {
+  'carne asada':           '/assets/food-bg/carne-asada.webp',
+  'chicken lime':          '/assets/food-bg/chicken-lime.webp',
+  'mediterranean chicken': '/assets/food-bg/mediterranean-chicken.webp',
+  'bibi bump rice':        '/assets/food-bg/bibi-bamp-rice.webp',
+  'chicken pesto pasta':   '/assets/food-bg/pesto-pasta.webp',
+  'thai beef salad':       '/assets/food-bg/thai-beef-salad.webp',
+  'milanesa':              '/assets/food-bg/milanesa.webp',
+  'harissa meatballs':     '/assets/food-bg/harissa-meatballs.webp',
+  'crispy korean chicken': '/assets/food-bg/korean-crispy-chicken.webp',
+  'chicken caesar salad':  '/assets/food-bg/chicken-cesar-salad.webp',
 };
 
-function getFoodImage(name: string, type: 'bg' | 'cutout' = 'bg'): string {
+function getFoodImage(name: string): string {
   const key = name.toLowerCase().trim();
   const match = Object.entries(FOOD_IMAGES).find(([k]) => key.includes(k) || k.includes(key));
-  if (match) return match[1][type];
-  return type === 'bg' ? PLACEHOLDER_IMAGE : PLACEHOLDER_IMAGE;
+  return match ? match[1] : '/assets/food-bg/korean-crispy-chicken.webp';
 }
 
+// ─── Week dates (Mon–Fri of current or next week) ────────────────────────────
+function getThisWeekDates(): Date[] {
+  const now = getEtNow();
+  const dow = now.getDay();
+  const daysToMonday = dow === 0 ? 1 : dow === 6 ? 2 : 1 - dow;
+  // If we're past Friday, jump to next week's Monday
+  const baseOffset = dow === 0 || dow === 6 ? daysToMonday : daysToMonday;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + baseOffset);
+  monday.setHours(12, 0, 0, 0);
+
+  // Build Mon→Fri of THAT week; if current weekday show current week
+  const currentWeekMonday = new Date(now);
+  if (dow >= 1 && dow <= 5) {
+    currentWeekMonday.setDate(now.getDate() - (dow - 1));
+  } else if (dow === 6) {
+    currentWeekMonday.setDate(now.getDate() + 2);
+  } else {
+    currentWeekMonday.setDate(now.getDate() + 1);
+  }
+  currentWeekMonday.setHours(12, 0, 0, 0);
+
+  return Array.from({ length: 5 }, (_, i) => {
+    const d = new Date(currentWeekMonday);
+    d.setDate(currentWeekMonday.getDate() + i);
+    return d;
+  });
+}
+
+const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const WEEKDAY_KEYS: Weekday[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+
+// ─── FAQ data ─────────────────────────────────────────────────────────────────
+const FAQ_LEFT = [
+  {
+    q: 'How do I get started?',
+    a: 'Pick your meals, choose your delivery day, and place your order. We cook everything fresh and deliver it straight to your door.',
+  },
+  {
+    q: 'Can I pause or cancel anytime?',
+    a: 'Yes! You can pause or cancel your order anytime before 10 PM the day before without any fees.',
+  },
+  {
+    q: "What if I don't like it?",
+    a: "We stand behind our food 100%. If you're not satisfied, reach out and we'll make it right — no questions asked.",
+  },
+  {
+    q: 'Do I have to order every week?',
+    a: 'No subscription required. Order whenever you want — once a week, daily, or whenever the mood strikes.',
+  },
+];
+
+const FAQ_RIGHT = [
+  {
+    q: 'What if I have dietary restrictions?',
+    a: "Every meal has customization options. You can swap bases, sauces, and remove ingredients you don't like.",
+  },
+  {
+    q: 'When do I get my delivery?',
+    a: 'Orders placed before 10 PM are delivered the next business day by lunchtime.',
+  },
+  {
+    q: 'Are the meals made fresh?',
+    a: 'Yes — we cook every morning and deliver the same day. Never frozen, never reheated.',
+  },
+  {
+    q: 'Do you deliver everywhere?',
+    a: 'We currently serve Brickell, Downtown, Bayside, and Coral Gables. More zones coming soon!',
+  },
+];
+
+// ─── Customization Modal ──────────────────────────────────────────────────────
 const CustomizationModal: React.FC<{
   item: MenuItem;
+  date: Date;
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (customs: any) => void;
-}> = ({ item, isOpen, onClose, onConfirm }) => {
-  const options = item.customizationOptions;
-
-  const [base, setBase] = useState(options?.bases?.[0] || '');
-  const [sauce, setSauce] = useState(options?.sauces?.[0] || '');
-  const [isVegetarian, setIsVegetarian] = useState(false);
-  const [swap, setSwap] = useState(options?.swaps?.[0] || '');
+}> = ({ item, date, isOpen, onClose, onConfirm }) => {
+  const opts = item?.customizationOptions;
+  const [base, setBase] = useState(opts?.bases?.[0] || '');
+  const [sauce, setSauce] = useState(opts?.sauces?.[0] || '');
+  const [isVeg, setIsVeg] = useState(false);
   const [avoidList, setAvoidList] = useState<string[]>([]);
+  const [qty, setQty] = useState(1);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen) {
-      setBase(options?.bases?.[0] || '');
-      setSauce(options?.sauces?.[0] || '');
-      setIsVegetarian(false);
-      setSwap(options?.swaps?.[0] || '');
+      setBase(opts?.bases?.[0] || '');
+      setSauce(opts?.sauces?.[0] || '');
+      setIsVeg(false);
       setAvoidList([]);
+      setQty(1);
     }
   }, [isOpen, item]);
 
-  const [quantity, setQuantity] = useState(1);
+  if (!isOpen || !item) return null;
 
-  if (!isOpen) return null;
+  const toggleAvoid = (opt: string) =>
+    setAvoidList(prev => prev.includes(opt) ? prev.filter(o => o !== opt) : [...prev, opt]);
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center bg-black/30 backdrop-blur-sm p-0 md:p-4">
+    <div className="fixed inset-0 z-[500] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm">
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: '100%' }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 40 }}
-        className="relative bg-white w-full md:max-w-lg rounded-t-3xl md:rounded-3xl overflow-hidden shadow-2xl max-h-[92dvh] flex flex-col"
+        exit={{ opacity: 0, y: '100%' }}
+        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+        className="relative bg-white w-full md:max-w-[480px] rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[92dvh] md:max-h-[85vh]"
       >
-        {/* Scrollable content */}
-        <div className="overflow-y-auto flex-1 no-scrollbar">
-          {/* Product image */}
-          <div className="relative h-56 bg-brand-bg">
-            <img
-              src={item.image || getFoodImage(item.name, 'cutout')}
-              className="w-full h-full object-contain p-4"
-              alt={item.name}
-            />
+        <div className="overflow-y-auto flex-1 no-scrollbar pb-24">
+          {/* Image header */}
+          <div className="relative h-64 bg-[#F3F4F6] flex items-center justify-center overflow-hidden">
             <button
               onClick={onClose}
-              className="absolute top-4 left-4 p-2 bg-white/90 backdrop-blur-sm text-brand-primary rounded-full shadow-md hover:bg-white transition-colors"
+              className="absolute top-5 left-5 z-10 p-2.5 bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 rounded-full transition-colors"
             >
-              <X size={18} />
+              <X size={20} className="stroke-[3]" />
             </button>
+            <img
+              src={getFoodImage(item.name)}
+              className="w-full h-full object-cover mix-blend-multiply"
+              alt={item.name}
+            />
           </div>
 
-          {/* Content */}
-          <div className="p-6 space-y-6">
-            {/* Delivery badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-orange/10 text-brand-orange rounded-full text-[9px] font-black uppercase tracking-wider">
-              <Calendar size={11} strokeWidth={3} />
-              Scheduled Delivery
+          <div className="px-6 py-8 space-y-8">
+            {/* Title */}
+            <div className="space-y-2">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-lime text-brand-primary rounded-md text-[10px] font-black uppercase tracking-widest">
+                • Scheduled Delivery • {date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: '2-digit' })}
+              </span>
+              <h2 className="text-[2rem] font-serif text-brand-primary leading-tight">{item.name}</h2>
+              <p className="text-[13px] text-brand-primary/50 font-medium leading-relaxed">{item.description}</p>
             </div>
 
-            <div>
-              <h2 className="text-2xl font-serif text-brand-primary leading-tight">{item.name}</h2>
-              <p className="text-sm text-brand-primary/50 mt-2 leading-relaxed">{item.description}</p>
-            </div>
-
-            {/* Choose base */}
-            {options?.bases && options.bases.length > 0 && (
+            {/* Bases */}
+            {opts?.bases && opts.bases.length > 0 && (
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-black text-brand-primary uppercase tracking-wider">Choose your base</h4>
-                  <span className="text-[9px] bg-brand-orange/10 text-brand-orange px-2 py-1 rounded-full font-black uppercase tracking-wider">Required · Select 1</span>
+                <div className="flex justify-between items-center">
+                  <h4 className="text-sm font-bold text-brand-primary">Choose your base</h4>
+                  <span className="text-[9px] bg-[#FEF0C7] text-[#93370D] px-2 py-1 rounded-sm font-bold tracking-widest uppercase">Required • 1</span>
                 </div>
-                <div className="space-y-2">
-                  {options.bases.map(b => (
-                    <label key={b} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 cursor-pointer hover:border-brand-primary/20 transition-colors">
-                      <input
-                        type="radio"
-                        name="base"
-                        value={b}
-                        checked={base === b}
-                        onChange={() => setBase(b)}
-                        className="accent-brand-primary"
-                      />
-                      <span className="text-sm text-brand-primary">{b}</span>
-                    </label>
-                  ))}
-                </div>
+                {opts.bases.map(b => (
+                  <label key={b} className="flex items-center gap-4 cursor-pointer group">
+                    <div className={clsx('w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all', base === b ? 'border-brand-primary' : 'border-brand-primary/20 group-hover:border-brand-primary/50')}>
+                      {base === b && <div className="w-2.5 h-2.5 bg-brand-primary rounded-full" />}
+                    </div>
+                    <span className={clsx('text-[13px] font-semibold', base === b ? 'text-brand-primary' : 'text-brand-primary/70')} onClick={() => setBase(b)}>{b}</span>
+                  </label>
+                ))}
               </div>
             )}
 
-            {/* Choose sauce */}
-            {options?.sauces && options.sauces.length > 0 && (
+            {/* Sauces */}
+            {opts?.sauces && opts.sauces.length > 0 && (
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-black text-brand-primary uppercase tracking-wider">Choose your dressing/sauce</h4>
-                  <span className="text-[9px] bg-brand-orange/10 text-brand-orange px-2 py-1 rounded-full font-black uppercase tracking-wider">Required · Select 1</span>
+                <div className="flex justify-between items-center">
+                  <h4 className="text-sm font-bold text-brand-primary">Choose your sauce</h4>
+                  <span className="text-[9px] bg-[#FEF0C7] text-[#93370D] px-2 py-1 rounded-sm font-bold tracking-widest uppercase">Required • 1</span>
                 </div>
-                <div className="space-y-2">
-                  {options.sauces.map(s => (
-                    <label key={s} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 cursor-pointer hover:border-brand-primary/20 transition-colors">
-                      <input
-                        type="radio"
-                        name="sauce"
-                        value={s}
-                        checked={sauce === s}
-                        onChange={() => setSauce(s)}
-                        className="accent-brand-primary"
-                      />
-                      <span className="text-sm text-brand-primary">{s}</span>
-                    </label>
-                  ))}
-                </div>
+                {opts.sauces.map(s => (
+                  <label key={s} className="flex items-center gap-4 cursor-pointer group">
+                    <div className={clsx('w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all', sauce === s ? 'border-brand-primary' : 'border-brand-primary/20 group-hover:border-brand-primary/50')}>
+                      {sauce === s && <div className="w-2.5 h-2.5 bg-brand-primary rounded-full" />}
+                    </div>
+                    <span className={clsx('text-[13px] font-semibold', sauce === s ? 'text-brand-primary' : 'text-brand-primary/70')} onClick={() => setSauce(s)}>{s}</span>
+                  </label>
+                ))}
               </div>
             )}
 
-            {/* Vegetarian option */}
-            {options?.hasVegetarianOption && (
+            {/* Vegetarian */}
+            {opts?.hasVegetarianOption && (
               <div className="space-y-3">
-                <h4 className="text-sm font-black text-brand-primary uppercase tracking-wider">Make it vegetarian?</h4>
-                <span className="text-[10px] text-brand-primary/40 font-medium uppercase tracking-wider block -mt-1">Optional</span>
-                <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 cursor-pointer hover:border-brand-primary/20 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={isVegetarian}
-                    onChange={() => setIsVegetarian(!isVegetarian)}
-                    className="accent-brand-primary w-4 h-4 rounded"
-                  />
-                  <span className="text-sm text-brand-primary">Replace protein with mushrooms</span>
+                <div className="flex justify-between items-center">
+                  <h4 className="text-sm font-bold text-brand-primary">Make it vegetarian?</h4>
+                  <span className="text-[9px] text-brand-primary/40 font-bold tracking-widest uppercase">Optional</span>
+                </div>
+                <label className="flex items-center gap-4 cursor-pointer group" onClick={() => setIsVeg(v => !v)}>
+                  <div className={clsx('w-5 h-5 rounded-[4px] border-2 flex items-center justify-center transition-all', isVeg ? 'border-brand-primary bg-brand-primary' : 'border-brand-primary/20 bg-white group-hover:border-brand-primary/50')}>
+                    {isVeg && <svg viewBox="0 0 14 14" fill="none" className="w-3 h-3 text-white stroke-current stroke-[3]"><path d="M2.5 7L5.5 10L11.5 4" /></svg>}
+                  </div>
+                  <span className={clsx('text-[13px] font-semibold', isVeg ? 'text-brand-primary' : 'text-brand-primary/70')}>Replace protein with mushrooms</span>
                 </label>
               </div>
             )}
 
-            {/* Avoid list */}
-            {options?.avoidOptions && options.avoidOptions.length > 0 && (
+            {/* Dislikes */}
+            {opts?.dislikes && opts.dislikes.length > 0 && (
               <div className="space-y-3">
-                <h4 className="text-sm font-black text-brand-primary uppercase tracking-wider">Anything you don't like</h4>
-                <span className="text-[10px] text-brand-primary/40 font-medium uppercase tracking-wider block -mt-1">Optional</span>
-                <div className="space-y-2">
-                  {options.avoidOptions.map(opt => (
-                    <label key={opt} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 cursor-pointer hover:border-brand-primary/20 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={avoidList.includes(opt)}
-                        onChange={() => setAvoidList(prev =>
-                          prev.includes(opt) ? prev.filter(x => x !== opt) : [...prev, opt]
-                        )}
-                        className="accent-brand-primary w-4 h-4 rounded"
-                      />
-                      <span className="text-sm text-brand-primary">No {opt}</span>
-                    </label>
-                  ))}
+                <div className="flex justify-between items-center">
+                  <h4 className="text-sm font-bold text-brand-primary">Remove ingredients</h4>
+                  <span className="text-[9px] text-brand-primary/40 font-bold tracking-widest uppercase">Optional</span>
                 </div>
+                {opts.dislikes.map(opt => (
+                  <label key={opt} className="flex items-center gap-4 cursor-pointer group" onClick={() => toggleAvoid(opt)}>
+                    <div className={clsx('w-5 h-5 rounded-[4px] border-2 flex items-center justify-center transition-all', avoidList.includes(opt) ? 'border-brand-primary bg-brand-primary' : 'border-brand-primary/20 bg-white group-hover:border-brand-primary/50')}>
+                      {avoidList.includes(opt) && <svg viewBox="0 0 14 14" fill="none" className="w-3 h-3 text-white stroke-current stroke-[3]"><path d="M2.5 7L5.5 10L11.5 4" /></svg>}
+                    </div>
+                    <span className={clsx('text-[13px] font-semibold', avoidList.includes(opt) ? 'text-brand-primary' : 'text-brand-primary/70')}>{opt}</span>
+                  </label>
+                ))}
               </div>
             )}
-
-            {/* Bottom spacer for sticky footer */}
-            <div className="h-20" />
           </div>
         </div>
 
-        {/* Sticky footer */}
-        <div className="flex-shrink-0 p-5 border-t border-gray-100 bg-white flex items-center gap-3">
-          {/* Quantity */}
-          <div className="flex items-center bg-brand-bg rounded-full border border-gray-100 p-1">
-            <button
-              onClick={() => setQuantity(q => Math.max(1, q - 1))}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white transition-colors text-brand-primary font-bold"
-            >
-              −
-            </button>
-            <span className="px-3 text-sm text-brand-primary font-black">{quantity}</span>
-            <button
-              onClick={() => setQuantity(q => q + 1)}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white transition-colors text-brand-primary font-bold"
-            >
-              +
-            </button>
+        {/* Sticky action bar */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-white border-t border-gray-100 flex items-center gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] z-20">
+          <div className="flex items-center justify-between bg-[#F3F4F6] rounded-full px-4 py-3 w-28">
+            <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-brand-primary/60 hover:text-brand-primary transition-colors font-bold text-lg leading-none">−</button>
+            <span className="text-sm font-bold text-brand-primary">{qty}</span>
+            <button onClick={() => setQty(q => q + 1)} className="text-brand-primary/60 hover:text-brand-primary transition-colors font-bold text-lg leading-none">+</button>
           </div>
-
           <button
-            onClick={() => onConfirm({
-              base,
-              sauce,
-              isVegetarian,
-              vegInstructions: isVegetarian ? options?.hasVegetarianOption?.instructions : undefined,
-              swap,
-              avoid: avoidList.join(', ')
-            })}
-            className="flex-1 py-4 bg-brand-lime text-brand-primary rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-sm hover:brightness-95 transition-all flex items-center justify-center gap-2"
+            onClick={() => onConfirm({ base, sauce, isVegetarian: isVeg, avoid: avoidList.join(', '), quantity: qty })}
+            className="flex-1 bg-brand-primary text-white py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:brightness-110 shadow-lg shadow-brand-primary/20 transition-all flex items-center justify-center gap-2"
           >
-            Add to My Week · ${(item.price * quantity).toFixed(2)}
+            Add to My Week · ${(item.price * qty).toFixed(2)}
           </button>
         </div>
       </motion.div>
@@ -245,635 +259,413 @@ const CustomizationModal: React.FC<{
   );
 };
 
-// RegistrationModal removed and imported from components/RegistrationModal.tsx
-
-const PromotionalModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  onSignUp: () => void;
-}> = ({ isOpen, onClose, onSignUp }) => {
-  if (!isOpen) return null;
-
+// ─── Dish Card ────────────────────────────────────────────────────────────────
+const DishCard: React.FC<{ item: MenuItem; onTryNow: (item: MenuItem) => void; available: boolean }> = ({
+  item, onTryNow, available,
+}) => {
+  const hasVeg = !!item.customizationOptions?.hasVegetarianOption;
   return (
-    <div className="fixed inset-0 bg-brand-primary/60 backdrop-blur-xl z-[200] flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 30 }}
-        className="relative bg-brand-primary max-w-6xl w-full rounded-[2rem] md:rounded-[4rem] overflow-hidden flex flex-col md:flex-row shadow-[0_60px_120px_rgba(0,0,0,0.5)] border border-white/10 max-h-[95vh] md:max-h-none overflow-y-auto md:overflow-visible no-scrollbar"
+    <div className={clsx('flex flex-col items-center w-full', !available && 'opacity-40 pointer-events-none')}>
+      {/* Circular image */}
+      <div
+        className="relative z-10 w-[220px] h-[220px] md:w-[280px] md:h-[280px] rounded-full overflow-hidden border-[5px] border-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] -mb-[70px] md:-mb-[90px] flex-shrink-0 cursor-pointer"
+        onClick={() => onTryNow(item)}
       >
-        <button onClick={onClose} className="absolute top-4 right-4 md:top-8 md:right-8 z-50 text-white/40 hover:text-white transition-colors p-2 bg-black/20 md:bg-transparent rounded-full backdrop-blur-md md:backdrop-blur-none">
-          <X size={20} className="md:w-7 md:h-7" />
-        </button>
-
-        {/* Left Side: Visuals */}
-        <div className="md:w-1/2 relative min-h-[280px] md:min-h-[600px] bg-[#FF5C00] overflow-hidden flex items-center justify-center p-6 md:p-12">
-          {/* KN Pattern */}
-          <div className="absolute inset-0 opacity-30 flex flex-wrap gap-4 md:gap-12 items-center justify-center pointer-events-none p-4">
-            {Array.from({ length: 30 }).map((_, i) => (
-              <span key={i} className="text-4xl md:text-9xl font-black text-[#FFD600] leading-none transform -rotate-12 italic tracking-tighter select-none">KN</span>
-            ))}
-          </div>
-
-          <div className="relative z-10 w-full max-w-[200px] md:max-w-[380px]">
-            {/* Food Image Container */}
-            <div className="relative group">
-              <div className="w-full aspect-square bg-[#FDF6E3] rounded-full shadow-[0_40px_80px_rgba(0,0,0,0.3)] p-2 md:p-3 border-4 md:border-8 border-white overflow-hidden transform group-hover:scale-105 transition-transform duration-700">
-                <img
-                  src="/assets/food-bg/pesto-pasta.jpg"
-                  alt="Special Pesto Pasta"
-                  className="w-full h-full object-cover rounded-full"
-                />
-              </div>
-
-              {/* Hand-drawn type stickers */}
-              <div className="absolute -top-4 -right-2 md:-top-6 md:-right-6 bg-brand-primary text-white px-3 md:px-6 py-1.5 md:py-3 rounded-lg md:rounded-xl text-[7px] md:text-[12px] font-black uppercase tracking-[0.2em] transform rotate-[15deg] shadow-2xl border border-white/20 whitespace-nowrap">No additives</div>
-              <div className="absolute top-8 -left-4 md:top-12 md:-left-12 bg-brand-primary text-white px-3 md:px-6 py-1.5 md:py-3 rounded-lg md:rounded-xl text-[7px] md:text-[12px] font-black uppercase tracking-[0.2em] transform rotate-[-20deg] shadow-2xl border border-white/20 whitespace-nowrap">Zero lies</div>
-              <div className="absolute bottom-8 -left-2 md:bottom-12 md:-left-10 bg-brand-primary text-white px-3 md:px-6 py-2 md:py-4 rounded-lg md:rounded-xl text-[7px] md:text-[11px] font-black uppercase tracking-[0.2em] transform rotate-[8deg] shadow-2xl border border-white/20 leading-tight">Cooked fresh<br />every morning</div>
-
-              {/* NEW! Starburst Sticker */}
-              <motion.div
-                initial={{ scale: 0, rotate: -45 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ delay: 0.5, type: 'spring' }}
-                className="absolute -bottom-4 -right-4 md:-bottom-10 md:-right-10 w-16 h-16 md:w-40 md:h-40 bg-brand-primary text-white flex items-center justify-center font-serif text-sm md:text-6xl shadow-2xl border md:border-4 border-white/30 z-20"
-                style={{ clipPath: 'polygon(50% 0%, 63% 38%, 100% 35%, 75% 60%, 85% 100%, 50% 80%, 15% 100%, 25% 60%, 0% 35%, 37% 38%)' }}
-              >
-                NEW!
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Ripped Paper Effect Layered */}
-          <div className="absolute bottom-0 left-0 right-0 h-10 md:h-28 bg-[#BADA55]/40 transform translate-y-2 md:translate-y-4"
-            style={{ clipPath: 'polygon(0% 100%, 100% 100%, 100% 25%, 95% 40%, 90% 20%, 85% 45%, 80% 25%, 75% 50%, 70% 20%, 65% 45%, 60% 30%, 55% 50%, 50% 20%, 45% 45%, 40% 25%, 35% 50%, 30% 20%, 25% 45%, 20% 30%, 15% 55%, 10% 25%, 5% 50%, 0% 15%)' }} />
-          <div className="absolute bottom-0 left-0 right-0 h-8 md:h-24 bg-white"
-            style={{ clipPath: 'polygon(0% 100%, 100% 100%, 100% 20%, 94% 45%, 88% 25%, 82% 50%, 75% 30%, 69% 55%, 62% 20%, 55% 50%, 48% 30%, 42% 60%, 35% 25%, 28% 55%, 22% 30%, 15% 55%, 8% 20%, 0% 50%)' }} />
-        </div>
-
-
-        {/* Right Side: Copy & Actions */}
-        <div className="md:w-1/2 p-8 md:p-24 flex flex-col items-center justify-center text-center space-y-8 md:space-y-16">
-          {/* Circular Branding Logo */}
-          <div className="relative w-20 h-20 md:w-28 md:h-28 flex items-center justify-center">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-              className="absolute inset-0 border border-white/20 border-dashed rounded-full"
-            />
-            <div className="text-[8px] md:text-[10px] text-white/40 font-black uppercase tracking-[0.5em] absolute -top-4">Bullsht Free</div>
-            <img
-              src="https://knwnfood.com/wp-content/uploads/2025/09/Recurso-91x.webp"
-              className="w-10 md:w-14 brightness-0 invert opacity-60"
-              alt="KNWN"
-            />
-          </div>
-
-          <div className="space-y-4 md:space-y-6">
-            <h2 className="text-3xl md:text-8xl font-serif text-white tracking-tighter leading-[0.85] uppercase">
-              FIRST 100 TO SIGN UP<br />
-              <span className="italic font-light text-white/50 lowercase">get a</span> <span className="text-brand-bg text-brand-primary px-3 md:px-4 py-1">FREE LUNCH!</span>
-            </h2>
-          </div>
-
-          <div className="w-full max-w-sm md:max-w-md flex flex-col gap-3 md:gap-5">
-            <button
-              onClick={onSignUp}
-              className="w-full py-5 md:py-7 bg-[#E67E22] text-white rounded-full text-[10px] md:text-[14px] font-black uppercase tracking-[0.5em] shadow-[0_25px_50px_rgba(230,126,34,0.4)] hover:scale-105 active:scale-95 transition-all"
-            >
-              FREE LUNCH
-            </button>
-            <button
-              onClick={onClose}
-              className="w-full py-5 md:py-7 border-2 border-white/20 text-white/40 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] hover:text-white hover:border-white/60 transition-all hover:bg-white/5"
-            >
-              NEHHH, I PREFER TO PAY
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    </div>
-  );
-};
-
-const MenuCard: React.FC<{
-  item: MenuItem;
-  status: DateStatus;
-  date: Date;
-  activeOrderDay: Date;
-  onAdd: (i: MenuItem, d: Date) => void
-}> = ({ item, status, date, activeOrderDay, onAdd }) => {
-  const isActive = status === 'ACTIVE' || status === 'PREVIEW';
-
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className={clsx(
-        "relative bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-300 flex flex-col h-full group/card",
-        isActive ? "hover:shadow-md hover:-translate-y-0.5" : "opacity-50 grayscale"
-      )}
-    >
-      {/* Food image */}
-      <div className="relative h-52 overflow-hidden bg-[#E9FF70]">
         <img
-          src={item.image || getFoodImage(item.name, 'bg')}
-          className={clsx(
-            "w-full h-full object-cover transition-transform duration-700",
-            isActive && "group-hover/card:scale-105"
-          )}
+          src={getFoodImage(item.name)}
           alt={item.name}
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
         />
-        {item.popular && isActive && (
-          <span className="absolute top-3 left-3 bg-brand-primary text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">
-            Popular
-          </span>
-        )}
-        {!isActive && (
-          <div className="absolute inset-0 bg-brand-primary/30 backdrop-blur-[1px] flex items-center justify-center">
-            <div className="bg-white/90 text-brand-primary px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5">
-              <Lock size={11} /> Unavailable
-            </div>
+        {/* Veg icon badge */}
+        {hasVeg && (
+          <div className="absolute top-3 right-3 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md">
+            <Leaf size={13} className="text-green-600" strokeWidth={2.5} />
           </div>
         )}
       </div>
 
-      {/* Card body */}
-      <div className="p-5 flex-1 flex flex-col gap-3">
-        <div className="flex justify-between items-start gap-3">
-          <h3 className="text-lg font-serif leading-tight text-brand-primary">{item.name}</h3>
-          <span className="text-base font-serif text-brand-primary flex-shrink-0">${item.price}</span>
-        </div>
-        <p className="text-xs text-brand-primary/40 leading-relaxed line-clamp-2 flex-1">
+      {/* Lime label card */}
+      <div
+        className="w-full bg-brand-lime rounded-[1.5rem] pt-[84px] md:pt-[108px] pb-7 px-6 cursor-pointer hover:brightness-[0.97] transition-all"
+        onClick={() => onTryNow(item)}
+      >
+        <span className="inline-block bg-brand-primary text-white text-[11px] font-black uppercase tracking-wider px-4 py-1.5 rounded-md mb-3">
+          {item.name}
+        </span>
+        <p className="text-brand-primary/70 text-sm leading-relaxed font-medium">
           {item.description}
         </p>
-
-        {/* Tags */}
-        {item.tags && item.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {item.tags.slice(0, 3).map(tag => (
-              <span key={tag} className="text-[9px] uppercase tracking-wider font-bold text-brand-primary/40 bg-brand-bg px-2.5 py-1 rounded-full">
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* CTA button */}
-        <button
-          onClick={() => onAdd(item, date)}
-          disabled={!isActive}
-          className={clsx(
-            "mt-auto w-full py-3.5 rounded-2xl flex items-center justify-center gap-2 transition-all font-black uppercase tracking-[0.2em] text-[10px] cursor-pointer",
-            isActive
-              ? "bg-brand-lime text-brand-primary hover:brightness-95 active:scale-[0.98] shadow-sm"
-              : "bg-gray-100 text-gray-300 cursor-not-allowed"
-          )}
-        >
-          {isActive ? (
-            <>
-              <Plus size={14} strokeWidth={3} />
-              Add to My Week · ${item.price}
-            </>
-          ) : (
-            <span>Unavailable</span>
-          )}
-        </button>
-      </div>
-    </motion.div>
-  );
-};
-
-const MiniCalendar: React.FC<{
-  selectedDate: Date;
-  onSelect: (d: Date) => void;
-}> = ({ selectedDate, onSelect }) => {
-  const [viewDate, setViewDate] = useState(new Date(selectedDate));
-  const monthName = viewDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-  const startOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
-  const endOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
-
-  const daysInMonth = [];
-  const startDay = startOfMonth.getDay();
-  for (let i = 0; i < startDay; i++) daysInMonth.push(null);
-  for (let i = 1; i <= endOfMonth.getDate(); i++) {
-    daysInMonth.push(new Date(viewDate.getFullYear(), viewDate.getMonth(), i));
-  }
-
-  return (
-    <div className="bg-brand-bg border border-brand-primary/5 rounded-[3rem] p-10 shadow-sm relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full -mr-16 -mt-16 blur-2xl" />
-      <div className="flex justify-between items-center mb-8">
-        <h4 className="font-serif text-2xl text-brand-primary leading-none uppercase tracking-tighter">{monthName}</h4>
-        <div className="flex gap-2">
-          <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="p-2.5 bg-brand-subtle text-brand-primary rounded-full hover:scale-110 transition-transform"><ChevronLeft size={16} /></button>
-          <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="p-2.5 bg-brand-subtle text-brand-primary rounded-full hover:scale-110 transition-transform"><ChevronRight size={16} /></button>
-        </div>
-      </div>
-      <div className="grid grid-cols-7 gap-2 mb-6">
-        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-          <div key={`${d}-${i}`} className="text-[10px] font-black text-brand-primary/20 text-center uppercase tracking-[0.3em]">{d}</div>
-        ))}
-      </div>
-      <div className="grid grid-cols-7 gap-2">
-        {daysInMonth.map((day, i) => {
-          if (!day) return <div key={`p-${i}`} />;
-          const isSelected = toDateKey(day) === toDateKey(selectedDate);
-          const status = getDateStatus(day);
-          const weekday = day.getDay();
-          const isMonTue = weekday === 1 || weekday === 2;
-          const isWeekendDay = weekday === 0 || weekday === 6;
-
-          return (
-            <button
-              key={day.toISOString()}
-              onClick={() => onSelect(day)}
-              className={clsx(
-                "aspect-square text-[11px] rounded-[1rem] flex items-center justify-center transition-all relative font-black uppercase tracking-tighter",
-                isSelected ? "bg-brand-primary text-white shadow-xl shadow-brand-primary/30 scale-110 z-10" : "hover:bg-brand-primary/5 text-brand-primary/60",
-                (status === 'ACTIVE' || status === 'PREVIEW') && !isSelected && !isWeekendDay && "text-brand-primary bg-white border border-brand-primary/30 hover:border-brand-primary/60",
-                isWeekendDay && !isSelected && "text-brand-primary/10 cursor-not-allowed bg-brand-primary/5 opacity-40 grayscale",
-                (status === 'PAST' || status === 'TODAY_CLOSED') && !isSelected && "text-brand-primary/10"
-              )}
-            >
-              {day.getDate()}
-              {status === 'ACTIVE' && !isSelected && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-primary rounded-full" />
-              )}
-            </button>
-          );
-        })}
       </div>
     </div>
   );
 };
 
-const Hero = ({ onFreeLunch }: { onFreeLunch: () => void }) => {
-  return (
-    <section className="bg-[#F5F3FF] px-4 md:px-12 pt-8 pb-6 border-b border-brand-primary/5">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-2">
-            <h1 className="text-4xl md:text-6xl font-serif text-brand-primary leading-tight tracking-tight">
-              This Week's Picks
-            </h1>
-            <p className="text-[11px] text-brand-primary/50 font-medium max-w-lg leading-relaxed">
-              All orders require at least 1 day advance notice. You're viewing meals available for tomorrow and beyond. We'll cook and deliver Monday through Friday.
-            </p>
-          </div>
-          <button
-            onClick={onFreeLunch}
-            className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 border border-brand-primary/20 rounded-full text-[10px] font-black uppercase tracking-wider text-brand-primary hover:bg-brand-primary hover:text-white transition-all"
-          >
-            Free Lunch Offer
-          </button>
-        </div>
+// ─── FAQ Item (accordion) ─────────────────────────────────────────────────────
+const FAQItem: React.FC<{
+  q: string;
+  a: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  dark?: boolean;
+}> = ({ q, a, isOpen, onToggle, dark }) => (
+  <div
+    className={clsx(
+      'rounded-2xl border transition-all duration-200 cursor-pointer select-none',
+      isOpen && dark
+        ? 'bg-brand-primary border-brand-primary text-white'
+        : isOpen
+        ? 'bg-brand-primary/5 border-brand-primary/20'
+        : 'bg-white border-gray-200 hover:border-brand-primary/30',
+    )}
+    onClick={onToggle}
+  >
+    <div className="flex items-center justify-between p-4 md:p-5 gap-3">
+      <span className={clsx('text-sm font-bold leading-snug', isOpen && dark ? 'text-white' : 'text-brand-primary')}>
+        {q}
+      </span>
+      <div className={clsx('flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all', isOpen && dark ? 'border-white' : 'border-brand-primary/20')}>
+        {isOpen
+          ? <X size={13} className={isOpen && dark ? 'text-white' : 'text-brand-primary'} strokeWidth={2.5} />
+          : <Plus size={13} className="text-brand-primary/50" strokeWidth={2.5} />
+        }
       </div>
-    </section>
-  );
-};
+    </div>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="overflow-hidden"
+        >
+          <p className={clsx('px-5 pb-5 text-[13px] leading-relaxed font-medium', dark ? 'text-white/75' : 'text-brand-primary/60')}>
+            {a}
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+);
 
-
-
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function MenuPage({ cart }: { cart: any }) {
-  const { addItem } = cart;
-  const navigate = useNavigate();
-  const activeOrderDay = useMemo(() => calculateActiveOrderDay(), []);
-  const [selectedDate, setSelectedDate] = useState<Date>(activeOrderDay);
-  const [search, setSearch] = useState('');
-  const sliderRef = useRef<HTMLDivElement>(null);
+  const weekDates = useMemo(() => getThisWeekDates(), []);
 
-  const { isRegistered, register } = useUser();
-  const [showRegistration, setShowRegistration] = useState(false);
-  const [showPromo, setShowPromo] = useState(false);
-  const [pendingAdd, setPendingAdd] = useState<{ item: MenuItem, date: Date, customs: any } | null>(null);
+  // Default to the active order day index
+  const defaultIndex = useMemo(() => {
+    const active = calculateActiveOrderDay();
+    const activeKey = active.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    const idx = weekDates.findIndex(d => {
+      return d.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }) === activeKey;
+    });
+    return idx >= 0 ? idx : 0;
+  }, [weekDates]);
 
-  const [customizingItem, setCustomizingItem] = useState<{ item: MenuItem, date: Date } | null>(null);
+  const [selectedDay, setSelectedDay] = useState(defaultIndex);
+  const [openFaqLeft, setOpenFaqLeft] = useState<number | null>(0);
+  const [openFaqRight, setOpenFaqRight] = useState<number | null>(null);
+  const [customizingItem, setCustomizingItem] = useState<{ item: MenuItem; date: Date } | null>(null);
 
-  const calendarDates = useMemo(() => generateDatesForCalendar(), []);
-  const currentStatus = useMemo(() => getDateStatus(selectedDate), [selectedDate]);
-  const menuData = useMemo(() => getMenuForDate(selectedDate), [selectedDate]);
+  const selectedDate = weekDates[selectedDay];
+  const dayKey = WEEKDAY_KEYS[selectedDay];
+  const dayMenu = MENUS[dayKey];
+  const items = dayMenu?.categories[0]?.items ?? [];
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const hasSeenPromo = sessionStorage.getItem('knwn_promo_seen');
-      if (!hasSeenPromo && !isRegistered) {
-        setShowPromo(true);
-        sessionStorage.setItem('knwn_promo_seen', 'true');
-      }
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [isRegistered]);
+  const dateStatus = getDateStatus(selectedDate);
+  const isAvailable = dateStatus === 'ACTIVE' || dateStatus === 'PREVIEW';
 
-  const togglePromo = () => {
-    if (!isRegistered) {
-      setShowPromo(true);
-    } else {
-      // If already registered, maybe just show a message or redirect
-      setShowRegistration(false);
+  const handleTryNow = (item: MenuItem) => {
+    if (!isAvailable) return;
+    setCustomizingItem({ item, date: selectedDate });
+  };
+
+  const handleConfirm = (customs: any) => {
+    if (!customizingItem) return;
+    const qty = customs.quantity || 1;
+    for (let i = 0; i < qty; i++) {
+      cart.addItem(customizingItem.item, customizingItem.date, customs, customizingItem.item.wooProductId);
     }
-  };
-
-  useEffect(() => {
-    if (sliderRef.current) {
-      const selectedEl = sliderRef.current.querySelector(`[data-date="${toDateKey(selectedDate)}"]`);
-      if (selectedEl) {
-        selectedEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      }
-    }
-  }, [selectedDate]);
-
-  const handleAddClick = (item: MenuItem, date: Date) => {
-    setCustomizingItem({ item, date });
-  };
-
-  const handleCustomizationConfirm = (customs: any) => {
-    if (customizingItem) {
-      // 1. Add item to cart
-      addItem(customizingItem.item, customizingItem.date, customs, customizingItem.item.wooProductId);
-
-      // 2. Find next available service date relative to the item's date
-      const nextDate = findNextServiceDay(customizingItem.date);
-      setSelectedDate(nextDate);
-
-      // 3. Clear modal
-      setCustomizingItem(null);
-    }
-  };
-
-  const handleRegistrationConfirm = (userData: any) => {
-    register(userData);
-    setShowRegistration(false);
-    navigate('/checkout');
-  };
-
-  const handleFinalizeClick = () => {
-    window.location.href = 'https://knwnfood.com/cart/';
+    setCustomizingItem(null);
   };
 
   return (
-    <div className="bg-[#F5F3FF] min-h-screen">
-      <Hero onFreeLunch={togglePromo} />
+    <div className="bg-[#F5F3FF] min-h-screen font-sans overflow-x-hidden">
 
-      <header className="bg-white pt-24 pb-8 md:pb-12 px-4 md:px-12 relative overflow-hidden border-b border-brand-primary/5">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-8 md:gap-12 relative z-10">
-          <div className="space-y-4 md:space-y-6 text-left">
-            <div className="flex items-center gap-3 text-brand-primary/40 uppercase tracking-[0.4em] text-[9px] md:text-[10px] font-black border-l-2 border-brand-primary/20 pl-4 py-1">
-              <CalendarIcon size={14} /> Seasonal Rotation
-            </div>
-            <h2 className="text-5xl md:text-9xl font-serif tracking-tighter text-brand-primary leading-[0.85]">The Weekly <br /><span className="italic font-light opacity-60">Board.</span></h2>
-          </div>
-          <div className="relative w-full md:w-[450px]">
-            <Search className="absolute left-6 md:left-8 top-1/2 -translate-y-1/2 text-brand-primary/30" size={20} />
-            <input
-              type="text"
-              placeholder="Searching for a flavor..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white border border-brand-primary/10 rounded-2xl md:rounded-[2rem] py-4 md:py-6 pl-14 md:pl-16 pr-8 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/5 focus:border-brand-primary/20 transition-all placeholder:text-brand-primary/20 tracking-wider font-medium text-brand-primary shadow-sm"
-            />
-          </div>
+      {/* ── 1. THE WEEKLY SYSTEM ──────────────────────────────────────────────── */}
+      <section className="pt-16 pb-16 px-5 md:px-12 max-w-5xl mx-auto">
 
+        {/* Title */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-[3.2rem] font-black text-brand-primary leading-tight">
+            The Weekly System
+          </h1>
+          <p className="mt-2 text-brand-primary/55 text-sm md:text-base font-medium">
+            Choose between two fresh options every day.
+          </p>
         </div>
-      </header>
 
-      <section className="px-4 md:px-12 py-4 sticky top-[100px] md:top-[116px] bg-white/95 backdrop-blur-md z-30 border-b border-gray-100 shadow-sm overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div
-            ref={sliderRef}
-            className="flex items-center gap-3 md:gap-4 overflow-x-auto no-scrollbar py-2 scroll-smooth"
-          >
-            {calendarDates.map(date => {
-              const isSelected = toDateKey(date) === toDateKey(selectedDate);
-              const status = getDateStatus(date);
-              const weekday = date.getDay();
-              const isWeekendDay = weekday === 0 || weekday === 6;
-
+        {/* Day pills */}
+        <div className="flex items-center justify-center gap-1 md:gap-2 mb-10">
+          <div className="flex items-center bg-white rounded-full border border-gray-200 shadow-sm px-1 py-1 gap-1">
+            {DAY_LABELS.map((label, i) => {
+              const st = getDateStatus(weekDates[i]);
+              const isPast = st === 'PAST' || st === 'TODAY_CLOSED';
+              const isSelected = selectedDay === i;
               return (
                 <button
-                  key={date.toISOString()}
-                  data-date={toDateKey(date)}
-                  onClick={() => setSelectedDate(date)}
+                  key={label}
+                  onClick={() => !isPast && setSelectedDay(i)}
+                  disabled={isPast}
                   className={clsx(
-                    "flex flex-col items-center min-w-[75px] md:min-w-[90px] py-4 md:py-6 rounded-2xl md:rounded-[2.5rem] transition-all border shrink-0 group/date",
+                    'px-4 md:px-6 py-2 rounded-full text-[11px] md:text-xs font-bold uppercase tracking-wider transition-all',
                     isSelected
-                      ? "bg-brand-primary text-white border-brand-primary shadow-2xl shadow-brand-primary/30 scale-[1.05]"
-                      : status === 'WEEKEND'
-                        ? "bg-brand-primary/[0.02] text-brand-primary/10 border-transparent cursor-not-allowed opacity-30 grayscale"
-                        : (status === 'ACTIVE' || status === 'PREVIEW')
-                          ? "bg-white text-brand-primary border-brand-primary/30 shadow-sm hover:border-brand-primary/60 hover:bg-brand-primary/[0.02]"
-                          : "bg-brand-primary/[0.02] text-brand-primary/5 border-transparent cursor-not-allowed opacity-20"
+                      ? 'text-brand-orange border-b-2 border-brand-orange bg-transparent'
+                      : isPast
+                      ? 'text-brand-primary/25 cursor-not-allowed'
+                      : 'text-brand-primary hover:text-brand-primary/70',
                   )}
                 >
-                  <span
-                    className={clsx(
-                      "text-[7px] md:text-[8px] uppercase tracking-[0.2em] md:tracking-[0.3em] font-black mb-1 px-2.5 py-1 rounded-full transition-all",
-                      isSelected
-                        ? "bg-white/10 text-white"
-                        : "text-brand-primary/40 group-hover/date:text-brand-primary/60"
-                    )}
-                  >
-                    {date.toLocaleDateString('en-US', { month: 'short' })}
-                  </span>
-                  <span className="text-xl md:text-2xl font-serif leading-none mb-1">{date.getDate()}</span>
-                  <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.4em] opacity-30">
-                    {date.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0)}
-                  </span>
+                  {label}
                 </button>
               );
             })}
           </div>
         </div>
+
+        {/* Two dish cards */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedDay}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"
+          >
+            {items.length > 0 ? (
+              items.map(item => (
+                <DishCard key={item.id} item={item} onTryNow={handleTryNow} available={isAvailable} />
+              ))
+            ) : (
+              <div className="col-span-2 py-24 text-center text-brand-primary/30 font-bold text-sm">
+                No meals available for this day yet.
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Footer row: veg badge + TRY NOW */}
+        {items.length > 0 && (
+          <div className="mt-8 flex items-center justify-between">
+            {/* Vegetarian badge */}
+            {items.some(i => !!i.customizationOptions?.hasVegetarianOption) && (
+              <div className="flex items-center gap-2 text-brand-primary/60 text-xs font-semibold">
+                <span className="w-6 h-6 rounded-full border-2 border-green-500 flex items-center justify-center">
+                  <Leaf size={11} className="text-green-600" />
+                </span>
+                Vegetarian Options Available
+              </div>
+            )}
+            <div className="ml-auto">
+              {isAvailable ? (
+                <button
+                  onClick={() => items[0] && handleTryNow(items[0])}
+                  className="px-8 py-3.5 bg-brand-orange text-white rounded-full font-black uppercase tracking-[0.18em] text-[11px] hover:opacity-90 transition-opacity shadow-md"
+                >
+                  Try Now
+                </button>
+              ) : (
+                <span className="px-8 py-3.5 bg-brand-primary/10 text-brand-primary/30 rounded-full font-black uppercase tracking-[0.18em] text-[11px] cursor-not-allowed">
+                  Not Available
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
+      {/* ── 2. GOT QUESTIONS ──────────────────────────────────────────────────── */}
+      <section className="bg-white py-16 md:py-20 px-5 md:px-12">
+        <div className="max-w-4xl mx-auto">
 
-      <div className="max-w-[1600px] mx-auto px-4 md:px-12 py-8 md:py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
-          <div className="lg:col-span-8">
-            <div className="mb-8 md:mb-16 space-y-4 md:space-y-6">
-              <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6 border-b border-brand-primary/5 pb-6 md:pb-8">
-                <h2 className="text-4xl md:text-6xl font-serif capitalize text-brand-primary tracking-tighter">{selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</h2>
-                {currentStatus === 'ACTIVE' && (
-                  <span className="inline-flex items-center w-fit gap-2 px-6 py-2 bg-brand-primary/5 text-brand-primary rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] shadow-sm mb-2 border border-brand-primary/10">
-                    <CheckCircle2 size={12} strokeWidth={3} /> Active Now
-                  </span>
-                )}
-              </div>
-              <p className="text-[11px] text-brand-primary/40 font-medium mt-1">Delivered by 10 am – 12 pm to your office</p>
-              <p className="text-base md:text-lg text-brand-primary/40 font-medium max-w-xl leading-relaxed italic">
-                {currentStatus === 'ACTIVE'
-                  ? `Ordering is open. Secure your selection by ${CUTOFF_HOUR}:00 AM ET for same-day artisanal delivery.`
-                  : currentStatus === 'PREVIEW'
-                    ? `Curating the experience for ${selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}. Preview the menu below.`
-                    : `Our kitchen is currently in rest mode. Reimagining new flavors for the coming week.`}
-              </p>
-            </div>
-
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={toDateKey(selectedDate)}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-6"
-              >
-                {menuData ? (
-                  menuData.categories.map((cat) => (
-                    <React.Fragment key={cat.categoryName}>
-                      {cat.items.map(item => (
-                        <MenuCard
-                          key={item.id}
-                          item={item}
-                          status={currentStatus}
-                          date={selectedDate}
-                          activeOrderDay={activeOrderDay}
-                          onAdd={handleAddClick}
-                        />
-                      ))}
-                    </React.Fragment>
-                  ))
-                ) : (
-                  <div className="col-span-full py-24 text-center space-y-4 bg-brand-primary/[0.02] rounded-[2rem] border border-dashed border-brand-primary/10">
-                    <Lock size={32} className="mx-auto text-brand-primary/20" />
-                    <h3 className="text-xl font-serif text-brand-primary/80">Kitchen Resting</h3>
-                    <p className="text-brand-primary/40 text-[12px] font-light max-w-xs mx-auto">Our culinary team is currently sourcing fresh ingredients for the next service window.</p>
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
+          {/* Title */}
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-black text-brand-primary leading-tight">
+              Got Questions?
+            </h2>
+            <p
+              className="text-3xl md:text-4xl text-brand-orange mt-1"
+              style={{ fontFamily: '"Nothing You Could Do", cursive', transform: 'rotate(-1deg)', display: 'inline-block' }}
+            >
+              We've Got Answers
+            </p>
           </div>
 
-          <aside className="lg:col-span-4 space-y-8">
-            <div className="hidden lg:flex sticky top-40 space-y-8 flex-col h-[calc(100vh-12rem)] pb-10">
-              <MiniCalendar
-                selectedDate={selectedDate}
-                onSelect={setSelectedDate}
-              />
+          {/* Two-column FAQ */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            {/* Left column */}
+            <div className="space-y-3">
+              {FAQ_LEFT.map((faq, i) => (
+                <FAQItem
+                  key={i}
+                  q={faq.q}
+                  a={faq.a}
+                  isOpen={openFaqLeft === i}
+                  onToggle={() => setOpenFaqLeft(openFaqLeft === i ? null : i)}
+                  dark={openFaqLeft === i}
+                />
+              ))}
+            </div>
 
-              {/* Persistent Cart Sidebar */}
-              <div className="flex-1 bg-white rounded-[3rem] border border-brand-primary/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col">
-                <div className="p-8 border-b border-brand-primary/5 flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <ShoppingBag size={18} className="text-brand-primary" />
-                    <h2 className="text-lg font-serif text-brand-primary">My Week Lunch</h2>
-                  </div>
-                  <span className="bg-brand-primary/5 text-brand-primary text-[10px] px-3 py-1 rounded-full font-black">{cart.itemCount}</span>
+            {/* Right column */}
+            <div className="space-y-3">
+              {FAQ_RIGHT.map((faq, i) => (
+                <FAQItem
+                  key={i}
+                  q={faq.q}
+                  a={faq.a}
+                  isOpen={openFaqRight === i}
+                  onToggle={() => setOpenFaqRight(openFaqRight === i ? null : i)}
+                />
+              ))}
+
+              {/* Still have questions */}
+              <div className="mt-6 flex items-start gap-4">
+                <div className="relative flex-shrink-0">
+                  <img src="/assets/stickers/blank-sticker.png" alt="" className="w-24 h-auto" style={{ filter: 'hue-rotate(30deg) saturate(1.5)' }} />
+                  <span className="absolute inset-0 flex items-center justify-center text-[9px] font-black text-white uppercase tracking-widest text-center leading-tight px-2">
+                    Still Have<br />Questions?
+                  </span>
                 </div>
-                {/* Progress bar */}
-                <div className="px-8 py-3 border-b border-gray-100">
-                  <div className="flex justify-between mb-1.5">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-brand-primary/30">Week</span>
-                    <span className="text-[9px] font-black text-brand-primary/30">{cart.itemCount}/5</span>
-                  </div>
-                  <div className="w-full h-1 bg-gray-100 rounded-full">
-                    <div className="h-full bg-brand-lime rounded-full transition-all duration-500" style={{ width: `${Math.min((cart.itemCount / 5) * 100, 100)}%` }} />
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
-                  {cart.items.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center space-y-3 opacity-30">
-                      <ShoppingBag size={24} strokeWidth={1.5} />
-                      <p className="text-[9px] font-black uppercase tracking-widest">Basket is empty</p>
-                    </div>
-                  ) : (
-                    cart.items.map((item: any) => (
-                      <motion.div
-                        layout
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`}
-                        className="flex gap-4 group bg-brand-subtle/20 p-4 rounded-[1.5rem] border border-brand-primary/5"
-                      >
-                        <img src={item.image || getFoodImage(item.name, 'bg')} className="w-16 h-16 object-cover rounded-xl" />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start gap-2">
-                            <h3 className="text-[11px] font-bold leading-tight text-brand-primary truncate">{item.name}</h3>
-                            <span className="text-[11px] font-serif text-brand-primary">${item.price * item.quantity}</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-brand-primary/40 mt-1">
-                            <Calendar size={10} />
-                            <span className="text-[8px] font-black uppercase tracking-widest">{item.serviceDate}</span>
-                          </div>
-
-                          <div className="flex items-center justify-between mt-3">
-                            <div className="flex items-center bg-white rounded-full p-0.5 border border-brand-primary/5 scale-90 -ml-1">
-                              <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, item.customizations)} className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-brand-subtle transition-colors text-brand-primary text-xs">-</button>
-                              <span className="px-2 text-[9px] text-brand-primary font-black">{item.quantity}</span>
-                              <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1, item.customizations)} className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-brand-subtle transition-colors text-brand-primary text-xs">+</button>
-                            </div>
-                            <button
-                              onClick={() => cart.removeItem(item.id, item.serviceDate, item.customizations)}
-                              className="text-[8px] uppercase tracking-widest text-brand-primary/20 hover:text-red-500 transition-colors font-black"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))
-                  )}
-                </div>
-
-                {cart.items.length > 0 && (
-                  <div className="p-6 border-t border-brand-primary/5 bg-brand-subtle/30">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-brand-primary/40 uppercase tracking-[0.2em] text-[9px] font-black">Subtotal</span>
-                      <span className="text-xl font-serif text-brand-primary">${cart.total}</span>
-                    </div>
-                    <button
-                      onClick={handleFinalizeClick}
-                      className="w-full py-4 bg-brand-lime text-brand-primary rounded-xl flex items-center justify-center gap-2 group hover:brightness-95 transition-all font-black"
-                    >
-                      <span className="uppercase tracking-[0.3em] text-[9px] font-black">Finalize</span>
-                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
-                )}
+                <p className="text-brand-primary/60 text-sm font-medium leading-relaxed mt-2">
+                  Email us at{' '}
+                  <a href="mailto:hello@knwnfood.com" className="text-brand-primary font-bold underline decoration-dotted hover:text-brand-orange transition-colors">
+                    hello@knwnfood.com
+                  </a>
+                  . We're here to help!
+                </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Tablet/Mobile Calendar (visible only when not large desktop) */}
-            <div className="lg:hidden space-y-8">
-              <MiniCalendar
-                selectedDate={selectedDate}
-                onSelect={setSelectedDate}
+      {/* ── 3. FIND THE REAL LUNCH (comparison) ──────────────────────────────── */}
+      <section className="bg-brand-orange py-16 md:py-20 px-5 md:px-12 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8 max-w-lg">
+            <h2 className="text-4xl md:text-[3.2rem] font-black text-white leading-tight">
+              Find the{' '}
+              <em
+                style={{ fontFamily: '"Nothing You Could Do", cursive', fontStyle: 'normal', fontSize: '1.1em' }}
+              >
+                real
+              </em>{' '}
+              lunch.
+            </h2>
+            <p className="text-white/65 text-sm leading-relaxed font-medium mt-3">
+              Real lunch is fresh, quality produce, no antibiotics or hormones ever, no seed oils, and sauces made from scratch — no preservatives, just real ingredients.
+            </p>
+          </div>
+
+          {/* Table */}
+          <div className="relative">
+            <div className="rounded-2xl overflow-x-auto shadow-2xl bg-white">
+              <table className="w-full text-center border-collapse min-w-[480px]">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="p-4 md:p-5 text-left w-[36%]" />
+                    {['Pricing', 'Food Quality', 'Convenience', 'No Hidden Fees'].map(col => (
+                      <th key={col} className="p-4 md:p-5">
+                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-brand-primary/35">{col}</span>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  <tr className="border-b border-gray-100 bg-[#F5F3FF]">
+                    <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary">KNWN Real Food Lunch</td>
+                    {[true, true, true, true].map((_, i) => (
+                      <td key={i} className="p-4 md:p-5">
+                        <Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" />
+                      </td>
+                    ))}
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary/40">Meal Prep Service</td>
+                    <td className="p-4 md:p-5"><Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" /></td>
+                    <td /><td /><td />
+                  </tr>
+                  <tr>
+                    <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary/40">Restaurant & Delivery Apps</td>
+                    <td /><td />
+                    <td className="p-4 md:p-5"><Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" /></td>
+                    <td />
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* ORDER NOW sticker */}
+            <motion.button
+              animate={{ rotate: [3, 6, 3] }}
+              transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
+              onClick={() => items[0] && handleTryNow(items[0])}
+              className="absolute -bottom-4 -right-2 md:-right-6 bg-brand-lime text-brand-primary font-black uppercase tracking-widest text-xs px-5 py-3 rounded-xl shadow-xl hover:brightness-95 transition-all"
+              style={{ transform: 'rotate(4deg)' }}
+            >
+              Order<br />Now
+            </motion.button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. DELIVERY ZONE CHECK ────────────────────────────────────────────── */}
+      <section className="relative bg-brand-primary overflow-hidden py-10 px-5 md:px-12">
+        {/* Delivery moto */}
+        <img
+          src="/assets/delivery-moto.png"
+          alt=""
+          aria-hidden
+          className="absolute right-0 bottom-0 h-full object-contain object-right-bottom pointer-events-none select-none"
+          style={{ mixBlendMode: 'screen', maxWidth: '240px' }}
+        />
+
+        <div className="relative z-10 max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10 pr-0 md:pr-52">
+          <p className="text-white font-black text-lg md:text-xl leading-snug flex-shrink-0 md:w-52">
+            Check if we deliver<br />to your office.
+          </p>
+
+          <div className="flex items-center gap-3 flex-1 max-w-sm">
+            <div className="flex-1 flex items-center bg-white rounded-full overflow-hidden">
+              <MapPin size={15} className="ml-4 flex-shrink-0 text-brand-primary/40" />
+              <input
+                type="text"
+                placeholder="Enter ZIP code"
+                className="flex-1 py-3 px-3 text-sm text-brand-primary placeholder-brand-primary/30 outline-none font-medium bg-transparent"
               />
             </div>
-          </aside>
+            <button className="w-11 h-11 flex-shrink-0 rounded-full bg-brand-lime flex items-center justify-center hover:brightness-95 transition-all">
+              <ArrowRight size={17} className="text-brand-primary" strokeWidth={2.5} />
+            </button>
+          </div>
 
+          <p className="hidden lg:block text-white/50 text-xs leading-relaxed flex-shrink-0 max-w-[200px]">
+            Now serving Brickell, Downtown, Bayside, and Coral Gables.
+          </p>
         </div>
-      </div>
+      </section>
 
+      {/* ── Customization Modal ──────────────────────────────────────────────── */}
       <AnimatePresence>
         {customizingItem && (
           <CustomizationModal
             item={customizingItem.item}
+            date={customizingItem.date}
             isOpen={!!customizingItem}
             onClose={() => setCustomizingItem(null)}
-            onConfirm={handleCustomizationConfirm}
-          />
-        )}
-        {showRegistration && (
-          <RegistrationModal
-            isOpen={showRegistration}
-            onClose={() => setShowRegistration(false)}
-            onConfirm={handleRegistrationConfirm}
-            onSkip={() => {
-              setShowRegistration(false);
-              navigate('/checkout');
-            }}
-          />
-        )}
-        {showPromo && (
-          <PromotionalModal
-            isOpen={showPromo}
-            onClose={() => setShowPromo(false)}
-            onSignUp={() => {
-              setShowPromo(false);
-              setShowRegistration(true);
-            }}
+            onConfirm={handleConfirm}
           />
         )}
       </AnimatePresence>

@@ -118,7 +118,7 @@ export default function ThankYou() {
             Return Home
           </Link>
           <Link
-            to="/about"
+            to="/"
             className="px-8 md:px-12 py-5 md:py-6 border border-brand-primary/10 text-brand-primary rounded-xl md:rounded-[1.5rem] uppercase tracking-[0.4em] text-[9px] md:text-[10px] font-black hover:bg-white transition-all active:scale-[0.98] text-center"
           >
             The Narrative
