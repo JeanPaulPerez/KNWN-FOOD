@@ -23,11 +23,11 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#F5F3FF] flex flex-col">
+    <nav className="fixed top-0 left-0 right-0 z-[100] bg-white shadow-sm flex flex-col">
       {/* ── Main nav row ── */}
       <div className="h-16 md:h-20 flex items-center px-4 md:px-12 justify-between">
         {/* Logo */}
-        <Link to="/" className="block w-24 md:w-36">
+        <Link to="/" className="block w-28 md:w-40">
           <img
             src="https://knwnfood.com/wp-content/uploads/2025/09/Recurso-91x.webp"
             alt="KNWN Food Logo"
@@ -38,28 +38,25 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
         {/* Desktop center nav */}
         <div className="hidden md:flex items-center gap-8">
           <Link
-            to="/"
-            className={cn(
-              "text-[11px] uppercase tracking-[0.18em] font-semibold transition-colors",
-              location.pathname === '/' ? "text-brand-primary" : "text-brand-primary/50 hover:text-brand-primary"
-            )}
-          >
-            Home
-          </Link>
-          <Link
             to="/menu"
             className={cn(
               "text-[11px] uppercase tracking-[0.18em] font-semibold transition-colors",
-              location.pathname === '/menu' ? "text-brand-primary" : "text-brand-primary/50 hover:text-brand-primary"
+              location.pathname === '/menu' ? "text-[#2D1B69]" : "text-[#2D1B69]/50 hover:text-[#2D1B69]"
             )}
           >
             Menu
           </Link>
+          <a
+            href="/#how-it-works"
+            className="text-[11px] uppercase tracking-[0.18em] font-semibold text-[#2D1B69]/50 hover:text-[#2D1B69] transition-colors"
+          >
+            How It Works
+          </a>
           <Link
             to="/about"
             className={cn(
               "text-[11px] uppercase tracking-[0.18em] font-semibold transition-colors",
-              location.pathname === '/about' ? "text-brand-primary" : "text-brand-primary/50 hover:text-brand-primary"
+              location.pathname === '/about' ? "text-[#2D1B69]" : "text-[#2D1B69]/50 hover:text-[#2D1B69]"
             )}
           >
             About Us
@@ -118,9 +115,9 @@ const Navbar = ({ cartCount, onOpenCart }: { cartCount: number, onOpenCart: () =
             exit={{ opacity: 0, y: -8 }}
             className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 px-6 py-8 flex flex-col gap-6 md:hidden z-50 shadow-xl"
           >
-            <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-brand-primary">Home</Link>
-            <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-brand-primary">Menu</Link>
-            <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-brand-primary">About Us</Link>
+            <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-[#2D1B69]">Menu</Link>
+            <a href="/#how-it-works" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-[#2D1B69]">How It Works</a>
+            <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black text-[#2D1B69]">About Us</Link>
             <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="mt-2 w-full py-4 bg-brand-orange text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] text-center">
               Order Now
             </Link>

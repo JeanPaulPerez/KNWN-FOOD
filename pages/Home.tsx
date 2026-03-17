@@ -5,11 +5,11 @@ import { ArrowRight, Check, ChevronLeft, ChevronRight, Truck, Clock } from 'luci
 
 /* ─── Customer Favs data ────────────────────────────────────────────────────── */
 const FAVS = [
-  { day: 'Monday',    name: 'Crispy Korean Chicken',   price: '$15.90', img: '/assets/food-bg/korean-crispy-chicken.webp',   desc: 'Brown rice, crispy Korean chicken breast, glazed red cabbage, zucchini, carrot, red onion, gochujang sauce.' },
-  { day: 'Tuesday',   name: 'Pesto Pasta',             price: '$15.90', img: '/assets/food-bg/pesto-pasta.webp',             desc: 'Al dente rigatoni, house-made basil pesto, sun-dried tomatoes, pine nuts, aged parmesan.' },
-  { day: 'Wednesday', name: 'Mediterranean Chicken',   price: '$15.90', img: '/assets/food-bg/mediterranean-chicken.webp',   desc: 'Herb-roasted chicken, quinoa, roasted peppers, kalamata olives, tzatziki, fresh lemon.' },
-  { day: 'Thursday',  name: 'Thai Beef Salad',         price: '$15.90', img: '/assets/food-bg/thai-beef-salad.webp',         desc: 'Marinated beef, rice noodles, fresh herbs, cucumber, peanuts, lime-chili vinaigrette.' },
-  { day: 'Friday',    name: 'Chicken César Salad',     price: '$15.90', img: '/assets/food-bg/chicken-cesar-salad.webp',     desc: 'Grilled chicken breast, romaine, shaved parmesan, house César dressing, sourdough croutons.' },
+  { day: 'Monday',    name: 'Crispy Korean Chicken',   price: '$12.90', img: '/assets/hero-bg/PLATOS SIN FONDO/Korean Crispy Chicken.png',   desc: 'Brown rice, crispy Korean chicken breast, glazed red cabbage, zucchini, carrot, red onion, gochujang sauce.' },
+  { day: 'Tuesday',   name: 'Pesto Pasta',             price: '$12.90', img: '/assets/hero-bg/PLATOS SIN FONDO/Pesto Pasta.png',             desc: 'Al dente rigatoni, house-made basil pesto, sun-dried tomatoes, pine nuts, aged parmesan.' },
+  { day: 'Wednesday', name: 'Mediterranean Chicken',   price: '$12.90', img: '/assets/hero-bg/PLATOS SIN FONDO/Mediterranean chicken.png',   desc: 'Herb-roasted chicken, quinoa, roasted peppers, kalamata olives, tzatziki, fresh lemon.' },
+  { day: 'Thursday',  name: 'Thai Beef Salad',         price: '$12.90', img: '/assets/hero-bg/PLATOS SIN FONDO/Thai Beef Salad.png',         desc: 'Marinated beef, rice noodles, fresh herbs, cucumber, peanuts, lime-chili vinaigrette.' },
+  { day: 'Friday',    name: 'Chicken César Salad',     price: '$12.90', img: '/assets/hero-bg/PLATOS SIN FONDO/Chicken Cesar Salad.png',     desc: 'Grilled chicken breast, romaine, shaved parmesan, house César dressing, sourdough croutons.' },
 ];
 
 /* ─── Instagram photos ────────────────────────────────────────────────────────── */
@@ -35,8 +35,8 @@ export default function Home() {
     <div className="flex flex-col">
 
       {/* ── 1 · HERO ─────────────────────────────────────────────────────────── */}
-      <section className="bg-white px-6 md:px-16 pt-12 pb-16 md:pt-16 md:pb-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-6 items-center">
+      <section className="bg-white px-6 md:px-16 pt-16 pb-0 md:pt-20 md:pb-0 overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-0 items-center">
 
           {/* LEFT */}
           <motion.div
@@ -45,21 +45,21 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="flex flex-col gap-5 max-w-lg"
           >
-            {/* badge */}
-            <span className="self-start text-[10px] font-bold uppercase tracking-[0.18em] text-brand-primary/55 border border-brand-primary/20 rounded-full px-4 py-1.5">
-              No Subscription Required
+            {/* orange tag */}
+            <span className="self-start text-[10px] font-black uppercase tracking-[0.16em] text-white bg-[#FF5C00] rounded-full px-4 py-1.5">
+              Free Next Day Delivery
             </span>
 
             {/* headline */}
-            <h1 className="text-[2.6rem] md:text-[3.6rem] font-black text-brand-primary leading-[1.05] tracking-tight">
+            <h1 className="text-[2.6rem] md:text-[3.6rem] font-black text-[#2D1B69] leading-[1.05] tracking-tight">
               Made this morning.
               <br />
-              <em
-                className="not-italic text-brand-orange"
-                style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic' }}
+              <span
+                className="text-[#FF5C00]"
+                style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic', fontWeight: 400 }}
               >
                 Delivered by lunch.
-              </em>
+              </span>
             </h1>
 
             <p className="text-brand-primary/55 text-sm md:text-[15px] leading-relaxed font-medium max-w-[400px]">
@@ -74,61 +74,39 @@ export default function Home() {
               Order Now
             </Link>
 
-            {/* perks — pill badges per design */}
+            {/* perks — outlined badges */}
             <div className="flex flex-wrap gap-3 mt-1">
-              <span className="flex items-center gap-2 text-[11px] font-semibold text-white bg-[#2D9455] px-4 py-2 rounded-full">
-                🌿 Free Next Day Delivery
+              <span className="flex items-center gap-2 text-[11px] font-semibold text-[#2D1B69] border border-[#2D1B69]/20 bg-white px-4 py-2 rounded-full shadow-sm">
+                <Truck size={13} strokeWidth={2} className="text-[#FF5C00]" />
+                Free Next Day Delivery
               </span>
-              <span className="flex items-center gap-2 text-[11px] font-semibold text-white bg-brand-primary px-4 py-2 rounded-full">
-                🕐 Order by 10:00 PM
+              <span className="flex items-center gap-2 text-[11px] font-semibold text-[#2D1B69] border border-[#2D1B69]/20 bg-white px-4 py-2 rounded-full shadow-sm">
+                <Clock size={13} strokeWidth={2} className="text-[#FF5C00]" />
+                Order by 5PM
               </span>
             </div>
           </motion.div>
 
-          {/* RIGHT — bowl + stickers */}
+          {/* RIGHT — HomePage_ KNWN.png */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
+            initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="relative flex justify-center items-center mt-6 lg:mt-0"
+            className="relative flex justify-center lg:justify-end items-center mt-8 lg:mt-0"
           >
-            <div className="relative w-[300px] md:w-[380px] lg:w-[440px]">
-              {/* main bowl — circular crop */}
-              <img
-                src="/assets/food-bg/korean-crispy-chicken.webp"
-                alt="Crispy Korean Chicken bowl"
-                className="w-full aspect-square object-cover rounded-full shadow-2xl border-[6px] border-white"
-              />
-
-              {/* "Real ingredients." sticker — top right, tilted */}
-              <motion.img
-                src="/assets/stickers/real-ingredients.png"
-                alt=""
-                aria-hidden
-                animate={{ rotate: [10, 15, 10] }}
-                transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut' }}
-                className="absolute -top-4 -right-6 md:-top-6 md:-right-8 w-[110px] md:w-[136px] drop-shadow-xl pointer-events-none"
-                style={{ transform: 'rotate(12deg)' }}
-              />
-
-              {/* "Pay Less. Eat better" sticker — bottom left, tilted */}
-              <motion.img
-                src="/assets/stickers/pay-less-eat-better.png"
-                alt=""
-                aria-hidden
-                animate={{ rotate: [-8, -4, -8] }}
-                transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
-                className="absolute -bottom-4 -left-8 md:-bottom-6 md:-left-10 w-[130px] md:w-[160px] drop-shadow-xl pointer-events-none"
-                style={{ transform: 'rotate(-7deg)' }}
-              />
-            </div>
+            <img
+              src="/assets/hero-bg/HomePage_ KNWN.png"
+              alt="Fresh food bowls"
+              className="w-[340px] md:w-[500px] lg:w-[580px] h-auto object-contain"
+              style={{ mixBlendMode: 'multiply' }}
+            />
           </motion.div>
         </div>
       </section>
 
       {/* ── 2 · HOW IT WORKS ──────────────────────────────────────────────────── */}
-      <section id="how-it-works" className="bg-white border-t border-gray-100 py-16 md:py-24 px-6 md:px-16 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <section id="how-it-works" className="bg-white border-t border-gray-100 py-24 md:py-36 px-6 md:px-16 overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
 
           {/* LEFT — photo */}
           <motion.div
@@ -146,7 +124,7 @@ export default function Home() {
           </motion.div>
 
           {/* RIGHT — steps */}
-          <div className="flex flex-col gap-7">
+          <div className="flex flex-col gap-10">
             <h2 className="text-4xl md:text-5xl font-black text-brand-primary leading-tight">
               How it{' '}
               <em style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic', fontWeight: 400 }}>
@@ -194,29 +172,29 @@ export default function Home() {
       </section>
 
       {/* ── 3 · 4 PILLARS (dark navy) ─────────────────────────────────────────── */}
-      <section className="bg-brand-primary py-14 px-6 md:px-16">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+      <section className="bg-[#2D1B69] py-10 px-6 md:px-16 min-h-[120px]">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-12">
           {[
-            { icon: '/assets/icons-steps/step-1.svg', title: 'Simplifying Lunch',     desc: 'Plan once and handle the week.' },
-            { icon: '/assets/icons-steps/step-2.svg', title: 'Freshness Guarantee',   desc: 'Never frozen. Never batch made.' },
-            { icon: '/assets/icons-steps/step-3.svg', title: 'Bullsh*t Free',         desc: 'No additives. No shortcuts.' },
-            { icon: '/assets/icons-steps/step-4.svg', title: 'Pay Less Eat Better',   desc: 'No delivery app fees. No overpriced salads.' },
+            { icon: '/assets/hero-bg/ICONOS VALORES copy/5.png', title: 'SIMPLIFYING LUNCH',   desc: 'Plan once and handle the week.' },
+            { icon: '/assets/hero-bg/ICONOS VALORES copy/6.png', title: 'FRESHNESS GUARANTEE', desc: 'Never frozen. Never batch made.' },
+            { icon: '/assets/hero-bg/ICONOS VALORES copy/7.png', title: 'BULLSH*T FREE',       desc: 'No additives. No shortcuts.' },
+            { icon: '/assets/hero-bg/ICONOS VALORES copy/8.png', title: 'PAY LESS EAT BETTER', desc: 'No delivery app fees. No overpriced salads.' },
           ].map(v => (
-            <div key={v.title} className="flex flex-col items-center text-center gap-4">
-              <img src={v.icon} alt={v.title} className="w-14 h-14 object-contain" />
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white leading-snug">{v.title}</h4>
-              <p className="text-white/40 text-xs leading-relaxed max-w-[150px]">{v.desc}</p>
+            <div key={v.title} className="flex flex-col items-center text-center gap-3">
+              <img src={v.icon} alt={v.title} className="w-12 h-12 object-contain" />
+              <h4 className="text-[14px] font-bold uppercase tracking-wide text-white leading-snug">{v.title}</h4>
+              <p className="text-white/80 text-xs leading-relaxed max-w-[160px]">{v.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── 4 · CUSTOMER FAVS ─────────────────────────────────────────────────── */}
-      <section className="bg-[#F5F3FF] py-12 md:py-20 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 md:px-10">
+      <section className="bg-[#EEEAF8] py-16 overflow-hidden">
+        <div className="max-w-5xl mx-auto px-6 md:px-12">
 
-          {/* Header row: day badge left, cursive title right */}
-          <div className="flex items-center justify-between mb-6 md:mb-8 px-1">
+          {/* TOP ROW */}
+          <div className="flex items-center justify-between mb-10">
             <AnimatePresence mode="wait">
               <motion.span
                 key={`day-${fav}`}
@@ -224,30 +202,21 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.25 }}
-                className="px-5 py-2 bg-brand-lime text-brand-primary rounded-full text-xs font-black uppercase tracking-widest shadow-sm"
+                className="px-5 py-2 bg-[#D4F53C] text-[#2D1B69] rounded-full text-xs font-bold uppercase tracking-widest"
               >
                 {item.day}
               </motion.span>
             </AnimatePresence>
             <span
-              className="text-[2rem] md:text-[3rem] text-brand-primary"
-              style={{ fontFamily: '"Nothing You Could Do", cursive', transform: 'rotate(-3deg)', display: 'block' }}
+              className="text-4xl text-[#FF5C00]"
+              style={{ fontFamily: '"Nothing You Could Do", cursive' }}
             >
-              Customer favs
+              Customer Favs
             </span>
           </div>
 
-          {/* Slider */}
-          <div className="relative">
-
-            {/* Left arrow */}
-            <button
-              onClick={prev}
-              aria-label="Previous"
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white border-2 border-brand-primary/20 text-brand-primary flex items-center justify-center hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all shadow-sm"
-            >
-              <ChevronLeft size={18} />
-            </button>
+          {/* MAIN CARD */}
+          <div className="relative" style={{ minHeight: '380px' }}>
 
             <AnimatePresence mode="wait">
               <motion.div
@@ -256,61 +225,96 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="relative flex items-center mx-10 md:mx-14 min-h-[280px] md:min-h-[400px]"
+                className="w-full"
+                style={{ minHeight: '380px' }}
               >
-                {/* Lime card — right side */}
-                <div className="ml-auto w-[78%] md:w-[68%] rounded-[2rem] md:rounded-[2.5rem] bg-brand-lime min-h-[280px] md:min-h-[380px] flex items-center">
-                  <div className="pl-[40%] md:pl-[38%] pr-6 md:pr-10 py-10 md:py-12 flex flex-col gap-3 md:gap-4">
-                    <h3 className="text-xl md:text-2xl font-black text-brand-primary leading-tight">{item.name}</h3>
-                    <p className="text-xs md:text-sm text-brand-primary/70 font-medium leading-relaxed max-w-[260px]">{item.desc}</p>
-                    <div className="flex items-center gap-3 flex-wrap mt-1">
-                      <span className="px-4 py-1.5 bg-brand-primary text-white rounded-full text-sm font-black shadow-sm">
+
+                {/* RIGHT SIDE — card with Bloque_amarillo as <img> behind content */}
+                <div
+                  className="relative overflow-hidden"
+                  style={{
+                    marginLeft: '300px',
+                    minHeight: '380px',
+                    borderRadius: '12px',
+                  }}
+                >
+                  {/* Bloque_amarillo as real img, fills the card behind text */}
+                  <img
+                    src="/assets/hero-bg/Bloque_amarillo.png"
+                    alt=""
+                    aria-hidden
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'fill', zIndex: 0 }}
+                  />
+
+                  {/* Text content on top */}
+                  <div style={{ position: 'relative', zIndex: 1, padding: '48px 48px 48px 120px' }}>
+                    <h2 className="text-2xl font-bold text-[#2D1B69] leading-tight mb-3">{item.name}</h2>
+                    <p className="text-sm text-[#2D1B69] leading-relaxed mb-4 max-w-[320px]">{item.desc}</p>
+                    <div className="flex items-center gap-3 flex-wrap mb-4">
+                      <span className="bg-[#2D1B69] text-white px-4 py-2 rounded-full text-sm font-bold">
                         {item.price}
                       </span>
-                      <span className="text-[10px] font-bold text-brand-primary/60 uppercase tracking-wider">
+                      <span className="border border-[#2D1B69] text-[#2D1B69] px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide">
                         Delivery Included
                       </span>
                     </div>
                     <Link
                       to="/menu"
-                      className="self-start mt-2 px-7 py-3 bg-brand-orange text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-opacity shadow-md"
+                      className="inline-block mt-2 bg-[#FF5C00] text-white px-8 py-3 rounded-full font-bold text-sm hover:opacity-90 transition-opacity"
                     >
-                      See Full Menu
+                      SEE FULL MENU
                     </Link>
                   </div>
                 </div>
 
-                {/* Bowl — left side, overlapping the lime card */}
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[50%] md:w-[42%] z-20 pointer-events-none">
-                  <img
-                    src={item.img}
-                    alt={item.name}
-                    className="w-full aspect-square object-cover rounded-full shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
-                  />
-                </div>
+                {/* LEFT SIDE — food photo, absolute bottom:0, left:-80px, z-20 */}
+                <motion.img
+                  key={`img-${fav}`}
+                  src={item.img}
+                  alt={item.name}
+                  initial={{ opacity: 0, scale: 0.94 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.35 }}
+                  className="absolute bottom-0 object-contain pointer-events-none"
+                  style={{ width: '450px', zIndex: 20, left: '-80px' }}
+                />
+
               </motion.div>
             </AnimatePresence>
+
+            {/* Left arrow */}
+            <button
+              onClick={prev}
+              aria-label="Previous"
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white border border-[#2D1B69]/20 text-[#2D1B69] flex items-center justify-center hover:bg-[#2D1B69] hover:text-white transition-all shadow-md"
+              style={{ zIndex: 30, left: '-48px' }}
+            >
+              <ChevronLeft size={20} />
+            </button>
 
             {/* Right arrow */}
             <button
               onClick={next}
               aria-label="Next"
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white border-2 border-brand-primary/20 text-brand-primary flex items-center justify-center hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all shadow-sm"
+              className="absolute top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white border border-[#2D1B69]/20 text-[#2D1B69] flex items-center justify-center hover:bg-[#2D1B69] hover:text-white transition-all shadow-md"
+              style={{ zIndex: 30, right: '-48px' }}
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={20} />
             </button>
           </div>
 
-          {/* Dots */}
-          <div className="flex justify-center gap-2 mt-6">
+          {/* DOT PAGINATION */}
+          <div className="flex justify-center gap-2.5 mt-8">
             {FAVS.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setFav(i)}
-                className={`rounded-full transition-all duration-300 ${i === fav ? 'w-6 h-2 bg-brand-primary' : 'w-2 h-2 bg-brand-primary/20'}`}
+                className={`rounded-full transition-all duration-300 ${i === fav ? 'w-7 h-2.5 bg-[#2D1B69]' : 'w-2.5 h-2.5 bg-[#2D1B69]/20 hover:bg-[#2D1B69]/40'}`}
               />
             ))}
           </div>
+
         </div>
       </section>
 
@@ -356,116 +360,118 @@ export default function Home() {
       </section>
 
       {/* ── 6 · COMPARISON TABLE (orange bg) ──────────────────────────────────── */}
-      <section className="bg-brand-orange py-20 md:py-28 px-6 md:px-16">
-        <div className="max-w-5xl mx-auto flex flex-col gap-8">
+      <section className="bg-[#FF5C00] w-full py-16 px-8">
 
-          <div className="flex flex-col gap-3 max-w-xl">
-            <h2 className="text-4xl md:text-[3.2rem] font-black text-white leading-tight">
+        {/* Title block — centered, subtle outlined box */}
+        <div className="max-w-3xl mx-auto text-center mb-4">
+          <div className="inline-block border border-white/30 rounded-xl px-10 py-5 mb-4">
+            <h2 className="text-6xl font-bold italic text-white leading-tight whitespace-nowrap">
               Find the{' '}
-              <em style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic', fontWeight: 400 }}>
+              <span className="text-[#D4F53C] not-italic" style={{ fontFamily: '"Nothing You Could Do", cursive', fontWeight: 400 }}>
                 real
-              </em>{' '}
+              </span>{' '}
               lunch.
             </h2>
-            <p className="text-white/65 text-sm leading-relaxed font-medium">
-              Real lunch is made with fresh, high-quality produce, no antibiotics or hormones ever, no seed oils, and sauces made from scratch — no preservatives, just real ingredients.
-            </p>
           </div>
-
-          {/* table */}
-          <div className="rounded-2xl overflow-x-auto shadow-2xl bg-white">
-            <table className="w-full text-center border-collapse min-w-[520px]">
-              <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="p-4 md:p-5 text-left w-[36%]" />
-                  {['Pricing', 'Food Quality', 'Convenience', 'No Hidden Fees'].map(col => (
-                    <th key={col} className="p-4 md:p-5">
-                      <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-brand-primary/35">{col}</span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="text-sm">
-                <tr className="border-b border-gray-100 bg-[#F5F3FF]">
-                  <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary">KNWN Real Food Lunch</td>
-                  {[true, true, true, true].map((v, i) => (
-                    <td key={i} className="p-4 md:p-5">
-                      <Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" />
-                    </td>
-                  ))}
-                </tr>
-                <tr className="border-b border-gray-100">
-                  <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary/40">Meal Prep Service</td>
-                  <td className="p-4 md:p-5"><Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" /></td>
-                  <td /><td /><td />
-                </tr>
-                <tr>
-                  <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary/40">Restaurant & Delivery Apps</td>
-                  <td /><td />
-                  <td className="p-4 md:p-5"><Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" /></td>
-                  <td />
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
+          <p className="text-white text-sm leading-relaxed max-w-2xl mx-auto mt-4">
+            Real lunch is made with fresh, high-quality produce, no antibiotics or hormones ever, no seed oils, and sauces made from scratch, no preservatives, just real ingredients.
+          </p>
         </div>
+
+        {/* Table */}
+        <div className="max-w-4xl mx-auto mt-8 rounded-2xl overflow-hidden bg-white">
+          <table className="w-full border-collapse">
+            {/* Header */}
+            <thead>
+              <tr className="bg-white border-b border-gray-100">
+                <th className="py-4 px-6 text-left" style={{ width: '12rem' }} />
+                {['Pricing', 'Food Quality', 'Convenience', 'No Hidden Fees'].map(col => (
+                  <th key={col} className="py-4 px-4 text-center text-sm text-gray-500 font-medium">{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {/* Row 1 — KNWN: purple bg, white text, white checkmarks */}
+              <tr className="bg-[#2D1B69]">
+                <td className="py-5 px-6 text-white font-bold text-sm">KNWN Real Food Lunch</td>
+                {[0,1,2,3].map(i => (
+                  <td key={i} className="py-5 px-4 text-center text-xl text-white">✓</td>
+                ))}
+              </tr>
+              {/* Row 2 — Meal Prep */}
+              <tr className="bg-white border-b border-gray-100">
+                <td className="py-5 px-6 text-[#2D1B69] text-sm">Meal Prep Service</td>
+                <td className="py-5 px-4 text-center text-xl text-[#FF5C00]">✓</td>
+                <td /><td /><td />
+              </tr>
+              {/* Row 3 — Restaurants */}
+              <tr className="bg-white">
+                <td className="py-5 px-6 text-[#2D1B69] text-sm">Restaurant & Delivery Apps</td>
+                <td /><td />
+                <td className="py-5 px-4 text-center text-xl text-[#FF5C00]">✓</td>
+                <td />
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </section>
 
       {/* ── 7 · OUR PHILOSOPHY ────────────────────────────────────────────────── */}
-      <section className="bg-white py-20 md:py-28 px-6 md:px-16">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <section className="bg-white py-16 px-6 md:px-16">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-stretch">
 
-          {/* LEFT — founders photo */}
+          {/* LEFT — ourphilosophy.webp */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="rounded-3xl overflow-hidden shadow-2xl shadow-brand-primary/10 h-[360px] md:h-[500px]"
+            className="rounded-2xl overflow-hidden h-[360px] lg:h-auto min-h-[420px]"
           >
             <img
-              src="/assets/about/founders.webp"
-              alt="KNWN founders"
+              src="/assets/hero-bg/ourphilosophy.webp"
+              alt="Our philosophy"
               className="w-full h-full object-cover"
             />
           </motion.div>
 
           {/* RIGHT — text */}
-          <div className="flex flex-col gap-6">
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-primary/30">
+          <div className="flex flex-col justify-center gap-5">
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">
               Our Philosophy
             </span>
 
-            <h2 className="text-3xl md:text-[2.6rem] font-black text-brand-primary leading-snug">
-              Busy people don't eat like shit by choice.{' '}
-              <span className="text-brand-orange">They eat like shit by default.</span>
+            <h2 className="text-3xl font-bold text-[#2D1B69] leading-snug">
+              Busy people don't eat like shit by choice.
+              <br />
+              <span className="text-[#FF5C00]">They eat like shit by default.</span>
             </h2>
 
-            <ul className="space-y-2 text-brand-primary/55 text-sm font-medium leading-relaxed">
-              <li className="flex items-start gap-2.5">
-                <span className="mt-[6px] w-1.5 h-1.5 rounded-full bg-brand-orange flex-shrink-0" />
+            <ul className="space-y-2 text-sm text-[#2D1B69] leading-relaxed">
+              <li className="flex items-start gap-2">
+                <span className="text-[#FF5C00] font-bold mt-0.5">•</span>
                 Restaurants are overpriced.
               </li>
-              <li className="flex items-start gap-2.5">
-                <span className="mt-[6px] w-1.5 h-1.5 rounded-full bg-brand-orange flex-shrink-0" />
+              <li className="flex items-start gap-2">
+                <span className="text-[#FF5C00] font-bold mt-0.5">•</span>
                 Delivery apps = a pile of fees.
               </li>
-              <li className="flex items-start gap-2.5">
-                <span className="mt-[6px] w-1.5 h-1.5 rounded-full bg-brand-orange flex-shrink-0" />
+              <li className="flex items-start gap-2">
+                <span className="text-[#FF5C00] font-bold mt-0.5">•</span>
                 Meal prep isn't fresh.
               </li>
             </ul>
 
-            <p className="font-black text-brand-primary text-base leading-snug">
-              One less daily decision.<br />Real food, handled.
+            <p className="font-bold text-[#2D1B69] text-base leading-snug">
+              One less daily decision. Real food, handled.
             </p>
 
             <Link
               to="/about"
-              className="self-start px-8 py-3 bg-brand-primary text-white rounded-full text-[11px] font-black uppercase tracking-[0.15em] hover:bg-brand-dark transition-colors shadow-lg shadow-brand-primary/20 mt-1"
+              className="self-start px-8 py-3 bg-[#2D1B69] text-white rounded-full font-bold text-sm hover:opacity-90 transition-opacity mt-1"
             >
-              About Us
+              ABOUT US
             </Link>
           </div>
         </div>
