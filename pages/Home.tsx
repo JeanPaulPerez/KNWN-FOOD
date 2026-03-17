@@ -1,516 +1,522 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Truck, Clock } from 'lucide-react';
 
-/* ─── menu slider data ────────────────────────────────────────────────────── */
-const MENU_ITEMS = [
-  {
-    name: 'Korean Crispy Chicken',
-    desc: 'Brown rice, crispy Korean chicken breast, glazed red cabbage, zucchini, carrot, red onion, gochujang sauce.',
-    img: '/assets/food-bg/korean-crispy-chicken.jpg',
-    cutout: '/assets/food-cutout/korean-crispy-chicken.png',
-    tag: 'Customer Fav',
-  },
-  {
-    name: 'Pesto Pasta',
-    desc: 'Al dente rigatoni, house-made pesto, sun-dried tomatoes, fresh basil, pine nuts, aged parmesan.',
-    img: '/assets/food-bg/pesto-pasta.jpg',
-    cutout: '/assets/food-cutout/pesto-pasta.png',
-    tag: 'Vegetarian',
-  },
-  {
-    name: 'Chicken César Salad',
-    desc: 'Grilled chicken breast, romaine hearts, shaved parmesan, house Caesar dressing, sourdough croutons.',
-    img: '/assets/food-bg/chicken-cesar-salad.jpg',
-    cutout: '/assets/food-cutout/chicken-cesar-salad.png',
-    tag: 'High Protein',
-  },
-  {
-    name: 'Thai Beef Salad',
-    desc: 'Marinated beef, rice noodles, fresh herbs, cucumber, peanuts, lime-chili vinaigrette.',
-    img: '/assets/food-bg/thai-beef-salad.jpg',
-    cutout: '/assets/food-cutout/thai-beef-salad.png',
-    tag: 'Spicy',
-  },
-  {
-    name: 'Mediterranean Chicken',
-    desc: 'Herb-roasted chicken thigh, quinoa, roasted peppers, kalamata olives, tzatziki, lemon.',
-    img: '/assets/food-bg/mediterranean-chicken.jpg',
-    cutout: '/assets/food-cutout/mediterranean-chicken.png',
-    tag: 'Fan Pick',
-  },
+/* ─── Customer Favs data ────────────────────────────────────────────────────── */
+const FAVS = [
+  { day: 'Monday',    name: 'Crispy Korean Chicken',   price: '$10.90', img: '/assets/food-bg/korean-crispy-chicken.webp',   desc: 'Brown rice, crispy Korean chicken breast, glazed red cabbage, zucchini, carrot, red onion, gochujang sauce.' },
+  { day: 'Tuesday',   name: 'Pesto Pasta',             price: '$10.90', img: '/assets/food-bg/pesto-pasta.webp',             desc: 'Al dente rigatoni, house-made basil pesto, sun-dried tomatoes, pine nuts, aged parmesan.' },
+  { day: 'Wednesday', name: 'Mediterranean Chicken',   price: '$10.90', img: '/assets/food-bg/mediterranean-chicken.webp',   desc: 'Herb-roasted chicken, quinoa, roasted peppers, kalamata olives, tzatziki, fresh lemon.' },
+  { day: 'Thursday',  name: 'Thai Beef Salad',         price: '$10.90', img: '/assets/food-bg/thai-beef-salad.webp',         desc: 'Marinated beef, rice noodles, fresh herbs, cucumber, peanuts, lime-chili vinaigrette.' },
+  { day: 'Friday',    name: 'Chicken César Salad',     price: '$10.90', img: '/assets/food-bg/chicken-cesar-salad.webp',     desc: 'Grilled chicken breast, romaine, shaved parmesan, house César dressing, sourdough croutons.' },
 ];
 
-const STEPS = [
-  { icon: '/assets/icons-steps/step-1.svg', label: 'Pick your meals', desc: 'Browse the weekly menu and choose what you want. No subscription required.' },
-  { icon: '/assets/icons-steps/step-2.svg', label: 'We prep & cook', desc: 'Your order is cooked fresh every morning from scratch. Never frozen.' },
-  { icon: '/assets/icons-steps/step-3.svg', label: 'Fast delivery', desc: 'Delivered straight to your office or door by lunchtime.' },
-  { icon: '/assets/icons-steps/step-4.svg', label: 'Enjoy real food', desc: 'Sit down, dig in, and feel the difference real ingredients make.' },
+/* ─── Instagram photos ────────────────────────────────────────────────────────── */
+const IG_PHOTOS = [
+  '/assets/food-bg/korean-crispy-chicken.webp',
+  '/assets/food-bg/pesto-pasta.webp',
+  '/assets/how-it-works/photo-1.webp',
+  '/assets/food-bg/mediterranean-chicken.webp',
+  '/assets/how-it-works/photo-2.webp',
+  '/assets/food-bg/thai-beef-salad.webp',
 ];
 
-const VALUES = [
-  { icon: '/assets/icons-values/value-1.png', title: 'Zero Additives', desc: 'No preservatives, no shortcuts. Just food as it should be.' },
-  { icon: '/assets/icons-values/value-2.png', title: 'Cooked Fresh Daily', desc: 'Every meal starts from scratch each morning.' },
-  { icon: '/assets/icons-values/value-3.png', title: 'Fair Pricing', desc: 'No delivery app markup. What you pay goes to the food.' },
-  { icon: '/assets/icons-values/value-4.png', title: 'Easy Weekday Lunch', desc: 'One less decision every day. Just order and eat.' },
-];
-
-/* ─── component ───────────────────────────────────────────────────────────── */
-const Home = () => {
-  const [slide, setSlide] = useState(0);
-  const prev = () => setSlide(i => (i - 1 + MENU_ITEMS.length) % MENU_ITEMS.length);
-  const next = () => setSlide(i => (i + 1) % MENU_ITEMS.length);
-  const item = MENU_ITEMS[slide];
+/* ══════════════════════════════════════════════════════════════════════════════
+   HOME PAGE
+══════════════════════════════════════════════════════════════════════════════ */
+export default function Home() {
+  const [fav, setFav] = useState(0);
+  const prev = () => setFav(i => (i - 1 + FAVS.length) % FAVS.length);
+  const next = () => setFav(i => (i + 1) % FAVS.length);
+  const item = FAVS[fav];
 
   return (
-    <div className="flex flex-col bg-[#F5F3FF]">
+    <div className="flex flex-col">
 
-      {/* ─── HERO ──────────────────────────────────────────────────────────── */}
-      <section className="relative min-h-[92vh] flex items-center overflow-hidden bg-[#F5F3FF] px-6 py-20">
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-6 items-center">
+      {/* ── 1 · HERO ─────────────────────────────────────────────────────────── */}
+      <section className="bg-white px-6 md:px-16 pt-12 pb-16 md:pt-16 md:pb-24 overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-6 items-center">
 
-          {/* Left — copy */}
+          {/* LEFT */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="flex flex-col gap-7 z-10"
+            transition={{ duration: 0.6 }}
+            className="flex flex-col gap-5 max-w-lg"
           >
-            {/* handwriting accent */}
-            <span
-              className="text-brand-orange text-xl md:text-2xl"
-              style={{ fontFamily: '"Nothing You Could Do", cursive' }}
-            >
-              Real food. Real lunch.
+            {/* badge */}
+            <span className="self-start text-[10px] font-bold uppercase tracking-[0.18em] text-brand-primary/55 border border-brand-primary/20 rounded-full px-4 py-1.5">
+              No Subscription Required
             </span>
 
-            <h1 className="text-5xl md:text-[5.5rem] font-extrabold text-brand-primary leading-[0.92] tracking-tight">
-              Made this morning.{' '}
-              <span className="text-brand-orange italic font-serif font-normal">Delivered by lunch.</span>
+            {/* headline */}
+            <h1 className="text-[2.6rem] md:text-[3.6rem] font-black text-brand-primary leading-[1.05] tracking-tight">
+              Made this morning.
+              <br />
+              <em
+                className="not-italic text-brand-orange"
+                style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic' }}
+              >
+                Delivered by lunch.
+              </em>
             </h1>
 
-            <p className="text-brand-primary/60 text-base md:text-lg max-w-md leading-relaxed font-medium">
-              Stop eating week-old meal prep. We cook fresh daily and deliver to your office or home. No subscription, no commitment.
+            <p className="text-brand-primary/55 text-sm md:text-[15px] leading-relaxed font-medium max-w-[400px]">
+              Stop eating week-old meal prep. We cook fresh daily and deliver to your office or home instantly.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                to="/menu"
-                className="px-8 py-4 bg-brand-primary text-white rounded-full flex items-center justify-center gap-3 hover:bg-brand-dark transition-colors shadow-lg font-semibold text-sm"
-              >
-                Order This Week
-                <ArrowRight size={16} />
-              </Link>
-              <a
-                href="#how-it-works"
-                className="px-8 py-4 bg-white text-brand-primary border border-brand-primary/20 rounded-full hover:bg-brand-subtle/30 transition-all font-semibold text-sm text-center"
-              >
-                How It Works
-              </a>
-            </div>
+            {/* CTA */}
+            <Link
+              to="/menu"
+              className="self-start px-7 py-3.5 bg-brand-primary text-white rounded-full text-xs font-black uppercase tracking-[0.15em] hover:bg-brand-dark transition-colors shadow-sm mt-1"
+            >
+              Order Now
+            </Link>
 
-            {/* social proof chips */}
-            <div className="flex flex-wrap gap-3 pt-2">
-              <span className="px-4 py-2 bg-brand-lime text-brand-primary rounded-full text-xs font-bold">✓ No subscription</span>
-              <span className="px-4 py-2 bg-white border border-brand-primary/15 text-brand-primary rounded-full text-xs font-bold">Order by 10:30 AM</span>
-              <span className="px-4 py-2 bg-white border border-brand-primary/15 text-brand-primary rounded-full text-xs font-bold">Free delivery</span>
+            {/* perks */}
+            <div className="flex flex-wrap gap-6 mt-1">
+              <span className="flex items-center gap-2 text-[11px] font-semibold text-brand-primary/45">
+                <Truck size={13} strokeWidth={2} className="text-brand-orange" />
+                Free Next Day Delivery
+              </span>
+              <span className="flex items-center gap-2 text-[11px] font-semibold text-brand-primary/45">
+                <Clock size={13} strokeWidth={2} className="text-brand-orange" />
+                Order by 10:00 PM
+              </span>
             </div>
           </motion.div>
 
-          {/* Right — food collage with stickers */}
-          <div className="relative flex items-center justify-center mt-8 lg:mt-0">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.9, delay: 0.2 }}
-              className="relative w-full max-w-[520px] mx-auto"
-            >
-              {/* Main food hero image */}
-              <div className="relative w-[82%] mx-auto">
-                <img
-                  src="/assets/food-cutout/korean-crispy-chicken.png"
-                  alt="Korean Crispy Chicken"
-                  className="w-full h-auto drop-shadow-2xl"
-                />
-              </div>
+          {/* RIGHT — bowl + stickers */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="relative flex justify-center items-center mt-6 lg:mt-0"
+          >
+            <div className="relative w-[300px] md:w-[380px] lg:w-[440px]">
+              {/* main bowl — circular crop */}
+              <img
+                src="/assets/food-bg/korean-crispy-chicken.webp"
+                alt="Crispy Korean Chicken bowl"
+                className="w-full aspect-square object-cover rounded-full shadow-2xl border-[6px] border-white"
+              />
 
-              {/* Sticker — "Real Ingredients." top-right */}
+              {/* "Real ingredients." sticker — top right, tilted */}
               <motion.img
                 src="/assets/stickers/real-ingredients.png"
-                alt="Real ingredients sticker"
-                animate={{ rotate: [12, 16, 12] }}
+                alt=""
+                aria-hidden
+                animate={{ rotate: [10, 15, 10] }}
                 transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut' }}
-                className="absolute -top-4 right-0 md:right-4 w-24 md:w-32 drop-shadow-xl z-20 rotate-12"
+                className="absolute -top-4 -right-6 md:-top-6 md:-right-8 w-[110px] md:w-[136px] drop-shadow-xl pointer-events-none"
+                style={{ transform: 'rotate(12deg)' }}
               />
 
-              {/* Sticker — "Pay Less. Eat Better" bottom-left */}
+              {/* "Pay Less. Eat better" sticker — bottom left, tilted */}
               <motion.img
                 src="/assets/stickers/pay-less-eat-better.png"
-                alt="Pay less eat better sticker"
+                alt=""
+                aria-hidden
                 animate={{ rotate: [-8, -4, -8] }}
                 transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
-                className="absolute bottom-4 -left-4 md:left-0 w-28 md:w-36 drop-shadow-xl z-20 -rotate-6"
+                className="absolute -bottom-4 -left-8 md:-bottom-6 md:-left-10 w-[130px] md:w-[160px] drop-shadow-xl pointer-events-none"
+                style={{ transform: 'rotate(-7deg)' }}
               />
-
-              {/* Small food cutouts floating around */}
-              <div className="absolute bottom-[5%] right-0 w-[28%] drop-shadow-xl rotate-6 z-10">
-                <img src="/assets/food-cutout/pesto-pasta.png" alt="Pesto pasta" className="w-full h-auto" />
-              </div>
-              <div className="absolute top-[10%] -left-4 w-[22%] drop-shadow-xl -rotate-6 z-10">
-                <img src="/assets/food-cutout/chicken-cesar-salad.png" alt="Caesar salad" className="w-full h-auto" />
-              </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* ─── HOW IT WORKS ──────────────────────────────────────────────────── */}
-      <section id="how-it-works" className="py-24 md:py-32 px-6 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto space-y-16">
+      {/* ── 2 · HOW IT WORKS ──────────────────────────────────────────────────── */}
+      <section className="bg-white border-t border-gray-100 py-16 md:py-24 px-6 md:px-16 overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <h2 className="text-4xl md:text-6xl font-extrabold text-brand-primary leading-tight">
-              How it <span className="font-serif italic font-normal">works</span>
+          {/* LEFT — photo */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="rounded-3xl overflow-hidden shadow-xl h-[300px] md:h-[480px]"
+          >
+            <img
+              src="/assets/we-create.webp"
+              alt="Freshly cooked meals"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+
+          {/* RIGHT — steps */}
+          <div className="flex flex-col gap-7">
+            <h2 className="text-4xl md:text-5xl font-black text-brand-primary leading-tight">
+              How it{' '}
+              <em style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic', fontWeight: 400 }}>
+                works
+              </em>
             </h2>
-            <p className="text-brand-primary/50 text-sm max-w-xs leading-relaxed font-medium">
-              Four simple steps stand between you and a great lunch every day.
-            </p>
-          </div>
 
-          {/* Steps grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {STEPS.map((step, i) => (
-              <motion.div
-                key={step.label}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="bg-[#F5F3FF] rounded-3xl p-8 flex flex-col gap-5 hover:shadow-lg transition-shadow"
-              >
-                <div className="w-16 h-16 flex items-center justify-center">
-                  <img src={step.icon} alt={step.label} className="w-14 h-14 object-contain" />
-                </div>
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary/30 block mb-1">Step {i + 1}</span>
-                  <h3 className="text-base font-bold text-brand-primary mb-2">{step.label}</h3>
-                  <p className="text-brand-primary/55 text-sm leading-relaxed">{step.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Full-width kitchen photo */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div className="md:col-span-2 overflow-hidden rounded-3xl h-[280px] md:h-[420px]">
-              <img src="/assets/how-it-works/photo-1.webp" alt="Fresh prep" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-            </div>
-            <div className="flex flex-col gap-4">
-              <div className="overflow-hidden rounded-3xl flex-1 h-[130px] md:h-auto">
-                <img src="/assets/how-it-works/photo-2.webp" alt="Cooking" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+            {/* Step 1 — active */}
+            <div className="flex flex-col gap-3 pb-6 border-b border-brand-primary/10">
+              <div className="self-start flex items-center gap-2.5 px-4 py-2 bg-brand-primary text-white rounded-full text-[11px] font-black uppercase tracking-wider shadow-md">
+                <span>Step 1</span>
+                <span className="text-white/40">→</span>
+                <span>Plan Your Week's Lunch</span>
               </div>
-              <div className="overflow-hidden rounded-3xl flex-1 h-[130px] md:h-auto">
-                <img src="/assets/how-it-works/photo-3.webp" alt="Delivery" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+              <p className="text-brand-primary/55 text-sm leading-relaxed max-w-sm font-medium">
+                Pick from two real food options daily and select your lunches for the week. Plan ahead and save more.
+              </p>
+              <Link
+                to="/menu"
+                className="self-start flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-brand-primary hover:gap-3 transition-all"
+              >
+                Explore Menu <ArrowRight size={12} />
+              </Link>
+            </div>
+
+            {/* Step 2 — inactive */}
+            <div className="pb-6 border-b border-brand-primary/10 opacity-30">
+              <div className="self-start inline-flex items-center gap-2.5 px-4 py-2 bg-brand-subtle text-brand-primary rounded-full text-[11px] font-black uppercase tracking-wider">
+                <span>Step 2</span>
+                <span className="text-brand-primary/40">→</span>
+                <span>We Cook Your Week</span>
+              </div>
+            </div>
+
+            {/* Step 3 — inactive */}
+            <div className="opacity-30">
+              <div className="self-start inline-flex items-center gap-2.5 px-4 py-2 bg-brand-subtle text-brand-primary rounded-full text-[11px] font-black uppercase tracking-wider">
+                <span>Step 3</span>
+                <span className="text-brand-primary/40">→</span>
+                <span>Delivered to Your Office</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── VALUES / PILLARS (dark bg) ────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-brand-primary text-white">
+      {/* ── 3 · 4 PILLARS (dark navy) ─────────────────────────────────────────── */}
+      <section className="bg-brand-primary py-14 px-6 md:px-16">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+          {[
+            { icon: '/assets/icons-values/value-1.png', title: 'Simplifying Lunch',     desc: 'Plan once and handle the week.' },
+            { icon: '/assets/icons-values/value-2.png', title: 'Freshness Guarantee',   desc: 'Never frozen. Never batch made.' },
+            { icon: '/assets/icons-values/value-3.png', title: 'Bullsh*t Free',         desc: 'No additives. No shortcuts.' },
+            { icon: '/assets/icons-values/value-4.png', title: 'Pay Less Eat Better',   desc: 'No delivery app fees. No overpriced salads.' },
+          ].map(v => (
+            <div key={v.title} className="flex flex-col items-center text-center gap-4">
+              <img src={v.icon} alt={v.title} className="w-16 h-16 object-contain drop-shadow-lg" />
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white leading-snug">{v.title}</h4>
+              <p className="text-white/40 text-xs leading-relaxed max-w-[150px]">{v.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 4 · CUSTOMER FAVS ─────────────────────────────────────────────────── */}
+      <section className="bg-[#F5F3FF] py-14 md:py-20 px-4 md:px-10 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-extrabold text-center mb-16 leading-tight">
-            Why people choose{' '}
-            <span className="font-serif italic font-normal text-brand-lime">KNWN</span>
-          </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-            {VALUES.map((v, i) => (
-              <motion.div
-                key={v.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="flex flex-col items-center text-center gap-5"
-              >
-                <img src={v.icon} alt={v.title} className="w-20 h-20 object-contain drop-shadow-xl" />
-                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-white">{v.title}</h4>
-                <p className="text-white/50 text-xs leading-relaxed max-w-[160px]">{v.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ─── CUSTOMER FAVS (menu slider) ───────────────────────────────────── */}
-      <section className="py-24 md:py-32 px-4 md:px-8 bg-[#F5F3FF] overflow-hidden">
-        <div className="max-w-7xl mx-auto space-y-8 md:space-y-12">
-
-          <div className="flex items-end justify-between px-4">
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-primary/30 block mb-2">This Week</span>
-              <h2 className="text-4xl md:text-6xl font-extrabold text-brand-primary leading-tight">
-                Customer{' '}
-                <span className="font-serif italic font-normal">Favorites</span>
-              </h2>
-            </div>
-            <Link
-              to="/menu"
-              className="hidden md:flex items-center gap-2 text-brand-primary font-bold text-sm hover:gap-3 transition-all"
+          {/* "Customer Favs" handwriting label — right-aligned */}
+          <div className="flex justify-end mb-3 pr-2">
+            <span
+              className="text-brand-orange text-[2rem] md:text-[2.6rem]"
+              style={{ fontFamily: '"Nothing You Could Do", cursive' }}
             >
-              See full menu <ArrowRight size={16} />
-            </Link>
+              Customer Favs
+            </span>
           </div>
 
-          {/* Slider */}
-          <div className="flex items-center gap-3 md:gap-5">
+          {/* Slider row */}
+          <div className="flex items-center gap-3">
+
             <button
               onClick={prev}
-              className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-brand-primary flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-all z-20"
+              aria-label="Previous"
+              className="flex-shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-full border-2 border-brand-primary/25 flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} />
             </button>
 
             <AnimatePresence mode="wait">
               <motion.div
-                key={slide}
-                initial={{ opacity: 0, x: 60 }}
+                key={fav}
+                initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -60 }}
-                transition={{ duration: 0.4 }}
-                className="flex-1 overflow-hidden rounded-3xl md:rounded-[2.5rem] bg-white flex flex-col md:flex-row border border-brand-primary/5 shadow-xl min-h-[400px] md:min-h-[480px]"
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: 0.3 }}
+                className="flex-1 rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-xl min-h-[320px] md:min-h-[360px]"
               >
-                {/* Image panel */}
-                <div className="w-full md:w-1/2 bg-[#E9FF70] flex items-center justify-center p-8 md:p-16 h-[280px] md:h-auto relative overflow-hidden">
+                {/* LEFT — lime bg + circular food photo + day badge */}
+                <div className="relative w-full md:w-[42%] bg-[#D4F84A] flex items-center justify-center p-8 md:p-10 h-[240px] md:h-auto">
+                  <span className="absolute top-4 left-4 px-3 py-1 bg-white text-brand-primary rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm z-10">
+                    {item.day}
+                  </span>
                   <img
-                    src={item.cutout}
-                    className="w-[80%] h-auto object-contain drop-shadow-2xl z-10 relative"
+                    src={item.img}
                     alt={item.name}
-                  />
-                  {/* Try now sticker */}
-                  <img
-                    src="/assets/stickers/try-now.png"
-                    alt="Try now"
-                    className="absolute top-4 right-4 w-16 md:w-20 rotate-12 z-20 drop-shadow-md"
+                    className="w-[75%] md:w-[85%] aspect-square rounded-full object-cover shadow-2xl border-4 border-white relative z-10"
                   />
                 </div>
 
-                {/* Info panel */}
-                <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col justify-center gap-5">
-                  <span className="px-3 py-1.5 bg-brand-orange/10 text-brand-orange rounded-full text-[10px] font-black uppercase tracking-wider self-start">
-                    {item.tag}
-                  </span>
-                  <h3 className="text-2xl md:text-4xl font-extrabold text-brand-primary leading-tight">{item.name}</h3>
-                  <p className="text-brand-primary/55 text-sm leading-relaxed max-w-xs">{item.desc}</p>
+                {/* RIGHT — product info on lime-yellow */}
+                <div className="flex-1 bg-[#E9FF70] flex flex-col justify-center px-7 py-8 md:px-10 md:py-10 gap-4">
+                  <h3 className="text-2xl md:text-3xl font-black text-brand-primary leading-snug">{item.name}</h3>
+                  <p className="text-brand-primary/60 text-sm leading-relaxed max-w-xs font-medium">{item.desc}</p>
 
-                  <div className="flex items-center gap-4 pt-2">
-                    <Link
-                      to="/menu"
-                      className="px-6 py-3 bg-brand-lime text-brand-primary rounded-full font-bold text-sm hover:opacity-90 transition-opacity shadow-md"
-                    >
-                      Add to My Week
-                    </Link>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="px-4 py-1.5 bg-brand-orange text-white rounded-full text-sm font-black shadow-sm">
+                      {item.price}
+                    </span>
+                    <span className="text-[10px] font-semibold text-brand-primary/50 uppercase tracking-wider">
+                      Delivery included
+                    </span>
                   </div>
+
+                  <Link
+                    to="/menu"
+                    className="self-start mt-1 px-7 py-2.5 bg-brand-orange text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-opacity shadow-md"
+                  >
+                    See Full Menu
+                  </Link>
                 </div>
               </motion.div>
             </AnimatePresence>
 
             <button
               onClick={next}
-              className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-brand-primary flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-all z-20"
+              aria-label="Next"
+              className="flex-shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-full border-2 border-brand-primary/25 flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-all"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={18} />
             </button>
           </div>
 
-          {/* Dot indicators */}
-          <div className="flex justify-center gap-2 pt-2">
-            {MENU_ITEMS.map((_, i) => (
+          {/* dots */}
+          <div className="flex justify-center gap-2 mt-5">
+            {FAVS.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setSlide(i)}
-                className={`w-2 h-2 rounded-full transition-all ${i === slide ? 'bg-brand-primary w-6' : 'bg-brand-primary/20'}`}
+                onClick={() => setFav(i)}
+                className={`rounded-full transition-all duration-300 ${i === fav ? 'w-6 h-2 bg-brand-primary' : 'w-2 h-2 bg-brand-primary/20'}`}
               />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── COMPARISON TABLE ──────────────────────────────────────────────── */}
-      <section className="py-24 md:py-32 px-6 bg-brand-orange overflow-hidden">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col items-center text-center gap-4 mb-12">
-            <span className="text-white/60 text-[10px] font-black uppercase tracking-[0.4em]">The Honest Answer</span>
-            <h2 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
-              Find the <span className="font-serif italic font-normal">real</span> lunch.
-            </h2>
-            <p className="text-white/65 text-sm max-w-sm leading-relaxed">
-              We're not the cheapest option. We're the only option that is fresh, real, and affordable every day.
-            </p>
-          </div>
+      {/* ── 5 · DELIVERY ZONE BANNER (ZIP CODE.png as bg) ──────────────────────── */}
+      <section className="relative overflow-hidden">
+        {/* full-width background image */}
+        <img
+          src="/assets/zip-banner.png"
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
+        />
+        {/* content overlay */}
+        <div className="relative z-10 py-8 px-6 md:px-16">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-5 md:gap-10 md:pr-44">
 
-          {/* Use real tabla.png asset */}
-          <div className="rounded-3xl overflow-hidden shadow-2xl bg-white">
-            <img
-              src="/assets/tabla/tabla.png"
-              alt="Comparison table: KNWN vs meal prep vs restaurants"
-              className="w-full h-auto"
-            />
+            <p className="text-white font-black text-base md:text-lg leading-snug flex-shrink-0 md:w-52">
+              Check if we deliver to your office.
+            </p>
+
+            <div className="flex items-center gap-3 flex-1 max-w-sm">
+              <div className="flex-1 flex items-center bg-white rounded-full overflow-hidden">
+                <svg className="ml-4 flex-shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2B1C70" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input
+                  type="text"
+                  placeholder="Enter the ZIP code"
+                  className="flex-1 py-3 px-3 text-sm text-brand-primary placeholder-brand-primary/30 outline-none font-medium bg-transparent"
+                />
+              </div>
+              <button className="w-11 h-11 flex-shrink-0 rounded-full bg-brand-lime flex items-center justify-center hover:brightness-95 transition-all shadow-sm">
+                <ArrowRight size={17} className="text-brand-primary" strokeWidth={2.5} />
+              </button>
+            </div>
+
+            <p className="hidden md:block text-white/55 text-xs leading-relaxed flex-shrink-0 md:w-48">
+              Now serving Brickell, Downtown,<br />Bayside and Coral Gables.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* ─── PHILOSOPHY ────────────────────────────────────────────────────── */}
-      <section className="py-24 md:py-32 px-6 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
+      {/* ── 6 · COMPARISON TABLE (orange bg) ──────────────────────────────────── */}
+      <section className="bg-brand-orange py-20 md:py-28 px-6 md:px-16">
+        <div className="max-w-5xl mx-auto flex flex-col gap-8">
 
-          {/* Left — real kitchen photo */}
-          <div className="w-full lg:w-1/2 relative">
-            <img
-              src="/assets/how-it-works/our-philosophy.webp"
-              alt="Our kitchen philosophy"
-              className="w-full h-[440px] md:h-[580px] object-cover rounded-3xl shadow-2xl"
-            />
-            {/* Floating sticker */}
-            <motion.img
-              src="/assets/stickers/real-ingredients.png"
-              alt="Real ingredients"
-              animate={{ rotate: [8, 14, 8] }}
-              transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
-              className="absolute -bottom-6 -right-4 md:bottom-6 md:right-6 w-28 md:w-36 drop-shadow-xl z-10"
-            />
+          <div className="flex flex-col gap-3 max-w-xl">
+            <h2 className="text-4xl md:text-[3.2rem] font-black text-white leading-tight">
+              Find the{' '}
+              <em style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic', fontWeight: 400 }}>
+                real
+              </em>{' '}
+              lunch.
+            </h2>
+            <p className="text-white/65 text-sm leading-relaxed font-medium">
+              Real lunch is made with fresh, high-quality produce, no antibiotics or hormones ever, no seed oils, and sauces made from scratch — no preservatives, just real ingredients.
+            </p>
           </div>
 
-          {/* Right — text */}
-          <div className="w-full lg:w-1/2 space-y-7">
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-primary/30 block">
+          {/* table */}
+          <div className="rounded-2xl overflow-hidden shadow-2xl bg-white overflow-x-auto">
+            <table className="w-full text-center border-collapse min-w-[520px]">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="p-4 md:p-5 text-left w-[36%]" />
+                  {['Pricing', 'Food Quality', 'Convenience', 'No Hidden Fees'].map(col => (
+                    <th key={col} className="p-4 md:p-5">
+                      <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-brand-primary/35">{col}</span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                <tr className="border-b border-gray-100 bg-[#F5F3FF]">
+                  <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary">KNWN Real Food Lunch</td>
+                  {[true, true, true, true].map((v, i) => (
+                    <td key={i} className="p-4 md:p-5">
+                      <Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" />
+                    </td>
+                  ))}
+                </tr>
+                <tr className="border-b border-gray-100">
+                  <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary/40">Meal Prep Service</td>
+                  <td className="p-4 md:p-5"><Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" /></td>
+                  <td /><td /><td />
+                </tr>
+                <tr>
+                  <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary/40">Restaurant & Delivery Apps</td>
+                  <td /><td />
+                  <td className="p-4 md:p-5"><Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" /></td>
+                  <td />
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── 7 · OUR PHILOSOPHY ────────────────────────────────────────────────── */}
+      <section className="bg-white py-20 md:py-28 px-6 md:px-16">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+          {/* LEFT — founders photo */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="rounded-3xl overflow-hidden shadow-2xl shadow-brand-primary/10 h-[360px] md:h-[500px]"
+          >
+            <img
+              src="/assets/about/founders.webp"
+              alt="KNWN founders"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+
+          {/* RIGHT — text */}
+          <div className="flex flex-col gap-6">
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-primary/30">
               Our Philosophy
             </span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-brand-primary leading-snug">
+
+            <h2 className="text-3xl md:text-[2.6rem] font-black text-brand-primary leading-snug">
               Busy people don't eat like shit by choice.{' '}
-              <span className="text-brand-orange italic font-serif font-normal">They eat like shit by default.</span>
+              <span className="text-brand-orange">They eat like shit by default.</span>
             </h2>
 
-            <div className="space-y-4 text-brand-primary/60 leading-relaxed text-sm font-medium">
-              <p>
-                Most food systems aren't built for everyday eating.{' '}
-                <span className="font-bold text-brand-primary">Restaurants are overpriced.</span>{' '}
-                Delivery apps normalize a pile of fees. Meal prep isn't fresh.
-              </p>
-              <p>
-                KNWN exists to replace that default.{' '}
-                <span className="font-bold text-brand-primary">We cook real food every morning</span>{' '}
-                and deliver it straight to the workday.
-              </p>
-              <p className="text-brand-primary font-bold text-base">
-                One less daily decision.<br />
-                Real food, handled.
-              </p>
-            </div>
+            <ul className="space-y-2 text-brand-primary/55 text-sm font-medium leading-relaxed">
+              <li className="flex items-start gap-2.5">
+                <span className="mt-[6px] w-1.5 h-1.5 rounded-full bg-brand-orange flex-shrink-0" />
+                Restaurants are overpriced.
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="mt-[6px] w-1.5 h-1.5 rounded-full bg-brand-orange flex-shrink-0" />
+                Delivery apps = a pile of fees.
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="mt-[6px] w-1.5 h-1.5 rounded-full bg-brand-orange flex-shrink-0" />
+                Meal prep isn't fresh.
+              </li>
+            </ul>
+
+            <p className="font-black text-brand-primary text-base leading-snug">
+              One less daily decision.<br />Real food, handled.
+            </p>
 
             <Link
               to="/about"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-brand-primary text-white rounded-full font-semibold text-sm hover:bg-brand-dark transition-colors shadow-xl shadow-brand-primary/20"
+              className="self-start px-8 py-3 bg-brand-primary text-white rounded-full text-[11px] font-black uppercase tracking-[0.15em] hover:bg-brand-dark transition-colors shadow-lg shadow-brand-primary/20 mt-1"
             >
-              Our Story <ArrowRight size={16} />
+              About Us
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ─── FINAL CTA ─────────────────────────────────────────────────────── */}
-      <section className="relative h-[560px] md:h-[640px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="/assets/how-it-works/we-create.webp"
-            className="w-full h-full object-cover"
-            alt="We create real food"
-          />
-          <div className="absolute inset-0 bg-brand-primary/55" />
-        </div>
+      {/* ── 8 · WE CREATE REAL FOOD (full-bleed CTA) ──────────────────────────── */}
+      <section className="relative h-[460px] md:h-[540px] flex items-center justify-center overflow-hidden">
+        <img
+          src="/assets/we-create.webp"
+          className="absolute inset-0 w-full h-full object-cover"
+          alt=""
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-brand-primary/55" />
 
-        <div className="relative z-10 text-center space-y-8 max-w-4xl px-6">
-          <span
-            className="text-brand-lime text-2xl md:text-3xl block"
-            style={{ fontFamily: '"Nothing You Could Do", cursive' }}
-          >
-            what are we doing for lunch?
-          </span>
-          <h2 className="text-4xl md:text-7xl font-extrabold text-white leading-tight">
+        <div className="relative z-10 text-center flex flex-col items-center gap-6 px-6">
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-tight">
             We create{' '}
-            <span className="font-serif italic font-normal text-brand-lime">real food</span>
+            <em
+              className="not-italic text-brand-orange"
+              style={{ fontFamily: '"Nothing You Could Do", cursive', fontSize: '0.85em' }}
+            >
+              real food
+            </em>
             <br />
             lunch experiences
           </h2>
           <Link
             to="/menu"
-            className="inline-block px-12 py-5 bg-brand-lime text-brand-primary rounded-full font-black uppercase tracking-[0.15em] text-xs hover:scale-105 transition-transform shadow-2xl shadow-brand-lime/30"
+            className="px-10 py-4 bg-brand-orange text-white rounded-full font-black uppercase tracking-[0.15em] text-[11px] hover:opacity-90 transition-opacity shadow-2xl"
           >
-            Order This Week
+            Order Now
           </Link>
         </div>
       </section>
 
-      {/* ─── FOOD GRID (real photos) ────────────────────────────────────────── */}
-      <section className="py-20 md:py-24 px-6 bg-[#F5F3FF]">
+      {/* ── 9 · FOLLOW US @KNWNFOOD ───────────────────────────────────────────── */}
+      <section className="bg-[#F5F3FF] py-16 md:py-20 px-6 md:px-16">
         <div className="max-w-7xl mx-auto space-y-8">
-          <div className="flex items-end justify-between">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-brand-primary">
-              This week's{' '}
-              <span className="font-serif italic font-normal text-brand-orange">menu</span>
-            </h2>
-            <Link to="/menu" className="hidden md:flex items-center gap-2 text-sm font-bold text-brand-primary hover:gap-3 transition-all">
-              Full menu <ArrowRight size={16} />
-            </Link>
-          </div>
+          <h2
+            className="text-4xl md:text-5xl text-brand-orange"
+            style={{ fontFamily: '"Nothing You Could Do", cursive' }}
+          >
+            Follow Us @Knwnfood
+          </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            {[
-              { src: '/assets/food-bg/korean-crispy-chicken.jpg', name: 'Korean Crispy Chicken' },
-              { src: '/assets/food-bg/pesto-pasta.jpg', name: 'Pesto Pasta' },
-              { src: '/assets/food-bg/chicken-cesar-salad.jpg', name: 'Chicken César Salad' },
-              { src: '/assets/food-bg/thai-beef-salad.jpg', name: 'Thai Beef Salad' },
-              { src: '/assets/food-bg/mediterranean-chicken.jpg', name: 'Mediterranean Chicken' },
-              { src: '/assets/food-bg/harissa-meatballs.jpg', name: 'Harissa Meatballs' },
-              { src: '/assets/food-bg/milanesa.jpg', name: 'Milanesa' },
-              { src: '/assets/food-bg/chicken-lime.jpg', name: 'Chicken Lime' },
-            ].map((dish, i) => (
-              <Link
-                key={dish.name}
-                to="/menu"
-                className={`group overflow-hidden rounded-2xl md:rounded-3xl shadow-md relative ${i % 3 === 1 ? 'translate-y-2 md:translate-y-4' : ''}`}
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+            {IG_PHOTOS.map((src, i) => (
+              <div
+                key={i}
+                className={`overflow-hidden rounded-2xl aspect-square ${i % 2 === 1 ? 'translate-y-3' : ''}`}
               >
-                <div className="aspect-square overflow-hidden">
-                  <img
-                    src={dish.src}
-                    alt={dish.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                  <span className="text-white text-xs font-bold">{dish.name}</span>
-                </div>
-              </Link>
+                <img
+                  src={src}
+                  alt=""
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+              </div>
             ))}
-          </div>
-
-          <div className="flex justify-center pt-4">
-            <Link
-              to="/menu"
-              className="px-8 py-4 bg-brand-primary text-white rounded-full font-semibold text-sm hover:bg-brand-dark transition-colors"
-            >
-              See Full Menu & Order
-            </Link>
           </div>
         </div>
       </section>
 
     </div>
   );
-};
-
-export default Home;
+}
