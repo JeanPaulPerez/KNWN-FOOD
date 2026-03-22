@@ -1,68 +1,56 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
+import ZipCode from '../components/ZipCode';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Check, Plus, X, Leaf, MapPin } from 'lucide-react';
 import { MENUS } from '../data/menus';
 import { MenuItem, Weekday } from '../types';
-import {
-  calculateActiveOrderDay,
-  getDateStatus,
-  getEtNow,
-  isWeekend,
-  findNextServiceDay,
-} from '../utils/dateLogic';
+import { getEtNow } from '../utils/dateLogic';
 import { clsx } from 'clsx';
 
-// ─── Image map ───────────────────────────────────────────────────────────────
-const FOOD_IMAGES: Record<string, string> = {
-  'carne asada':           '/assets/food-bg/carne-asada.webp',
-  'chicken lime':          '/assets/food-bg/chicken-lime.webp',
-  'mediterranean chicken': '/assets/food-bg/mediterranean-chicken.webp',
-  'bibi bump rice':        '/assets/food-bg/bibi-bamp-rice.webp',
-  'chicken pesto pasta':   '/assets/food-bg/pesto-pasta.webp',
-  'thai beef salad':       '/assets/food-bg/thai-beef-salad.webp',
-  'milanesa':              '/assets/food-bg/milanesa.webp',
-  'harissa meatballs':     '/assets/food-bg/harissa-meatballs.webp',
-  'crispy korean chicken': '/assets/food-bg/korean-crispy-chicken.webp',
-  'chicken caesar salad':  '/assets/food-bg/chicken-cesar-salad.webp',
+// ─── Constants ────────────────────────────────────────────────────────────────
+const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as const;
+const DAY_KEYS: Weekday[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+
+const DAY_IMAGES: Record<Weekday, [string, string]> = {
+  monday: ['/assets/menu/Menu_Platos/Monday/4.png', '/assets/menu/Menu_Platos/Monday/3.png'],
+  tuesday: ['/assets/menu/Menu_Platos/Tuesday/2.png', '/assets/menu/Menu_Platos/Tuesday/1.png'],
+  wednesday: ['/assets/menu/Menu_Platos/Wednesday/5.png', '/assets/menu/Menu_Platos/Wednesday/7.png'],
+  thursday: ['/assets/menu/Menu_Platos/Thursday/6.png', '/assets/menu/Menu_Platos/Thursday/8.png'],
+  friday: ['/assets/menu/Menu_Platos/Friday/9.png', '/assets/menu/Menu_Platos/Friday/10.png'],
 };
 
-function getFoodImage(name: string): string {
+// ─── Cutout plate images (transparent PNGs, used for the card layout) ─────────
+const CUTOUT_IMAGES: Record<string, string> = {
+  'mediterranean chicken': '/assets/food-cutout/mediterranean-chicken.png',
+  'bibi bump rice': '/assets/food-bg/bibi-bamp-rice.webp',
+  'carne asada': '/assets/food-cutout/carne-asada.png',
+  'chicken lime': '/assets/food-cutout/chicken-lime.png',
+  'chicken pesto pasta': '/assets/food-cutout/pesto-pasta.png',
+  'thai beef salad': '/assets/food-cutout/thai-beef-salad.png',
+  'milanesa': '/assets/food-cutout/milanesa.png',
+  'harissa meatballs': '/assets/food-cutout/harissa-meatballs.png',
+  'crispy korean chicken': '/assets/food-cutout/korean-crispy-chicken.png',
+  'chicken caesar salad': '/assets/food-cutout/chicken-cesar-salad.png',
+};
+
+function getCutoutImage(name: string): string {
   const key = name.toLowerCase().trim();
-  const match = Object.entries(FOOD_IMAGES).find(([k]) => key.includes(k) || k.includes(key));
-  return match ? match[1] : '/assets/food-bg/korean-crispy-chicken.webp';
+  const match = Object.entries(CUTOUT_IMAGES).find(([k]) => key.includes(k) || k.includes(key));
+  return match ? match[1] : '/assets/food-bg/carne-asada.webp';
 }
 
-// ─── Week dates (Mon–Fri of current or next week) ────────────────────────────
-function getThisWeekDates(): Date[] {
+// Derive a real Date for a given day-of-week index (0=Mon … 4=Fri)
+function getDateForDayIndex(dayIndex: number): Date {
   const now = getEtNow();
-  const dow = now.getDay();
-  const daysToMonday = dow === 0 ? 1 : dow === 6 ? 2 : 1 - dow;
-  // If we're past Friday, jump to next week's Monday
-  const baseOffset = dow === 0 || dow === 6 ? daysToMonday : daysToMonday;
+  const dow = now.getDay(); // 0=Sun, 1=Mon, …
+  const todayMondayOffset = dow === 0 ? -6 : 1 - dow;
   const monday = new Date(now);
-  monday.setDate(now.getDate() + baseOffset);
+  monday.setDate(now.getDate() + todayMondayOffset);
   monday.setHours(12, 0, 0, 0);
-
-  // Build Mon→Fri of THAT week; if current weekday show current week
-  const currentWeekMonday = new Date(now);
-  if (dow >= 1 && dow <= 5) {
-    currentWeekMonday.setDate(now.getDate() - (dow - 1));
-  } else if (dow === 6) {
-    currentWeekMonday.setDate(now.getDate() + 2);
-  } else {
-    currentWeekMonday.setDate(now.getDate() + 1);
-  }
-  currentWeekMonday.setHours(12, 0, 0, 0);
-
-  return Array.from({ length: 5 }, (_, i) => {
-    const d = new Date(currentWeekMonday);
-    d.setDate(currentWeekMonday.getDate() + i);
-    return d;
-  });
+  const d = new Date(monday);
+  d.setDate(monday.getDate() + dayIndex);
+  return d;
 }
-
-const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-const WEEKDAY_KEYS: Weekday[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 
 // ─── FAQ data ─────────────────────────────────────────────────────────────────
 const FAQ_LEFT = [
@@ -70,37 +58,16 @@ const FAQ_LEFT = [
     q: 'How do I get started?',
     a: 'Pick your meals, choose your delivery day, and place your order. We cook everything fresh and deliver it straight to your door.',
   },
-  {
-    q: 'Can I pause or cancel anytime?',
-    a: 'Yes! You can pause or cancel your order anytime before 10 PM the day before without any fees.',
-  },
-  {
-    q: "What if I don't like it?",
-    a: "We stand behind our food 100%. If you're not satisfied, reach out and we'll make it right — no questions asked.",
-  },
-  {
-    q: 'Do I have to order every week?',
-    a: 'No subscription required. Order whenever you want — once a week, daily, or whenever the mood strikes.',
-  },
+  { q: 'Can I pause or cancel anytime?', a: 'Yes! You can pause or cancel your order anytime before 10 PM the day before without any fees.' },
+  { q: "What if I don't like it?", a: "We stand behind our food 100%. If you're not satisfied, reach out and we'll make it right — no questions asked." },
+  { q: 'Do I have to order every week?', a: 'No subscription required. Order whenever you want — once a week, daily, or whenever the mood strikes.' },
 ];
 
 const FAQ_RIGHT = [
-  {
-    q: 'What if I have dietary restrictions?',
-    a: "Every meal has customization options. You can swap bases, sauces, and remove ingredients you don't like.",
-  },
-  {
-    q: 'When do I get my delivery?',
-    a: 'Orders placed before 10 PM are delivered the next business day by lunchtime.',
-  },
-  {
-    q: 'Are the meals made fresh?',
-    a: 'Yes — we cook every morning and deliver the same day. Never frozen, never reheated.',
-  },
-  {
-    q: 'Do you deliver everywhere?',
-    a: 'We currently serve Brickell, Downtown, Bayside, and Coral Gables. More zones coming soon!',
-  },
+  { q: 'What if I have dietary restrictions?', a: "Every meal has customization options. You can swap bases, sauces, and remove ingredients you don't like." },
+  { q: 'When do I get my delivery?', a: 'Orders placed before 10 PM are delivered the next business day by lunchtime.' },
+  { q: 'Are the meals made fresh?', a: 'Yes — we cook every morning and deliver the same day. Never frozen, never reheated.' },
+  { q: 'Do you deliver everywhere?', a: 'We currently serve Brickell, Downtown, Bayside, and Coral Gables. More zones coming soon!' },
 ];
 
 // ─── Customization Modal ──────────────────────────────────────────────────────
@@ -144,95 +111,86 @@ const CustomizationModal: React.FC<{
       >
         <div className="overflow-y-auto flex-1 no-scrollbar pb-24">
           {/* Image header */}
-          <div className="relative h-64 bg-[#F3F4F6] flex items-center justify-center overflow-hidden">
+          <div className="relative h-64 bg-[#EEEAF8] flex items-center justify-center overflow-hidden">
             <button
               onClick={onClose}
-              className="absolute top-5 left-5 z-10 p-2.5 bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 rounded-full transition-colors"
+              className="absolute top-5 left-5 z-10 p-2.5 bg-[#2D1B69]/10 text-[#2D1B69] hover:bg-[#2D1B69]/20 rounded-full transition-colors"
             >
               <X size={20} className="stroke-[3]" />
             </button>
-            <img
-              src={getFoodImage(item.name)}
-              className="w-full h-full object-cover mix-blend-multiply"
-              alt={item.name}
-            />
+            <img src={item.image} className="w-full h-full object-cover mix-blend-multiply" alt={item.name} />
           </div>
 
           <div className="px-6 py-8 space-y-8">
-            {/* Title */}
             <div className="space-y-2">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-lime text-brand-primary rounded-md text-[10px] font-black uppercase tracking-widest">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#D4F53C] text-[#2D1B69] rounded-md text-[10px] font-black uppercase tracking-widest">
                 • Scheduled Delivery • {date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: '2-digit' })}
               </span>
-              <h2 className="text-[2rem] font-serif text-brand-primary leading-tight">{item.name}</h2>
-              <p className="text-[13px] text-brand-primary/50 font-medium leading-relaxed">{item.description}</p>
+              <h2 className="text-[2rem] font-serif text-[#2D1B69] leading-tight">{item.name}</h2>
+              <p className="text-[13px] text-[#2D1B69]/50 font-medium leading-relaxed">{item.description}</p>
             </div>
 
-            {/* Bases */}
             {opts?.bases && opts.bases.length > 0 && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-bold text-brand-primary">Choose your base</h4>
+                  <h4 className="text-sm font-bold text-[#2D1B69]">Choose your base</h4>
                   <span className="text-[9px] bg-[#FEF0C7] text-[#93370D] px-2 py-1 rounded-sm font-bold tracking-widest uppercase">Required • 1</span>
                 </div>
                 {opts.bases.map(b => (
                   <label key={b} className="flex items-center gap-4 cursor-pointer group">
-                    <div className={clsx('w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all', base === b ? 'border-brand-primary' : 'border-brand-primary/20 group-hover:border-brand-primary/50')}>
-                      {base === b && <div className="w-2.5 h-2.5 bg-brand-primary rounded-full" />}
+                    <div className={clsx('w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all', base === b ? 'border-[#2D1B69]' : 'border-[#2D1B69]/20 group-hover:border-[#2D1B69]/50')}>
+                      {base === b && <div className="w-2.5 h-2.5 bg-[#2D1B69] rounded-full" />}
                     </div>
-                    <span className={clsx('text-[13px] font-semibold', base === b ? 'text-brand-primary' : 'text-brand-primary/70')} onClick={() => setBase(b)}>{b}</span>
+                    <span className={clsx('text-[13px] font-semibold', base === b ? 'text-[#2D1B69]' : 'text-[#2D1B69]/70')} onClick={() => setBase(b)}>{b}</span>
                   </label>
                 ))}
               </div>
             )}
 
-            {/* Sauces */}
             {opts?.sauces && opts.sauces.length > 0 && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-bold text-brand-primary">Choose your sauce</h4>
+                  <h4 className="text-sm font-bold text-[#2D1B69]">Choose your sauce</h4>
                   <span className="text-[9px] bg-[#FEF0C7] text-[#93370D] px-2 py-1 rounded-sm font-bold tracking-widest uppercase">Required • 1</span>
                 </div>
                 {opts.sauces.map(s => (
                   <label key={s} className="flex items-center gap-4 cursor-pointer group">
-                    <div className={clsx('w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all', sauce === s ? 'border-brand-primary' : 'border-brand-primary/20 group-hover:border-brand-primary/50')}>
-                      {sauce === s && <div className="w-2.5 h-2.5 bg-brand-primary rounded-full" />}
+                    <div className={clsx('w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all', sauce === s ? 'border-[#2D1B69]' : 'border-[#2D1B69]/20 group-hover:border-[#2D1B69]/50')}>
+                      {sauce === s && <div className="w-2.5 h-2.5 bg-[#2D1B69] rounded-full" />}
                     </div>
-                    <span className={clsx('text-[13px] font-semibold', sauce === s ? 'text-brand-primary' : 'text-brand-primary/70')} onClick={() => setSauce(s)}>{s}</span>
+                    <span className={clsx('text-[13px] font-semibold', sauce === s ? 'text-[#2D1B69]' : 'text-[#2D1B69]/70')} onClick={() => setSauce(s)}>{s}</span>
                   </label>
                 ))}
               </div>
             )}
 
-            {/* Vegetarian */}
             {opts?.hasVegetarianOption && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-bold text-brand-primary">Make it vegetarian?</h4>
-                  <span className="text-[9px] text-brand-primary/40 font-bold tracking-widest uppercase">Optional</span>
+                  <h4 className="text-sm font-bold text-[#2D1B69]">Make it vegetarian?</h4>
+                  <span className="text-[9px] text-[#2D1B69]/40 font-bold tracking-widest uppercase">Optional</span>
                 </div>
                 <label className="flex items-center gap-4 cursor-pointer group" onClick={() => setIsVeg(v => !v)}>
-                  <div className={clsx('w-5 h-5 rounded-[4px] border-2 flex items-center justify-center transition-all', isVeg ? 'border-brand-primary bg-brand-primary' : 'border-brand-primary/20 bg-white group-hover:border-brand-primary/50')}>
+                  <div className={clsx('w-5 h-5 rounded-[4px] border-2 flex items-center justify-center transition-all', isVeg ? 'border-[#2D1B69] bg-[#2D1B69]' : 'border-[#2D1B69]/20 bg-white group-hover:border-[#2D1B69]/50')}>
                     {isVeg && <svg viewBox="0 0 14 14" fill="none" className="w-3 h-3 text-white stroke-current stroke-[3]"><path d="M2.5 7L5.5 10L11.5 4" /></svg>}
                   </div>
-                  <span className={clsx('text-[13px] font-semibold', isVeg ? 'text-brand-primary' : 'text-brand-primary/70')}>Replace protein with mushrooms</span>
+                  <span className={clsx('text-[13px] font-semibold', isVeg ? 'text-[#2D1B69]' : 'text-[#2D1B69]/70')}>Replace protein with mushrooms</span>
                 </label>
               </div>
             )}
 
-            {/* Dislikes */}
             {opts?.dislikes && opts.dislikes.length > 0 && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-bold text-brand-primary">Remove ingredients</h4>
-                  <span className="text-[9px] text-brand-primary/40 font-bold tracking-widest uppercase">Optional</span>
+                  <h4 className="text-sm font-bold text-[#2D1B69]">Remove ingredients</h4>
+                  <span className="text-[9px] text-[#2D1B69]/40 font-bold tracking-widest uppercase">Optional</span>
                 </div>
                 {opts.dislikes.map(opt => (
                   <label key={opt} className="flex items-center gap-4 cursor-pointer group" onClick={() => toggleAvoid(opt)}>
-                    <div className={clsx('w-5 h-5 rounded-[4px] border-2 flex items-center justify-center transition-all', avoidList.includes(opt) ? 'border-brand-primary bg-brand-primary' : 'border-brand-primary/20 bg-white group-hover:border-brand-primary/50')}>
+                    <div className={clsx('w-5 h-5 rounded-[4px] border-2 flex items-center justify-center transition-all', avoidList.includes(opt) ? 'border-[#2D1B69] bg-[#2D1B69]' : 'border-[#2D1B69]/20 bg-white group-hover:border-[#2D1B69]/50')}>
                       {avoidList.includes(opt) && <svg viewBox="0 0 14 14" fill="none" className="w-3 h-3 text-white stroke-current stroke-[3]"><path d="M2.5 7L5.5 10L11.5 4" /></svg>}
                     </div>
-                    <span className={clsx('text-[13px] font-semibold', avoidList.includes(opt) ? 'text-brand-primary' : 'text-brand-primary/70')}>{opt}</span>
+                    <span className={clsx('text-[13px] font-semibold', avoidList.includes(opt) ? 'text-[#2D1B69]' : 'text-[#2D1B69]/70')}>{opt}</span>
                   </label>
                 ))}
               </div>
@@ -242,14 +200,14 @@ const CustomizationModal: React.FC<{
 
         {/* Sticky action bar */}
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-white border-t border-gray-100 flex items-center gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] z-20">
-          <div className="flex items-center justify-between bg-[#F3F4F6] rounded-full px-4 py-3 w-28">
-            <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-brand-primary/60 hover:text-brand-primary transition-colors font-bold text-lg leading-none">−</button>
-            <span className="text-sm font-bold text-brand-primary">{qty}</span>
-            <button onClick={() => setQty(q => q + 1)} className="text-brand-primary/60 hover:text-brand-primary transition-colors font-bold text-lg leading-none">+</button>
+          <div className="flex items-center justify-between bg-gray-100 rounded-full px-4 py-3 w-28">
+            <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-[#2D1B69]/60 hover:text-[#2D1B69] transition-colors font-bold text-lg leading-none">−</button>
+            <span className="text-sm font-bold text-[#2D1B69]">{qty}</span>
+            <button onClick={() => setQty(q => q + 1)} className="text-[#2D1B69]/60 hover:text-[#2D1B69] transition-colors font-bold text-lg leading-none">+</button>
           </div>
           <button
             onClick={() => onConfirm({ base, sauce, isVegetarian: isVeg, avoid: avoidList.join(', '), quantity: qty })}
-            className="flex-1 bg-brand-primary text-white py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:brightness-110 shadow-lg shadow-brand-primary/20 transition-all flex items-center justify-center gap-2"
+            className="flex-1 bg-[#2D1B69] text-white py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:brightness-110 shadow-lg transition-all flex items-center justify-center gap-2"
           >
             Add to My Week · ${(item.price * qty).toFixed(2)}
           </button>
@@ -259,48 +217,7 @@ const CustomizationModal: React.FC<{
   );
 };
 
-// ─── Dish Card ────────────────────────────────────────────────────────────────
-const DishCard: React.FC<{ item: MenuItem; onTryNow: (item: MenuItem) => void; available: boolean }> = ({
-  item, onTryNow, available,
-}) => {
-  const hasVeg = !!item.customizationOptions?.hasVegetarianOption;
-  return (
-    <div className={clsx('flex flex-col items-center w-full', !available && 'opacity-40 pointer-events-none')}>
-      {/* Circular image */}
-      <div
-        className="relative z-10 w-[220px] h-[220px] md:w-[280px] md:h-[280px] rounded-full overflow-hidden border-[5px] border-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] -mb-[70px] md:-mb-[90px] flex-shrink-0 cursor-pointer"
-        onClick={() => onTryNow(item)}
-      >
-        <img
-          src={getFoodImage(item.name)}
-          alt={item.name}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-        />
-        {/* Veg icon badge */}
-        {hasVeg && (
-          <div className="absolute top-3 right-3 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md">
-            <Leaf size={13} className="text-green-600" strokeWidth={2.5} />
-          </div>
-        )}
-      </div>
-
-      {/* Lime label card */}
-      <div
-        className="w-full bg-brand-lime rounded-[1.5rem] pt-[84px] md:pt-[108px] pb-7 px-6 cursor-pointer hover:brightness-[0.97] transition-all"
-        onClick={() => onTryNow(item)}
-      >
-        <span className="inline-block bg-brand-primary text-white text-[11px] font-black uppercase tracking-wider px-4 py-1.5 rounded-md mb-3">
-          {item.name}
-        </span>
-        <p className="text-brand-primary/70 text-sm leading-relaxed font-medium">
-          {item.description}
-        </p>
-      </div>
-    </div>
-  );
-};
-
-// ─── FAQ Item (accordion) ─────────────────────────────────────────────────────
+// ─── FAQ Item ─────────────────────────────────────────────────────────────────
 const FAQItem: React.FC<{
   q: string;
   a: string;
@@ -309,25 +226,40 @@ const FAQItem: React.FC<{
   dark?: boolean;
 }> = ({ q, a, isOpen, onToggle, dark }) => (
   <div
-    className={clsx(
-      'rounded-2xl border transition-all duration-200 cursor-pointer select-none',
-      isOpen && dark
-        ? 'bg-brand-primary border-brand-primary text-white'
-        : isOpen
-        ? 'bg-brand-primary/5 border-brand-primary/20'
-        : 'bg-white border-gray-200 hover:border-brand-primary/30',
-    )}
     onClick={onToggle}
+    className="cursor-pointer select-none transition-all duration-200"
+    style={
+      isOpen && dark
+        ? { background: '#2D1B69', borderRadius: '16px' }
+        : isOpen
+          ? { background: 'rgba(45,27,105,0.05)', border: '1.5px solid #2D1B69', borderRadius: '16px' }
+          : { border: '1.5px solid #2D1B69', borderRadius: '9999px', background: '#fff' }
+    }
   >
-    <div className="flex items-center justify-between p-4 md:p-5 gap-3">
-      <span className={clsx('text-sm font-bold leading-snug', isOpen && dark ? 'text-white' : 'text-brand-primary')}>
+    <div className="flex items-center justify-between px-5 py-3 gap-3">
+      <span
+        className="text-sm leading-snug"
+        style={{
+          fontFamily: isOpen && dark ? '"Instrument Serif", serif' : 'Poppins, sans-serif',
+          fontWeight: isOpen && dark ? 600 : 500,
+          color: isOpen && dark ? '#FFFFFF' : '#2D1B69',
+        }}
+      >
         {q}
       </span>
-      <div className={clsx('flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all', isOpen && dark ? 'border-white' : 'border-brand-primary/20')}>
+      {/* Icon circle — white when active-dark, grey ring when collapsed */}
+      <div
+        className="flex-shrink-0 flex items-center justify-center transition-all"
+        style={{
+          width: '28px', height: '28px',
+          borderRadius: '50%',
+          border: isOpen && dark ? '1.5px solid rgba(255,255,255,0.5)' : '1.5px solid #2D1B69',
+          flexShrink: 0,
+        }}
+      >
         {isOpen
-          ? <X size={13} className={isOpen && dark ? 'text-white' : 'text-brand-primary'} strokeWidth={2.5} />
-          : <Plus size={13} className="text-brand-primary/50" strokeWidth={2.5} />
-        }
+          ? <X size={12} color={dark ? '#FFFFFF' : '#2D1B69'} strokeWidth={2.5} />
+          : <Plus size={12} color="#2D1B69" strokeWidth={2} />}
       </div>
     </div>
     <AnimatePresence>
@@ -339,7 +271,13 @@ const FAQItem: React.FC<{
           transition={{ duration: 0.2 }}
           className="overflow-hidden"
         >
-          <p className={clsx('px-5 pb-5 text-[13px] leading-relaxed font-medium', dark ? 'text-white/75' : 'text-brand-primary/60')}>
+          <p
+            className="px-5 pb-5 text-[13px] leading-relaxed"
+            style={{
+              fontFamily: 'Poppins, sans-serif',
+              color: dark ? 'rgba(255,255,255,0.72)' : 'rgba(45,27,105,0.6)',
+            }}
+          >
             {a}
           </p>
         </motion.div>
@@ -350,34 +288,20 @@ const FAQItem: React.FC<{
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function MenuPage({ cart }: { cart: any }) {
-  const weekDates = useMemo(() => getThisWeekDates(), []);
-
-  // Default to the active order day index
-  const defaultIndex = useMemo(() => {
-    const active = calculateActiveOrderDay();
-    const activeKey = active.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
-    const idx = weekDates.findIndex(d => {
-      return d.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }) === activeKey;
-    });
-    return idx >= 0 ? idx : 0;
-  }, [weekDates]);
-
-  const [selectedDay, setSelectedDay] = useState(defaultIndex);
+  const [activeDay, setActiveDay] = useState(1); // default Tuesday
   const [openFaqLeft, setOpenFaqLeft] = useState<number | null>(0);
   const [openFaqRight, setOpenFaqRight] = useState<number | null>(null);
   const [customizingItem, setCustomizingItem] = useState<{ item: MenuItem; date: Date } | null>(null);
+  const [zipCode, setZipCode] = useState('');
 
-  const selectedDate = weekDates[selectedDay];
-  const dayKey = WEEKDAY_KEYS[selectedDay];
-  const dayMenu = MENUS[dayKey];
-  const items = dayMenu?.categories[0]?.items ?? [];
+  const dayKey = DAY_KEYS[activeDay];
+  const items = MENUS[dayKey].categories[0].items;
+  const images = DAY_IMAGES[dayKey];
 
-  const dateStatus = getDateStatus(selectedDate);
-  const isAvailable = dateStatus === 'ACTIVE' || dateStatus === 'PREVIEW';
-
-  const handleTryNow = (item: MenuItem) => {
-    if (!isAvailable) return;
-    setCustomizingItem({ item, date: selectedDate });
+  const handleTryNow = (item?: MenuItem) => {
+    const target = item ?? items[0];
+    if (!target) return;
+    setCustomizingItem({ item: target, date: getDateForDayIndex(activeDay) });
   };
 
   const handleConfirm = (customs: any) => {
@@ -390,272 +314,472 @@ export default function MenuPage({ cart }: { cart: any }) {
   };
 
   return (
-    <div className="bg-[#F5F3FF] min-h-screen font-sans overflow-x-hidden">
+    <div className="font-sans overflow-x-hidden">
 
-      {/* ── 1. THE WEEKLY SYSTEM ──────────────────────────────────────────────── */}
-      <section className="pt-16 pb-16 px-5 md:px-12 max-w-5xl mx-auto">
+      {/* ── SECTION 1 + 2: THE WEEKLY SYSTEM + MEAL CARDS ───────────────────── */}
+      <section className="bg-[#EEEAF8] pt-16 pb-12 px-5 md:px-12">
 
         {/* Title */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-[3.2rem] font-black text-brand-primary leading-tight">
+        <div className="text-center">
+          <h1
+            className="font-bold text-[#2D1B69] leading-none"
+            style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(52px, 8vw, 80px)' }}
+          >
             The Weekly System
           </h1>
-          <p className="mt-2 text-brand-primary/55 text-sm md:text-base font-medium">
+          <p
+            className="mt-3 text-[#2D1B69]"
+            style={{ fontFamily: 'Poppins, sans-serif', fontSize: '15px', opacity: 0.65 }}
+          >
             Choose between two fresh options every day.
           </p>
         </div>
 
-        {/* Day pills */}
-        <div className="flex items-center justify-center gap-1 md:gap-2 mb-10">
-          <div className="flex items-center bg-white rounded-full border border-gray-200 shadow-sm px-1 py-1 gap-1">
-            {DAY_LABELS.map((label, i) => {
-              const st = getDateStatus(weekDates[i]);
-              const isPast = st === 'PAST' || st === 'TODAY_CLOSED';
-              const isSelected = selectedDay === i;
-              return (
-                <button
-                  key={label}
-                  onClick={() => !isPast && setSelectedDay(i)}
-                  disabled={isPast}
-                  className={clsx(
-                    'px-4 md:px-6 py-2 rounded-full text-[11px] md:text-xs font-bold uppercase tracking-wider transition-all',
-                    isSelected
-                      ? 'text-brand-orange border-b-2 border-brand-orange bg-transparent'
-                      : isPast
-                      ? 'text-brand-primary/25 cursor-not-allowed'
-                      : 'text-brand-primary hover:text-brand-primary/70',
-                  )}
-                >
-                  {label}
-                </button>
-              );
-            })}
+        {/* Day selector — single orange-bordered pill
+            Active = orange fill + white bold · Inactive = no fill + orange thin */}
+        <div className="flex justify-center mt-8">
+          <div
+            className="inline-flex items-center rounded-full px-1.5 py-1"
+            style={{ border: '1.5px solid #C64D29' }}
+          >
+            {DAY_LABELS.map((label, i) => (
+              <button
+                key={label}
+                onClick={() => setActiveDay(i)}
+                className="px-5 py-2 rounded-full text-sm cursor-pointer transition-all duration-200"
+                style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  color: activeDay === i ? 'white' : '#C64D29',
+                  fontWeight: activeDay === i ? 700 : 300,
+                  background: activeDay === i ? '#C64D29' : 'transparent',
+                  border: 'none',
+                  letterSpacing: activeDay === i ? '0.01em' : '0',
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Two dish cards */}
+        {/* Meal cards */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={selectedDay}
-            initial={{ opacity: 0, y: 10 }}
+            key={activeDay}
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0, y: -14 }}
             transition={{ duration: 0.25 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-8"
           >
-            {items.length > 0 ? (
-              items.map(item => (
-                <DishCard key={item.id} item={item} onTryNow={handleTryNow} available={isAvailable} />
-              ))
-            ) : (
-              <div className="col-span-2 py-24 text-center text-brand-primary/30 font-bold text-sm">
-                No meals available for this day yet.
+            {items.map((item, idx) => (
+              <div
+                key={item.id}
+                className="relative cursor-pointer group"
+                onClick={() => handleTryNow(item)}
+              >
+                {/* Leaf icon — only for dishes with vegetarian option */}
+                {item.customizationOptions?.hasVegetarianOption && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '25%',
+                      right: '12%',
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '50%',
+                      background: '#DB5A29',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      zIndex: 20,
+                    }}
+                  >
+                    <Leaf size={16} color="white" strokeWidth={2} />
+                  </div>
+                )}
+
+                {/* Food image — fills card width, image already includes name + description */}
+                <img
+                  src={images[idx]}
+                  alt={item.name}
+                  className="w-full group-hover:scale-[1.02] transition-transform duration-500"
+                  style={{
+                    display: 'block',
+                    objectFit: 'contain',
+                    borderRadius: '12px',
+                    mixBlendMode: 'multiply',
+                  }}
+                />
               </div>
-            )}
+            ))}
           </motion.div>
         </AnimatePresence>
 
-        {/* Footer row: veg badge + TRY NOW */}
-        {items.length > 0 && (
-          <div className="mt-8 flex items-center justify-between">
-            {/* Vegetarian badge */}
-            {items.some(i => !!i.customizationOptions?.hasVegetarianOption) && (
-              <div className="flex items-center gap-2 text-brand-primary/60 text-xs font-semibold">
-                <span className="w-6 h-6 rounded-full border-2 border-green-500 flex items-center justify-center">
-                  <Leaf size={11} className="text-green-600" />
-                </span>
-                Vegetarian Options Available
-              </div>
-            )}
-            <div className="ml-auto">
-              {isAvailable ? (
-                <button
-                  onClick={() => items[0] && handleTryNow(items[0])}
-                  className="px-8 py-3.5 bg-brand-orange text-white rounded-full font-black uppercase tracking-[0.18em] text-[11px] hover:opacity-90 transition-opacity shadow-md"
-                >
-                  Try Now
-                </button>
-              ) : (
-                <span className="px-8 py-3.5 bg-brand-primary/10 text-brand-primary/30 rounded-full font-black uppercase tracking-[0.18em] text-[11px] cursor-not-allowed">
-                  Not Available
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* ── 2. GOT QUESTIONS ──────────────────────────────────────────────────── */}
-      <section className="bg-white py-16 md:py-20 px-5 md:px-12">
-        <div className="max-w-4xl mx-auto">
-
-          {/* Title */}
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-black text-brand-primary leading-tight">
-              Got Questions?
-            </h2>
-            <p
-              className="text-3xl md:text-4xl text-brand-orange mt-1"
-              style={{ fontFamily: '"Nothing You Could Do", cursive', transform: 'rotate(-1deg)', display: 'inline-block' }}
+        {/* Bottom row — veg badge + TRY NOW */}
+        <div
+          className="mt-6 flex items-center justify-between max-w-4xl mx-auto"
+          style={{ fontFamily: 'Poppins, sans-serif' }}
+        >
+          {/* Left — filled orange circle + label */}
+          <div className="flex items-center gap-3 text-[#2D1B69]">
+            <div
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '50%',
+                background: '#DB5A29',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
             >
-              We've Got Answers
-            </p>
+              <Leaf size={15} color="white" strokeWidth={2} />
+            </div>
+            <span style={{ fontSize: '14px', fontWeight: 500 }}>Vegetarian Options Available</span>
           </div>
 
-          {/* Two-column FAQ */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            {/* Left column */}
-            <div className="space-y-3">
-              {FAQ_LEFT.map((faq, i) => (
-                <FAQItem
-                  key={i}
-                  q={faq.q}
-                  a={faq.a}
-                  isOpen={openFaqLeft === i}
-                  onToggle={() => setOpenFaqLeft(openFaqLeft === i ? null : i)}
-                  dark={openFaqLeft === i}
-                />
-              ))}
-            </div>
-
-            {/* Right column */}
-            <div className="space-y-3">
-              {FAQ_RIGHT.map((faq, i) => (
-                <FAQItem
-                  key={i}
-                  q={faq.q}
-                  a={faq.a}
-                  isOpen={openFaqRight === i}
-                  onToggle={() => setOpenFaqRight(openFaqRight === i ? null : i)}
-                />
-              ))}
-
-              {/* Still have questions */}
-              <div className="mt-6 flex items-start gap-4">
-                <div className="relative flex-shrink-0">
-                  <img src="/assets/stickers/blank-sticker.png" alt="" className="w-24 h-auto" style={{ filter: 'hue-rotate(30deg) saturate(1.5)' }} />
-                  <span className="absolute inset-0 flex items-center justify-center text-[9px] font-black text-white uppercase tracking-widest text-center leading-tight px-2">
-                    Still Have<br />Questions?
-                  </span>
-                </div>
-                <p className="text-brand-primary/60 text-sm font-medium leading-relaxed mt-2">
-                  Email us at{' '}
-                  <a href="mailto:hello@knwnfood.com" className="text-brand-primary font-bold underline decoration-dotted hover:text-brand-orange transition-colors">
-                    hello@knwnfood.com
-                  </a>
-                  . We're here to help!
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* Right — TRY NOW: brown rounded rectangle */}
+          <button
+            onClick={() => handleTryNow()}
+            style={{
+              background: '#A0451C',
+              color: 'white',
+              fontFamily: 'Poppins, sans-serif',
+              fontSize: '16px',
+              fontWeight: 800,
+              letterSpacing: '0.06em',
+              padding: '13px 44px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            TRY NOW
+          </button>
         </div>
+
       </section>
 
-      {/* ── 3. FIND THE REAL LUNCH (comparison) ──────────────────────────────── */}
-      <section className="bg-brand-orange py-16 md:py-20 px-5 md:px-12 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8 max-w-lg">
-            <h2 className="text-4xl md:text-[3.2rem] font-black text-white leading-tight">
-              Find the{' '}
-              <em
-                style={{ fontFamily: '"Nothing You Could Do", cursive', fontStyle: 'normal', fontSize: '1.1em' }}
+      {/* ── SECTION 3: FAQ ────────────────────────────────────────────────────── */}
+      <section
+        className="py-16 px-5 md:px-12"
+        style={{ background: '#EEEAF8' }}
+      >
+        <div
+          className="max-w-4xl mx-auto relative overflow-hidden"
+          style={{
+            borderRadius: '24px',
+            padding: '48px',
+            boxShadow: '0 8px 40px rgba(150,130,200,0.15), 0 2px 12px rgba(150,130,200,0.08)',
+            background: 'white',
+          }}
+        >
+          {/* Soft salmon glow — bottom-left inside the card */}
+          <div style={{
+            position: 'absolute',
+            bottom: '-40%',
+            right: '-20%',
+            width: '70%',
+            height: '80%',
+            background: 'radial-gradient(ellipse at center, rgba(255,175,155,0.45) 0%, rgba(255,190,170,0.15) 45%, transparent 70%)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }} />
+          {/* Content — above the glow */}
+          <div className="relative" style={{ zIndex: 1 }}>
+            <div className="text-center mb-10">
+              <h2
+                className="text-[#2D1B69] font-bold"
+                style={{
+                  fontFamily: '"Instrument Serif", serif',
+                  fontSize: 'clamp(36px, 5vw, 52px)',
+                }}
               >
-                real
-              </em>{' '}
-              lunch.
-            </h2>
-            <p className="text-white/65 text-sm leading-relaxed font-medium mt-3">
-              Real lunch is fresh, quality produce, no antibiotics or hormones ever, no seed oils, and sauces made from scratch — no preservatives, just real ingredients.
-            </p>
-          </div>
-
-          {/* Table */}
-          <div className="relative">
-            <div className="rounded-2xl overflow-x-auto shadow-2xl bg-white">
-              <table className="w-full text-center border-collapse min-w-[480px]">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="p-4 md:p-5 text-left w-[36%]" />
-                    {['Pricing', 'Food Quality', 'Convenience', 'No Hidden Fees'].map(col => (
-                      <th key={col} className="p-4 md:p-5">
-                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-brand-primary/35">{col}</span>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="text-sm">
-                  <tr className="border-b border-gray-100 bg-[#F5F3FF]">
-                    <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary">KNWN Real Food Lunch</td>
-                    {[true, true, true, true].map((_, i) => (
-                      <td key={i} className="p-4 md:p-5">
-                        <Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" />
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b border-gray-100">
-                    <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary/40">Meal Prep Service</td>
-                    <td className="p-4 md:p-5"><Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" /></td>
-                    <td /><td /><td />
-                  </tr>
-                  <tr>
-                    <td className="p-4 md:p-5 text-left text-[10px] md:text-xs font-black uppercase tracking-wider text-brand-primary/40">Restaurant & Delivery Apps</td>
-                    <td /><td />
-                    <td className="p-4 md:p-5"><Check size={17} strokeWidth={3} className="mx-auto text-brand-orange" /></td>
-                    <td />
-                  </tr>
-                </tbody>
-              </table>
+                Got Questions?
+              </h2>
+              <p
+                style={{
+                  fontFamily: '"Instrument Serif", serif',
+                  fontSize: 'clamp(22px, 3vw, 32px)',
+                  letterSpacing: '0.07em',
+                  color: '#DB5A29',
+                  marginTop: '6px',
+                }}
+              >
+                We've Got Answers
+              </p>
             </div>
 
-            {/* ORDER NOW sticker */}
-            <motion.button
-              animate={{ rotate: [3, 6, 3] }}
-              transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-              onClick={() => items[0] && handleTryNow(items[0])}
-              className="absolute -bottom-4 -right-2 md:-right-6 bg-brand-lime text-brand-primary font-black uppercase tracking-widest text-xs px-5 py-3 rounded-xl shadow-xl hover:brightness-95 transition-all"
-              style={{ transform: 'rotate(4deg)' }}
-            >
-              Order<br />Now
-            </motion.button>
-          </div>
+            {/* Two-column FAQ grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+
+              {/* Left column — unchanged */}
+              <div className="space-y-3">
+                {FAQ_LEFT.map((faq, i) => (
+                  <FAQItem
+                    key={i}
+                    q={faq.q}
+                    a={faq.a}
+                    isOpen={openFaqLeft === i}
+                    onToggle={() => setOpenFaqLeft(openFaqLeft === i ? null : i)}
+                    dark={openFaqLeft === i}
+                  />
+                ))}
+              </div>
+
+              {/* FIX 2 — right column: tight gap-3, fully-rounded pills, thin border */}
+              <div className="flex flex-col gap-3">
+                {FAQ_RIGHT.map((faq, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setOpenFaqRight(openFaqRight === i ? null : i)}
+                    className="w-full flex items-center justify-between px-5 py-3 bg-white text-left"
+                    style={{
+                      border: '1.5px solid #2D1B69',
+                      borderRadius: '9999px',
+                      fontFamily: 'Poppins, sans-serif',
+                    }}
+                  >
+                    <span className="text-sm text-[#2D1B69] font-medium leading-snug">
+                      {faq.q}
+                    </span>
+                    {/* + icon: 28×28, dark navy border */}
+                    <span
+                      className="flex-shrink-0 flex items-center justify-center text-[#2D1B69]"
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        border: '1.5px solid #2D1B69',
+                        borderRadius: '50%',
+                        fontSize: '18px',
+                        lineHeight: 1,
+                      }}
+                    >
+                      +
+                    </span>
+                  </button>
+                ))}
+
+                {/* "Still Have Questions?" — sticker + email */}
+                <div className="mt-6 flex flex-row items-center gap-5">
+
+                  {/* Yellow sticker: image bg with CSS fallback shape */}
+                  <div
+                    className="relative flex-shrink-0 flex items-center justify-center"
+                    style={{
+                      width: '120px',
+                      height: '60px',
+                      transform: 'rotate(-2deg)',
+                    }}
+                  >
+                    {/* CSS-generated yellow blob (paper-tear feel) */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: '#E8D84A',
+                        borderRadius: '6px 14px 8px 10px / 10px 8px 14px 6px',
+                        boxShadow: '2px 3px 8px rgba(0,0,0,0.12)',
+                      }}
+                    />
+                    {/* Overlay real image if it loads */}
+                    <img
+                      src="/assets/hero-bg/Bloque_amarillo.png"
+                      alt=""
+                      aria-hidden
+                      style={{
+                        position: 'absolute', inset: 0,
+                        width: '100%', height: '100%',
+                        objectFit: 'contain',
+                      }}
+                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                    <span
+                      className="relative z-10 text-center font-bold text-[#2D1B69]"
+                      style={{
+                        fontFamily: 'Poppins, sans-serif',
+                        fontSize: '11px',
+                        lineHeight: '1.35',
+                        whiteSpace: 'pre-line',
+                      }}
+                    >
+                      {'Still Have\nQuestions?'}
+                    </span>
+                  </div>
+
+                  {/* Email copy */}
+                  <div style={{ fontFamily: 'Poppins, sans-serif', color: '#2D1B69' }} className="text-sm leading-snug">
+                    <span>Email us at </span>
+                    <a
+                      href="mailto:hello@knwnfood.com"
+                      className="font-bold hover:text-[#DB5A29] transition-colors"
+                    >
+                      hello@knwnfood.com
+                    </a>
+                    <span className="block mt-0.5">We're here to help!</span>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>{/* end relative content wrapper */}
         </div>
       </section>
 
-      {/* ── 4. DELIVERY ZONE CHECK ────────────────────────────────────────────── */}
-      <section className="relative bg-brand-primary overflow-hidden py-10 px-5 md:px-12">
-        {/* Delivery moto */}
-        <img
-          src="/assets/delivery-moto.png"
-          alt=""
-          aria-hidden
-          className="absolute right-0 bottom-0 h-full object-contain object-right-bottom pointer-events-none select-none"
-          style={{ mixBlendMode: 'screen', maxWidth: '240px' }}
-        />
+      {/* ── SECTION 4: COMPARISON TABLE ───────────────────────────────────────── */}
+      {/* TOKEN: Section bg = #DB5A29 */}
+      <section style={{ background: '#DB5A29' }} className="py-16 px-5 md:px-12">
 
-        <div className="relative z-10 max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10 pr-0 md:pr-52">
-          <p className="text-white font-black text-lg md:text-xl leading-snug flex-shrink-0 md:w-52">
-            Check if we deliver<br />to your office.
-          </p>
+        {/* TOKEN: Title = Instrument Serif 64px bold white, centered */}
+        <div className="text-center">
+          <h2
+            className="font-bold text-white leading-none"
+            style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(40px, 6vw, 64px)' }}
+          >
+            Find the{' '}
+            {/* TOKEN: "real" = NothingYouCouldDo 64px #D4F53C */}
+            <span style={{ fontFamily: '"Nothing You Could Do", cursive', color: '#D4F53C' }}>
+              real
+            </span>
+            {' '}lunch.
+          </h2>
 
-          <div className="flex items-center gap-3 flex-1 max-w-sm">
-            <div className="flex-1 flex items-center bg-white rounded-full overflow-hidden">
-              <MapPin size={15} className="ml-4 flex-shrink-0 text-brand-primary/40" />
-              <input
-                type="text"
-                placeholder="Enter ZIP code"
-                className="flex-1 py-3 px-3 text-sm text-brand-primary placeholder-brand-primary/30 outline-none font-medium bg-transparent"
-              />
-            </div>
-            <button className="w-11 h-11 flex-shrink-0 rounded-full bg-brand-lime flex items-center justify-center hover:brightness-95 transition-all">
-              <ArrowRight size={17} className="text-brand-primary" strokeWidth={2.5} />
-            </button>
-          </div>
-
-          <p className="hidden lg:block text-white/50 text-xs leading-relaxed flex-shrink-0 max-w-[200px]">
-            Now serving Brickell, Downtown, Bayside, and Coral Gables.
+          {/* TOKEN: Table subtitle = Poppins 13px white centered */}
+          <p
+            className="mt-4 text-white mx-auto leading-relaxed"
+            style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', maxWidth: '680px' }}
+          >
+            Real lunch is made with fresh, high-quality produce, no antibiotics or hormones ever, no seed oils,
+            and sauces made from scratch, no preservatives, just real ingredients.
           </p>
         </div>
+
+        {/* Table container — relative for TRY NOW button */}
+        <div className="relative mx-auto mt-10" style={{ maxWidth: '900px' }}>
+
+          {/* ── Purple header tabs (separate element, no white bg) */}
+          <div style={{ display: 'grid', gridTemplateColumns: '35% repeat(4, 16.25%)' }}>
+            <div /> {/* empty first cell — orange bg shows through */}
+            {['Pricing', 'Food\nQuality', 'Convenience', 'No Hidden Fees'].map((col, i) => (
+              <div
+                key={col}
+                style={{
+                  background: '#D2CFEA',
+                  padding: '12px 8px',
+                  textAlign: 'center',
+                  fontFamily: 'Poppins, sans-serif',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: '#291A5A',
+                  whiteSpace: 'pre-line',
+                  borderRight: i < 3 ? '2px solid #C64D29' : 'none',
+                  borderRadius: i === 0 ? '10px 0 0 0' : i === 3 ? '0 10px 0 0' : 0,
+                }}
+              >
+                {col}
+              </div>
+            ))}
+          </div>
+
+          {/* ── 5px gap between tabs and navy row */}
+          <div style={{ height: '5px' }} />
+
+          {/* ── Table body — own container so KNWN row gets rounded corners */}
+          <div style={{ borderRadius: '14px', overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.20)' }}>
+            <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }}>
+              <colgroup>
+                <col style={{ width: '35%' }} />
+                <col style={{ width: '16.25%' }} />
+                <col style={{ width: '16.25%' }} />
+                <col style={{ width: '16.25%' }} />
+                <col style={{ width: '16.25%' }} />
+              </colgroup>
+              <tbody>
+                {/* KNWN row — top corners rounded by container overflow:hidden */}
+                <tr style={{ background: '#291A5A' }}>
+                  <td
+                    className="py-5 px-6 text-left font-bold text-white"
+                    style={{ fontFamily: 'Poppins, sans-serif', fontSize: '15px' }}
+                  >
+                    KNWN Real Food Lunch
+                  </td>
+                  {[0, 1, 2, 3].map(i => (
+                    <td key={i} style={{ padding: '20px 12px', textAlign: 'center' }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', margin: '0 auto' }}>
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </td>
+                  ))}
+                </tr>
+
+                {/* Meal Prep row */}
+                <tr style={{ background: 'white', borderTop: '2px solid #C64D29' }}>
+                  <td
+                    className="py-5 px-6 text-left font-bold"
+                    style={{ fontFamily: 'Poppins, sans-serif', fontSize: '15px', color: '#291A5A', borderRight: '2px solid #C64D29' }}
+                  >
+                    Meal Prep Service
+                  </td>
+                  <td style={{ padding: '20px 12px', textAlign: 'center', borderRight: '2px solid #C64D29' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C64D29" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', margin: '0 auto' }}>
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </td>
+                  <td style={{ borderRight: '2px solid #C64D29' }} />
+                  <td style={{ borderRight: '2px solid #C64D29' }} />
+                  <td />
+                </tr>
+
+                {/* Restaurant row — bottom corners rounded by container overflow:hidden */}
+                <tr style={{ background: 'white', borderTop: '2px solid #C64D29' }}>
+                  <td
+                    className="py-5 px-6 text-left font-bold"
+                    style={{ fontFamily: 'Poppins, sans-serif', fontSize: '15px', color: '#291A5A', borderRight: '2px solid #C64D29' }}
+                  >
+                    Restaurant &amp; Delivery Apps
+                  </td>
+                  <td style={{ borderRight: '2px solid #C64D29' }} />
+                  <td style={{ borderRight: '2px solid #C64D29' }} />
+                  <td style={{ padding: '20px 12px', textAlign: 'center', borderRight: '2px solid #C64D29' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C64D29" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', margin: '0 auto' }}>
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </td>
+                  <td />
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* TRY NOW — no shadow, no border-radius, ready for background-image */}
+          <button
+            style={{
+              position: 'absolute',
+              bottom: '-18px',
+              right: '-8px',
+              background: '#DDEB00',
+              color: '#291A5A',
+              fontFamily: 'Poppins, sans-serif',
+              fontSize: '22px',
+              fontWeight: 900,
+              fontStyle: 'italic',
+              padding: '10px 28px',
+              borderRadius: 0,
+              transform: 'rotate(-3deg)',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            TRY NOW
+          </button>
+        </div>
       </section>
+
+      {/* ── SECTION 5: ZIP CODE BANNER ────────────────────────────────────────── */}
+      <ZipCode />
 
       {/* ── Customization Modal ──────────────────────────────────────────────── */}
       <AnimatePresence>

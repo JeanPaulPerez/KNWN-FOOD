@@ -1,7 +1,7 @@
 /* ─── Outer section (lavender bg, padding around the banner) ─────────────── */
 .section {
   background: #f4f1ff;
-  padding: 0 40px 40px;
+  padding: 40px 40px 40px;
 }
 
 /* ─── Dark purple rounded banner ─────────────────────────────────────────── */
@@ -9,12 +9,12 @@
   max-width: 1200px;
   margin: 0 auto;
   background: var(--purple);
-  border-radius: 16px;
+  border-radius: 20px;
   display: grid;
   grid-template-columns: auto 1fr auto auto;
   align-items: center;
-  gap: 32px;
-  padding: 24px 24px 24px 40px;
+  gap: 40px;
+  padding: 36px 36px 36px 52px;
   overflow: hidden;
   position: relative;
 }
@@ -22,7 +22,7 @@
 /* ─── Headline ────────────────────────────────────────────────────────────── */
 .headline {
   font-family: var(--font-ui);
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 800;
   color: #ffffff;
   line-height: 1.25;
@@ -35,9 +35,9 @@
   align-items: center;
   background: #ffffff;
   border-radius: 999px;
-  padding: 6px 6px 6px 14px;
-  gap: 8px;
-  max-width: 340px;
+  padding: 10px 10px 10px 20px;
+  gap: 10px;
+  max-width: 420px;
   width: 100%;
 }
 
@@ -63,8 +63,8 @@
 }
 
 .arrowBtn {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: #d4f84a;
   color: var(--purple);
@@ -82,7 +82,7 @@
 /* ─── "Now serving" text ─────────────────────────────────────────────────── */
 .serving {
   font-family: var(--font-ui);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 400;
   color: #ffffff;
   line-height: 1.6;
@@ -91,11 +91,13 @@
 
 /* ─── Delivery illustration ───────────────────────────────────────────────── */
 .moto {
-  height: 100px;
+  height: 200px;
   width: auto;
   object-fit: contain;
   flex-shrink: 0;
-  margin-right: -8px;
+  margin-right: -12px;
+  margin-bottom: -36px;
+  align-self: flex-end;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -105,27 +107,28 @@
 /* ── Laptop (769px – 1024px) ─────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .section {
-    padding: 0 24px 32px;
+    padding: 40px 24px 32px;
   }
 
   .banner {
-    gap: 20px;
-    padding: 20px 20px 20px 28px;
+    gap: 24px;
+    padding: 28px 24px 28px 36px;
   }
 
   .headline {
-    font-size: 17px;
+    font-size: 20px;
   }
 
   .moto {
-    height: 80px;
+    height: 170px;
+    margin-bottom: -28px;
   }
 }
 
 /* ── Tablet (481px – 768px): 2-column — text+input | serving+moto ────────── */
 @media (max-width: 768px) {
   .section {
-    padding: 0 16px 24px;
+    padding: 40px 16px 24px;
   }
 
   .banner {
@@ -157,15 +160,16 @@
 
   /* moto: right of second row */
   .moto {
-    height: 72px;
+    height: 120px;
     margin-right: 0;
+    margin-bottom: 0;
   }
 }
 
 /* ── Mobile (≤ 480px): single column, stacked ────────────────────────────── */
 @media (max-width: 480px) {
   .section {
-    padding: 0 12px 20px;
+    padding: 40px 12px 20px;
   }
 
   .banner {
