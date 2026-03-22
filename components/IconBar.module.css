@@ -1,0 +1,95 @@
+/* ─── Icon Bar ────────────────────────────────────────────────────────────── */
+.section {
+  background: var(--purple);
+  padding: 36px 80px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+/* ─── Item ────────────────────────────────────────────────────────────────── */
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.icon {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.title {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.desc {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Laptop (769px – 1024px) ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .section {
+    padding: 36px 40px;
+    gap: 16px;
+  }
+
+  .icon {
+    width: 58px;
+    height: 58px;
+  }
+}
+
+/* ── Tablet (481px – 768px): 2×2 grid ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .section {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 36px 24px;
+    gap: 28px 16px;
+  }
+
+  .icon {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+/* ── Mobile (≤ 480px): single column ────────────────────────────────────── */
+@media (max-width: 480px) {
+  .section {
+    grid-template-columns: 1fr;
+    padding: 32px 24px;
+    gap: 28px;
+  }
+
+  .item {
+    flex-direction: row;
+    text-align: left;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+}

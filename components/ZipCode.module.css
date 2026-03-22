@@ -1,0 +1,198 @@
+/* ─── Outer section (lavender bg, padding around the banner) ─────────────── */
+.section {
+  background: #f4f1ff;
+  padding: 0 40px 40px;
+}
+
+/* ─── Dark purple rounded banner ─────────────────────────────────────────── */
+.banner {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--purple);
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 32px;
+  padding: 24px 24px 24px 40px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─── Headline ────────────────────────────────────────────────────────────── */
+.headline {
+  font-family: var(--font-ui);
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+/* ─── Input row ───────────────────────────────────────────────────────────── */
+.inputWrap {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 6px 6px 6px 14px;
+  gap: 8px;
+  max-width: 340px;
+  width: 100%;
+}
+
+.pin {
+  color: var(--purple);
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--purple);
+  min-width: 0;
+}
+
+.input::placeholder {
+  color: rgba(49, 28, 103, 0.4);
+}
+
+.arrowBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #d4f84a;
+  color: var(--purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.arrowBtn:hover {
+  opacity: 0.85;
+}
+
+/* ─── "Now serving" text ─────────────────────────────────────────────────── */
+.serving {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* ─── Delivery illustration ───────────────────────────────────────────────── */
+.moto {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-right: -8px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Laptop (769px – 1024px) ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .section {
+    padding: 0 24px 32px;
+  }
+
+  .banner {
+    gap: 20px;
+    padding: 20px 20px 20px 28px;
+  }
+
+  .headline {
+    font-size: 17px;
+  }
+
+  .moto {
+    height: 80px;
+  }
+}
+
+/* ── Tablet (481px – 768px): 2-column — text+input | serving+moto ────────── */
+@media (max-width: 768px) {
+  .section {
+    padding: 0 16px 24px;
+  }
+
+  .banner {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 16px 12px;
+    padding: 24px 20px;
+    border-radius: 14px;
+  }
+
+  /* headline spans both columns on first row */
+  .headline {
+    grid-column: 1 / -1;
+    font-size: 18px;
+    white-space: normal;
+    text-align: center;
+  }
+
+  /* input takes left of second row */
+  .inputWrap {
+    grid-column: 1;
+    max-width: 100%;
+  }
+
+  /* serving text: hide on tablet to save space */
+  .serving {
+    display: none;
+  }
+
+  /* moto: right of second row */
+  .moto {
+    height: 72px;
+    margin-right: 0;
+  }
+}
+
+/* ── Mobile (≤ 480px): single column, stacked ────────────────────────────── */
+@media (max-width: 480px) {
+  .section {
+    padding: 0 12px 20px;
+  }
+
+  .banner {
+    grid-template-columns: 1fr;
+    padding: 24px 20px;
+    gap: 16px;
+    border-radius: 12px;
+  }
+
+  .headline {
+    grid-column: 1;
+    font-size: 17px;
+    text-align: center;
+  }
+
+  .inputWrap {
+    max-width: 100%;
+  }
+
+  .arrowBtn {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  /* hide illustration on small mobile */
+  .moto {
+    display: none;
+  }
+}

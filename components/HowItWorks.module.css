@@ -1,0 +1,219 @@
+/* ─── Section ─────────────────────────────────────────────────────────────── */
+.section {
+  background: #f4f1ff;
+  padding: 48px 40px 56px;
+}
+
+/* ─── White card ──────────────────────────────────────────────────────────── */
+.card {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 58% 42%;
+  min-height: 660px;
+}
+
+/* ─── Photo ───────────────────────────────────────────────────────────────── */
+.photoWrap {
+  overflow: hidden;
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* ─── Content ─────────────────────────────────────────────────────────────── */
+.content {
+  padding: 52px 48px 52px 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* ─── Heading ─────────────────────────────────────────────────────────────── */
+.heading {
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 400;
+  font-style: normal;
+  color: var(--purple);
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+/* ─── Step active ─────────────────────────────────────────────────────────── */
+.stepActive {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pillActive {
+  display: inline-block;
+  align-self: flex-start;
+  background: var(--purple);
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 999px;
+}
+
+.desc {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--purple);
+  max-width: 320px;
+}
+
+.exploreBtn {
+  display: inline-block;
+  align-self: flex-start;
+  border: 1.5px solid var(--purple);
+  color: var(--purple);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 22px;
+  border-radius: 999px;
+  transition: opacity 0.15s;
+}
+
+.exploreBtn:hover {
+  opacity: 0.7;
+}
+
+/* ─── Divider ─────────────────────────────────────────────────────────────── */
+.divider {
+  border: none;
+  border-top: 1px solid rgba(49, 28, 103, 0.15);
+  margin: 2px 0;
+}
+
+/* ─── Step inactive ───────────────────────────────────────────────────────── */
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pill {
+  display: inline-block;
+  align-self: flex-start;
+  background: #e8e4f5;
+  color: var(--purple);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 999px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Laptop (769px – 1024px) ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .section {
+    padding: 40px 24px 48px;
+  }
+
+  .card {
+    grid-template-columns: 50% 50%;
+    min-height: 540px;
+  }
+
+  .content {
+    padding: 40px 32px;
+  }
+
+  .heading {
+    font-size: 52px;
+  }
+}
+
+/* ── Tablet (481px – 768px): stack photo above content ──────────────────── */
+@media (max-width: 768px) {
+  .section {
+    padding: 32px 16px 40px;
+  }
+
+  .card {
+    grid-template-columns: 1fr;
+    min-height: unset;
+    border-radius: 16px;
+  }
+
+  .photoWrap {
+    height: 260px;
+  }
+
+  .photo {
+    height: 260px;
+    object-position: center 30%;
+  }
+
+  .content {
+    padding: 32px 28px 36px;
+    gap: 16px;
+  }
+
+  .heading {
+    font-size: clamp(40px, 8vw, 56px);
+    text-align: left;
+    margin-bottom: 4px;
+  }
+
+  .desc {
+    max-width: 100%;
+  }
+
+  .exploreBtn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* ── Mobile (≤ 480px) ────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .section {
+    padding: 24px 12px 32px;
+  }
+
+  .photoWrap {
+    height: 220px;
+  }
+
+  .photo {
+    height: 220px;
+  }
+
+  .content {
+    padding: 24px 20px 28px;
+  }
+
+  .heading {
+    font-size: clamp(34px, 9vw, 44px);
+  }
+
+  .pillActive,
+  .pill {
+    font-size: 12px;
+    padding: 9px 16px;
+  }
+}

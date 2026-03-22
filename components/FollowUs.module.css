@@ -1,0 +1,107 @@
+/* ─── Section ─────────────────────────────────────────────────────────────── */
+.section {
+  background: #f4f1ff;
+  padding: 56px 40px 64px;
+}
+
+.inner {
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ─── Heading ─────────────────────────────────────────────────────────────── */
+.heading {
+  font-family: 'NothingYouCouldDo', cursive;
+  font-size: 48px;
+  font-weight: 400;
+  color: var(--orange);
+  line-height: 1;
+}
+
+/* ─── 4-column grid ───────────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+/* ─── Each cell — square via aspect-ratio ────────────────────────────────── */
+.cell {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.cell:hover .photo {
+  transform: scale(1.05);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Laptop (769px – 1024px) ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .section {
+    padding: 48px 24px 56px;
+  }
+
+  .heading {
+    font-size: clamp(36px, 4.5vw, 44px);
+  }
+
+  .grid {
+    gap: 8px;
+  }
+}
+
+/* ── Tablet (481px – 768px): 2×4 grid ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .section {
+    padding: 40px 16px 48px;
+  }
+
+  .heading {
+    font-size: clamp(32px, 7vw, 40px);
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+/* ── Mobile (≤ 480px): 2×4 grid, tighter ────────────────────────────────── */
+@media (max-width: 480px) {
+  .section {
+    padding: 32px 12px 40px;
+  }
+
+  .heading {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+
+  .inner {
+    gap: 20px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .cell {
+    border-radius: 4px;
+  }
+}

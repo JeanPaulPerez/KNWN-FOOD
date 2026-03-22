@@ -1,0 +1,351 @@
+/* ─── Section ─────────────────────────────────────────────────────────────── */
+.section {
+  background: #f4f1ff;
+  overflow: hidden;
+}
+
+/* ─── Inner container ─────────────────────────────────────────────────────── */
+.inner {
+  position: relative;
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 560px;
+  padding: 40px 0 60px;
+}
+
+/* ─── Day badge — sits ON TOP of the bowl ────────────────────────────────── */
+.dayBadge {
+  position: absolute;
+  top: 110px;
+  left: 56px;
+  background: #d4f84a;
+  color: var(--purple);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 22px;
+  border-radius: 999px;
+  z-index: 5;   /* above bowl (z-index 3) */
+}
+
+/* ─── Food cutout bowl ────────────────────────────────────────────────────── */
+.foodImg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-46%);
+  width: 510px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 24px 48px rgba(49, 28, 103, 0.15));
+  z-index: 3;   /* in front of blob */
+}
+
+/* ─── Right area: heading + blob, fixed width, centered ──────────────────── */
+/* Blob left edge = 440px (80px overlap with bowl right edge ~520px) */
+/* Blob width = 460px → right edge = 900px */
+/* This leaves ~380px of lavender on right (for arrow + breathing room) */
+
+.heading {
+  position: absolute;
+  /* horizontally center over the blob area (440 → 900, center at 670px) */
+  left: 440px;
+  width: 460px;
+  top: 36px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 400;
+  color: var(--purple);
+  line-height: 1.05;
+  z-index: 4;
+}
+
+/* ─── Blob wrap — fixed width, vertically centered ───────────────────────── */
+.blobWrap {
+  position: absolute;
+  left: 440px;
+  width: 460px;        /* fixed — no right:0 */
+  top: 50%;
+  transform: translateY(-44%);
+  z-index: 2;          /* behind bowl */
+}
+
+.blob {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+/* Content sits inside blob, pushed right of bowl-overlap zone */
+.cardBody {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  /* left: 80px to clear bowl overlap; right: 28px to stay inside blob edge */
+  padding: 44px 28px 44px 80px;
+  /* constrain text to blob visible area */
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ─── Card content ────────────────────────────────────────────────────────── */
+.dishName {
+  font-family: var(--font-ui);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--purple);
+  line-height: 1.2;
+}
+
+.dishDesc {
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--purple);
+  line-height: 1.65;
+  /* constrain text width so it wraps inside the blob */
+  max-width: 240px;
+}
+
+.deliveryRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.deliveryBox {
+  display: inline-block;
+  width: 48px;
+  height: 20px;
+  background: var(--purple);
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.deliveryText {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--purple);
+}
+
+.menuBtn {
+  display: inline-block;
+  align-self: flex-start;
+  background: var(--orange);
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 13px 28px;
+  border-radius: 6px;
+  transition: opacity 0.15s;
+}
+
+.menuBtn:hover { opacity: 0.88; }
+
+/* ─── Arrows ──────────────────────────────────────────────────────────────── */
+.arrowLeft {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--purple);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: opacity 0.15s;
+}
+
+.arrowLeft:hover { opacity: 0.8; }
+
+.arrowRight {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--purple);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: opacity 0.15s;
+}
+
+.arrowRight:hover { opacity: 0.8; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Laptop (769px – 1024px): scale pixel values proportionally ──────────── */
+@media (max-width: 1024px) {
+  .inner {
+    min-height: 480px;
+  }
+
+  .foodImg {
+    width: 400px;
+    left: 0;
+  }
+
+  .heading {
+    left: 360px;
+    width: 380px;
+    font-size: 44px;
+  }
+
+  .blobWrap {
+    left: 360px;
+    width: 380px;
+  }
+
+  .cardBody {
+    padding: 36px 24px 36px 60px;
+  }
+
+  .dishDesc {
+    max-width: 200px;
+  }
+
+  .dayBadge {
+    left: 20px;
+    top: 90px;
+  }
+}
+
+/* ── Tablet & Mobile (≤ 768px): abandon absolute layout, go flow ─────────── */
+@media (max-width: 768px) {
+  .inner {
+    /* switch from position context to flex column */
+    min-height: unset;
+    padding: 32px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* reset all absolute-positioned children to flow */
+  .heading {
+    position: static;
+    width: 100%;
+    font-size: clamp(36px, 8vw, 48px);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .dayBadge {
+    position: static;
+    align-self: center;
+    margin-bottom: 12px;
+  }
+
+  .foodImg {
+    position: static;
+    transform: none;
+    width: min(340px, 80vw);
+    margin-bottom: -24px; /* slight overlap onto card */
+    z-index: 3;
+  }
+
+  .blobWrap {
+    position: static;
+    transform: none;
+    width: 100%;
+    background: #fff8e1;     /* fallback card colour matching blob yellow */
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  /* hide the blob PNG — replaced by card background */
+  .blob {
+    display: none;
+  }
+
+  .cardBody {
+    padding: 28px 24px 32px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .dishDesc {
+    max-width: 100%;
+  }
+
+  .deliveryRow {
+    justify-content: center;
+  }
+
+  .menuBtn {
+    align-self: center;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* arrows: move below card as prev/next row */
+  .arrowLeft {
+    position: static;
+    transform: none;
+    width: 44px;
+    height: 44px;
+  }
+
+  .arrowRight {
+    position: static;
+    transform: none;
+    width: 44px;
+    height: 44px;
+  }
+
+  /* reorder children into readable flow */
+  .heading    { order: 1; }
+  .dayBadge   { order: 2; }
+  .foodImg    { order: 3; }
+  .blobWrap   { order: 4; }
+  .arrowLeft  { order: 5; margin-top: 20px; margin-right: 12px; }
+  .arrowRight { order: 5; margin-top: 20px; }
+
+  /* allow arrows to sit side-by-side on the same row */
+  .inner {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* ── Mobile (≤ 480px) ────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .inner {
+    padding: 24px 16px 32px;
+  }
+
+  .heading {
+    font-size: clamp(30px, 9vw, 40px);
+  }
+
+  .foodImg {
+    width: min(280px, 85vw);
+  }
+
+  .dishName {
+    font-size: 17px;
+  }
+}

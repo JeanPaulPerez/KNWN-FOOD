@@ -1,0 +1,193 @@
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--white);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 56px;
+  justify-content: space-between;
+}
+
+/* ─── Logo ───────────────────────────────────────────────────────────────── */
+.logo {
+  height: 36px;
+  width: auto;
+  filter: brightness(0) saturate(100%) invert(14%) sepia(60%) saturate(1600%) hue-rotate(237deg) brightness(75%);
+}
+
+/* ─── Desktop nav ─────────────────────────────────────────────────────────── */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+}
+
+.navLink {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--purple);
+  transition: opacity 0.15s;
+}
+
+.navLink:hover {
+  opacity: 0.6;
+}
+
+/* ─── Desktop actions ────────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.orderBtn {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--white);
+  background: var(--purple);
+  border-radius: 999px;
+  padding: 10px 24px;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.orderBtn:hover {
+  opacity: 0.85;
+}
+
+.iconBtn {
+  position: relative;
+  color: var(--purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  min-height: 44px;
+  min-width: 44px;
+  transition: opacity 0.15s;
+}
+
+.iconBtn:hover {
+  opacity: 0.6;
+}
+
+.cartBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ─── Mobile right cluster (cart + hamburger) — hidden on desktop ─────────── */
+.mobileRight {
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ─── Mobile drawer ───────────────────────────────────────────────────────── */
+.drawer {
+  display: none;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Laptop (769px – 1024px): tighten padding & gaps ─────────────────────── */
+@media (max-width: 1024px) {
+  .header {
+    padding: 0 32px;
+  }
+  .nav {
+    gap: 28px;
+  }
+}
+
+/* ── Tablet & Mobile (≤ 768px): hamburger menu ───────────────────────────── */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 20px;
+    height: 60px;
+    /* make room for the drawer below */
+    position: sticky;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* hide desktop nav + actions */
+  .nav,
+  .actions {
+    display: none;
+  }
+
+  /* show mobile right cluster */
+  .mobileRight {
+    display: flex;
+  }
+
+  /* drawer: full-width column below the header bar */
+  .drawer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: var(--white);
+    border-top: 1px solid rgba(49, 28, 103, 0.08);
+    padding: 16px 20px 24px;
+    gap: 0;
+    /* pull drawer out of the sticky bar flow so it drops below */
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    z-index: 99;
+  }
+
+  .drawerLink {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--purple);
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(49, 28, 103, 0.07);
+    display: block;
+  }
+
+  .drawerOrderBtn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 14px 32px;
+    background: var(--purple);
+    color: #fff;
+    border-radius: 999px;
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+    align-self: flex-start;
+  }
+}
+
+/* ── Small mobile (≤ 480px) ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .logo {
+    height: 28px;
+  }
+}
