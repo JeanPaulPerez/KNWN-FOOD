@@ -5,7 +5,6 @@ import Hero from '../components/Hero';
 import HowItWorks from '../components/HowItWorks';
 import IconBar from '../components/IconBar';
 import CustomerFavs from '../components/CustomerFavs';
-import ZipCode from '../components/ZipCode';
 import WeCreateRealFood from '../components/WeCreateRealFood';
 import FollowUs from '../components/FollowUs';
 
@@ -13,6 +12,29 @@ import FollowUs from '../components/FollowUs';
    HOME PAGE
 ══════════════════════════════════════════════════════════════════════════════ */
 export default function Home() {
+  const comparisonColumns = [
+    { label: 'Pricing', compact: 'Pricing' },
+    { label: 'Food\nQuality', compact: 'Food Quality' },
+    { label: 'Convenience', compact: 'Convenience' },
+    { label: 'No Hidden Fees', compact: 'No Hidden Fees' },
+  ];
+  const comparisonRows = [
+    {
+      label: 'KNWN Real Food Lunch',
+      highlighted: true,
+      checks: [true, true, true, true],
+    },
+    {
+      label: 'Meal Prep Service',
+      highlighted: false,
+      checks: [true, false, false, false],
+    },
+    {
+      label: 'Restaurant & Delivery Apps',
+      highlighted: false,
+      checks: [false, false, true, false],
+    },
+  ];
 
   return (
     <div className="flex flex-col">
@@ -29,148 +51,181 @@ export default function Home() {
       {/* ── 4 · CUSTOMER FAVS ─────────────────────────────────────────────────── */}
       <CustomerFavs />
 
-      {/* ── 5 · ZIP CODE BANNER ───────────────────────────────────────────────── */}
-      <ZipCode />
-
-      {/* ── 6 · FIND THE REAL LUNCH ───────────────────────────────────────────── */}
+      {/* ── 5 · FIND THE REAL LUNCH ───────────────────────────────────────────── */}
       <section style={{ background: '#DB5A29' }} className="py-16 px-5 md:px-12">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center">
+            <h2
+              className="font-bold text-white leading-none"
+              style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(40px, 6vw, 64px)' }}
+            >
+              Find the{' '}
+              <span style={{ fontFamily: '"Nothing You Could Do", cursive', color: '#D4F53C' }}>
+                real
+              </span>
+              {' '}lunch.
+            </h2>
 
-        <div className="text-center">
-          <h2
-            className="font-bold text-white leading-none"
-            style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(40px, 6vw, 64px)' }}
-          >
-            Find the{' '}
-            <span style={{ fontFamily: '"Nothing You Could Do", cursive', color: '#D4F53C' }}>
-              real
-            </span>
-            {' '}lunch.
-          </h2>
+            <p
+              className="mt-4 text-white mx-auto leading-relaxed"
+              style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', maxWidth: '680px' }}
+            >
+              Real lunch is made with fresh, high-quality produce, no antibiotics or hormones ever, no seed oils,
+              and sauces made from scratch, no preservatives, just real ingredients.
+            </p>
+          </div>
 
-          <p
-            className="mt-4 text-white mx-auto leading-relaxed"
-            style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', maxWidth: '680px' }}
-          >
-            Real lunch is made with fresh, high-quality produce, no antibiotics or hormones ever, no seed oils,
-            and sauces made from scratch, no preservatives, just real ingredients.
-          </p>
-        </div>
-
-        <div className="relative mx-auto mt-10" style={{ maxWidth: '900px' }}>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '35% repeat(4, 16.25%)' }}>
-            <div />
-            {['Pricing', 'Food\nQuality', 'Convenience', 'No Hidden Fees'].map((col, i) => (
-              <div
-                key={col}
-                style={{
-                  background: '#D2CFEA',
-                  padding: '12px 8px',
-                  textAlign: 'center',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  color: '#291A5A',
-                  whiteSpace: 'pre-line',
-                  borderRight: i < 3 ? '2px solid #C64D29' : 'none',
-                  borderRadius: i === 0 ? '10px 0 0 0' : i === 3 ? '0 10px 0 0' : 0,
-                }}
-              >
-                {col}
+          <div className="relative mx-auto mt-10 max-w-5xl lg:max-w-[1120px]">
+            <div className="hidden md:block">
+              <div className="ml-[34.5%] grid grid-cols-4 overflow-hidden rounded-[20px] shadow-[0_8px_20px_rgba(43,28,112,0.06)]">
+                {comparisonColumns.map((column, index) => (
+                  <div
+                    key={column.compact}
+                    className="flex min-h-[76px] items-center justify-center px-4 text-center text-[17px] font-medium leading-[1.02] text-[#34206E] whitespace-pre-line"
+                    style={{
+                      background: '#D8D3EA',
+                      borderLeft: index === 0 ? 'none' : '2px solid #D75E2B',
+                      fontFamily: 'Poppins, sans-serif',
+                    }}
+                  >
+                    {column.label}
+                  </div>
+                ))}
               </div>
-            ))}
+
+              <div className="mt-[10px] space-y-[9px]">
+                {comparisonRows.map((row) => (
+                  <div
+                    key={row.label}
+                    className="grid grid-cols-[1.9fr_repeat(4,minmax(0,1fr))] overflow-hidden rounded-[22px] shadow-[0_12px_28px_rgba(95,41,14,0.08)]"
+                    style={{
+                      background: row.highlighted ? '#34206E' : '#FFFFFF',
+                    }}
+                  >
+                    <div
+                      className="flex min-h-[88px] items-center px-8 text-left text-[21px] font-bold leading-none"
+                      style={{
+                        color: row.highlighted ? '#FFFFFF' : '#34206E',
+                        fontFamily: 'Poppins, sans-serif',
+                      }}
+                    >
+                      {row.label}
+                    </div>
+                    {row.checks.map((hasCheck, columnIndex) => (
+                      <div
+                        key={`${row.label}-${comparisonColumns[columnIndex].compact}`}
+                        className="flex min-h-[88px] items-center justify-center"
+                        style={{
+                          borderLeft: '2px solid #D75E2B',
+                        }}
+                      >
+                        {hasCheck && (
+                          <svg
+                            width="42"
+                            height="42"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke={row.highlighted ? '#FFFFFF' : '#D75E2B'}
+                            strokeWidth="2.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3 md:hidden">
+              {comparisonRows.map((row) => (
+                <div
+                  key={row.label}
+                  className="overflow-hidden rounded-[24px] border-2 shadow-[0_10px_26px_rgba(69,27,10,0.12)]"
+                  style={{
+                    borderColor: '#D75E2B',
+                    background: row.highlighted ? '#34206E' : '#FFFFFF',
+                  }}
+                >
+                  <div
+                    className="px-5 py-4 text-[18px] font-bold leading-tight"
+                    style={{
+                      color: row.highlighted ? '#FFFFFF' : '#34206E',
+                      fontFamily: 'Poppins, sans-serif',
+                    }}
+                  >
+                    {row.label}
+                  </div>
+                  <div className="grid grid-cols-2" style={{ borderTop: '2px solid #D75E2B' }}>
+                    {comparisonColumns.map((column, index) => (
+                      <div
+                        key={`${row.label}-${column.compact}`}
+                        className="flex min-h-[78px] flex-col items-center justify-center gap-2 px-3 py-3 text-center"
+                        style={{
+                          borderRight: index % 2 === 0 ? '2px solid #D75E2B' : 'none',
+                          borderBottom: index < 2 ? '2px solid #D75E2B' : 'none',
+                        }}
+                      >
+                        <span
+                          className="text-[12px] font-semibold leading-tight"
+                          style={{
+                            color: row.highlighted ? 'rgba(255,255,255,0.78)' : '#5C4B92',
+                            fontFamily: 'Poppins, sans-serif',
+                          }}
+                        >
+                          {column.compact}
+                        </span>
+                        {row.checks[index] ? (
+                          <svg
+                            width="30"
+                            height="30"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke={row.highlighted ? '#FFFFFF' : '#D75E2B'}
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        ) : (
+                          <span
+                            className="text-[11px] font-medium"
+                            style={{
+                              color: row.highlighted ? 'rgba(255,255,255,0.28)' : 'rgba(52,32,110,0.24)',
+                              fontFamily: 'Poppins, sans-serif',
+                            }}
+                          >
+                            --
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <img
+              src="/assets/stickers/try-now.png"
+              alt="Try now"
+              className="pointer-events-none absolute bottom-[1.15rem] right-[-2rem] hidden w-[220px] rotate-[-4deg] md:block lg:w-[255px]"
+            />
+
+            <img
+              src="/assets/stickers/try-now.png"
+              alt="Try now"
+              className="mx-auto mt-4 w-[210px] rotate-[-4deg] md:hidden"
+            />
           </div>
-
-          <div style={{ height: '5px' }} />
-
-          <div style={{ borderRadius: '14px', overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.20)' }}>
-            <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }}>
-              <colgroup>
-                <col style={{ width: '35%' }} />
-                <col style={{ width: '16.25%' }} />
-                <col style={{ width: '16.25%' }} />
-                <col style={{ width: '16.25%' }} />
-                <col style={{ width: '16.25%' }} />
-              </colgroup>
-              <tbody>
-                <tr style={{ background: '#291A5A' }}>
-                  <td
-                    className="py-5 px-6 text-left font-bold text-white"
-                    style={{ fontFamily: 'Poppins, sans-serif', fontSize: '15px' }}
-                  >
-                    KNWN Real Food Lunch
-                  </td>
-                  {[0, 1, 2, 3].map(i => (
-                    <td key={i} style={{ padding: '20px 12px', textAlign: 'center' }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', margin: '0 auto' }}>
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </td>
-                  ))}
-                </tr>
-
-                <tr style={{ background: 'white', borderTop: '2px solid #C64D29' }}>
-                  <td
-                    className="py-5 px-6 text-left font-bold"
-                    style={{ fontFamily: 'Poppins, sans-serif', fontSize: '15px', color: '#291A5A', borderRight: '2px solid #C64D29' }}
-                  >
-                    Meal Prep Service
-                  </td>
-                  <td style={{ padding: '20px 12px', textAlign: 'center', borderRight: '2px solid #C64D29' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C64D29" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', margin: '0 auto' }}>
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </td>
-                  <td style={{ borderRight: '2px solid #C64D29' }} />
-                  <td style={{ borderRight: '2px solid #C64D29' }} />
-                  <td />
-                </tr>
-
-                <tr style={{ background: 'white', borderTop: '2px solid #C64D29' }}>
-                  <td
-                    className="py-5 px-6 text-left font-bold"
-                    style={{ fontFamily: 'Poppins, sans-serif', fontSize: '15px', color: '#291A5A', borderRight: '2px solid #C64D29' }}
-                  >
-                    Restaurant &amp; Delivery Apps
-                  </td>
-                  <td style={{ borderRight: '2px solid #C64D29' }} />
-                  <td style={{ borderRight: '2px solid #C64D29' }} />
-                  <td style={{ padding: '20px 12px', textAlign: 'center', borderRight: '2px solid #C64D29' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C64D29" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', margin: '0 auto' }}>
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </td>
-                  <td />
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <button
-            style={{
-              position: 'absolute',
-              bottom: '-18px',
-              right: '-8px',
-              background: '#DDEB00',
-              color: '#291A5A',
-              fontFamily: 'Poppins, sans-serif',
-              fontSize: '22px',
-              fontWeight: 900,
-              fontStyle: 'italic',
-              padding: '10px 28px',
-              borderRadius: 0,
-              transform: 'rotate(-3deg)',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            TRY NOW
-          </button>
         </div>
       </section>
 
-      {/* ── 7 · OUR PHILOSOPHY ────────────────────────────────────────────────── */}
-      <section className="bg-white py-12 md:py-16 px-5 md:px-10 lg:px-16">
+      {/* ── 6 · OUR PHILOSOPHY ────────────────────────────────────────────────── */}
+      <section className="bg-[#F5F3FF] py-12 md:py-16 px-5 md:px-10 lg:px-16">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
 
           {/* LEFT — ourphilosophy.webp */}
@@ -189,7 +244,7 @@ export default function Home() {
           </motion.div>
 
           {/* RIGHT — text */}
-          <div className="flex flex-col justify-center gap-4 md:gap-5">
+          <div className="flex flex-col justify-center gap-4 md:gap-5 rounded-[2rem] bg-white px-6 py-8 shadow-[0_14px_40px_rgba(43,28,112,0.06)] md:px-8 md:py-10">
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">
               Our Philosophy
             </span>
@@ -229,10 +284,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 8 · WE CREATE REAL FOOD ───────────────────────────────────────────── */}
+      {/* ── 7 · WE CREATE REAL FOOD ───────────────────────────────────────────── */}
       <WeCreateRealFood />
 
-      {/* ── 9 · FOLLOW US @KNWNFOOD ───────────────────────────────────────────── */}
+      {/* ── 8 · FOLLOW US @KNWNFOOD ───────────────────────────────────────────── */}
       <FollowUs />
 
     </div>

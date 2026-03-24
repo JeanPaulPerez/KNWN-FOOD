@@ -1,21 +1,21 @@
 /* ─── Section ─────────────────────────────────────────────────────────────── */
 .section {
   background: #f4f1ff;
-  padding: 56px 40px 64px;
+  padding: 48px 24px 56px;
 }
 
 .inner {
-  max-width: 980px;
+  max-width: 1100px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 22px;
 }
 
 /* ─── Heading ─────────────────────────────────────────────────────────────── */
 .heading {
   font-family: 'NothingYouCouldDo', cursive;
-  font-size: 48px;
+  font-size: 36px;
   font-weight: 400;
   color: var(--orange);
   line-height: 1;
@@ -25,7 +25,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 
 /* ─── Each cell — square via aspect-ratio ────────────────────────────────── */
@@ -54,11 +54,11 @@
 /* ── Laptop (769px – 1024px) ─────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .section {
-    padding: 48px 24px 56px;
+    padding: 44px 20px 52px;
   }
 
   .heading {
-    font-size: clamp(36px, 4.5vw, 44px);
+    font-size: clamp(30px, 4.2vw, 38px);
   }
 
   .grid {
@@ -66,42 +66,42 @@
   }
 }
 
-/* ── Tablet (481px – 768px): 2×4 grid ───────────────────────────────────── */
+/* ── Tablet (481px – 768px): keep 4-up like the reference ───────────────── */
 @media (max-width: 768px) {
   .section {
-    padding: 40px 16px 48px;
+    padding: 34px 14px 42px;
   }
 
   .heading {
-    font-size: clamp(32px, 7vw, 40px);
+    font-size: clamp(26px, 7vw, 34px);
   }
 
   .grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
   }
 }
 
-/* ── Mobile (≤ 480px): 2×4 grid, tighter ────────────────────────────────── */
+/* ── Mobile (≤ 480px): 4 columns, 2 rows ────────────────────────────────── */
 @media (max-width: 480px) {
   .section {
-    padding: 32px 12px 40px;
+    padding: 28px 10px 36px;
   }
 
   .heading {
-    font-size: clamp(28px, 8vw, 36px);
+    font-size: clamp(22px, 9vw, 28px);
   }
 
   .inner {
-    gap: 20px;
+    gap: 16px;
   }
 
   .grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
   }
 
   .cell {
-    border-radius: 4px;
+    border-radius: 5px;
   }
 }
