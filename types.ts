@@ -6,6 +6,7 @@ export interface MenuItem {
   price: number;
   tags?: string[];
   calories?: number;
+  protein?: number;
   image: string;
   popular?: boolean;
   wooProductId?: number;

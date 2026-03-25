@@ -32,7 +32,7 @@ export default function Header({ cartCount = 0, onOpenCart }: HeaderProps) {
 
       {/* Desktop actions */}
       <div className={s.actions}>
-        <Link to="/menu" className={s.orderBtn}>Order now</Link>
+        <Link to="/order" className={s.orderBtn}>Order now</Link>
 
         <button className={s.iconBtn} onClick={onOpenCart} aria-label="Cart">
           <ShoppingBag size={20} strokeWidth={1.8} />
@@ -66,7 +66,7 @@ export default function Header({ cartCount = 0, onOpenCart }: HeaderProps) {
           <Link to="/menu"  className={s.drawerLink} onClick={() => setOpen(false)}>Menu</Link>
           <a href="/#how-it-works" className={s.drawerLink} onClick={() => setOpen(false)}>How it Works</a>
           <Link to="/about" className={s.drawerLink} onClick={() => setOpen(false)}>About Us</Link>
-          <Link to="/menu"  className={s.drawerOrderBtn} onClick={() => setOpen(false)}>Order Now</Link>
+          <Link to="/order" className={s.drawerOrderBtn} onClick={() => setOpen(false)}>Order Now</Link>
         </div>
       )}
 

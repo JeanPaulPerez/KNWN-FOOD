@@ -8,10 +8,30 @@ import MenuPage from './pages/MenuPage';
 import Checkout from './pages/Checkout';
 import ThankYou from './pages/ThankYou';
 import About from './pages/About';
+import OrderPage from './pages/OrderPage';
 import { useWooCart } from './store/useWooCart';
 import { useUser } from './store/useUser';
 import RegistrationModal from './components/RegistrationModal';
 import Header from './components/Header';
+
+const FOOD_BG_MAP: Record<string, string> = {
+  'mediterranean chicken': '/assets/food-bg/mediterranean-chicken.webp',
+  'bibi bump rice':        '/assets/food-bg/bibi-bamp-rice.webp',
+  'carne asada':           '/assets/food-bg/carne-asada.webp',
+  'chicken lime':          '/assets/food-bg/chicken-lime.webp',
+  'chicken pesto pasta':   '/assets/food-bg/pesto-pasta.webp',
+  'thai beef salad':       '/assets/food-bg/thai-beef-salad.webp',
+  'milanesa':              '/assets/food-bg/milanesa.webp',
+  'harissa meatballs':     '/assets/food-bg/harissa-meatballs.webp',
+  'crispy korean chicken': '/assets/food-bg/korean-crispy-chicken.webp',
+  'chicken caesar salad':  '/assets/food-bg/chicken-cesar-salad.webp',
+};
+
+function getFoodBg(name: string): string {
+  const key = name.toLowerCase().trim();
+  const match = Object.entries(FOOD_BG_MAP).find(([k]) => key.includes(k) || k.includes(key));
+  return match ? match[1] : '/assets/food-bg/carne-asada.webp';
+}
 
 
 const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpen: boolean, onClose: () => void, cart: any, onFinalize: () => void, isFinalizing?: boolean }) => {
@@ -82,7 +102,7 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
               ) : (
                 cart.items.map((item: any) => (
                   <div key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`} className="flex gap-3 bg-brand-bg p-3 rounded-2xl border border-gray-100">
-                    <img src={item.image || '/assets/food-bg/korean-crispy-chicken.jpg'} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" alt={item.name} />
+                    <img src={getFoodBg(item.name)} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" alt={item.name} />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start gap-2">
                         <h3 className="text-[11px] font-bold leading-tight text-brand-primary truncate">{item.name}</h3>
@@ -165,6 +185,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<MenuPage cart={cart} />} />
+          <Route path="/order" element={<OrderPage cart={cart} />} />
           <Route path="/about" element={<About />} />
           <Route path="/checkout" element={<Checkout cart={cart} />} />
           <Route path="/thank-you" element={<ThankYou />} />
