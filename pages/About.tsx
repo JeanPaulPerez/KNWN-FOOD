@@ -49,7 +49,7 @@ export default function About() {
                 src="/assets/about/DSC01466.webp"
                 alt="Person opening a KNWN lunch box at their desk"
                 className="w-full object-cover rounded-3xl shadow-md"
-                style={{ height: '100%', minHeight: '360px', maxHeight: '560px' }}
+                style={{ height: '100%', minHeight: '360px', maxHeight: '650px' }}
               />
             </div>
 
@@ -58,8 +58,8 @@ export default function About() {
 
               {/* Heading */}
               <h2
-                className="font-serif text-brand-primary leading-tight text-center md:text-left"
-                style={{ fontSize: 'clamp(28px, 3.4vw, 50px)' }}
+                className="w-full max-w-[620px] self-center font-serif text-brand-primary leading-tight text-center"
+                style={{ fontSize: 'clamp(35px, 3.4vw, 70px)' }}
               >
                 How we fix the<br />
                 <span className="tracking-[0.16em]">Lunch Problem</span>
@@ -84,7 +84,7 @@ export default function About() {
                     body: 'No app fees. No overpriced salads. Just real food at a real price.',
                   },
                 ].map(({ n, title, body }) => (
-                  <div key={n} className="relative bg-brand-primary rounded-2xl px-6 pt-5 pb-10 text-center">
+                  <div key={n} className="relative overflow-hidden bg-brand-primary rounded-2xl px-6 pt-5 pb-10 text-center">
                     <p className="text-white font-black leading-snug" style={{ fontSize: 'clamp(15px, 1.15vw, 17px)' }}>
                       {title}
                     </p>
@@ -92,8 +92,8 @@ export default function About() {
                       {body}
                     </p>
                     <span
-                      className="absolute bottom-2 left-5 text-white font-black leading-none select-none"
-                      style={{ fontSize: 'clamp(38px, 3.5vw, 54px)', opacity: 0.45 }}
+                      className="absolute bottom-[-8px] left-5 z-10 text-white font-black leading-none select-none"
+                      style={{ fontSize: 'clamp(38px, 3.5vw, 54px)' }}
                     >
                       {n}
                     </span>
