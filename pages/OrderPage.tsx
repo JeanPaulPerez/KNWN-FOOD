@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, X, ArrowRight, ArrowLeft, Trash2 } from 'lucide-react';
+import { ShoppingBag, X, ArrowRight, ArrowLeft, Trash2, Search, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MENUS } from '../data/menus';
 import { MenuItem, Weekday } from '../types';
@@ -223,6 +223,8 @@ export default function OrderPage({ cart }: { cart: any }) {
   const [activeIdx, setActiveIdx] = useState(0);   // index into availableDates
   const [windowStart, setWindowStart] = useState(0); // first visible pill index
   const [customizingItem, setCustomizingItem] = useState<{ item: MenuItem; date: Date } | null>(null);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [address, setAddress] = useState('');
 
   const activeDate = availableDates[activeIdx];
   const visibleDates = availableDates.slice(windowStart, windowStart + WINDOW_SIZE);
@@ -497,7 +499,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                   <p className="text-xs text-green-600 text-right mb-2 font-medium">You're saving 10%</p>
                 )}
                 <button
-                  onClick={() => navigate('/checkout')}
+                  onClick={() => { setAddress(''); setShowAddressModal(true); }}
                   className="w-full bg-[#D4F84A] text-[#2B1C70] py-3.5 rounded-xl font-bold text-sm flex justify-between items-center px-4 hover:brightness-95 transition-all shadow-sm"
                 >
                   <span>Checkout</span>
@@ -508,6 +510,64 @@ export default function OrderPage({ cart }: { cart: any }) {
           </div>
         </div>
       </div>
+
+      {/* ── Address Modal ────────────────────────────────────────────────────── */}
+      {showAddressModal && (
+        <div
+          onClick={() => setShowAddressModal(false)}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ background: '#fff', borderRadius: '20px', boxShadow: '0 32px 80px rgba(0,0,0,0.2)', width: '100%', maxWidth: '440px', padding: '28px', fontFamily: 'Poppins, sans-serif' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#2B1C70' }}>Enter the delivery address</h2>
+              <button onClick={() => setShowAddressModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#9ca3af', display: 'flex', alignItems: 'center' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ position: 'relative' }}>
+              <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(43,28,112,0.35)', pointerEvents: 'none' }} />
+              <input
+                autoFocus
+                type="text"
+                value={address}
+                onChange={e => setAddress(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && address.trim()) {
+                    setShowAddressModal(false);
+                    navigate('/checkout');
+                  }
+                  if (e.key === 'Escape') setShowAddressModal(false);
+                }}
+                placeholder="Search for an address"
+                style={{ width: '100%', boxSizing: 'border-box', paddingLeft: '42px', paddingRight: '16px', paddingTop: '13px', paddingBottom: '13px', borderRadius: '12px', border: '1.5px solid rgba(43,28,112,0.14)', background: '#F5F3FF', fontSize: '14px', color: '#2B1C70', outline: 'none', fontFamily: 'Poppins, sans-serif' }}
+              />
+            </div>
+
+            {address.trim() && (
+              <button
+                onClick={() => { setShowAddressModal(false); navigate('/checkout'); }}
+                style={{ marginTop: '10px', width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', background: '#F5F3FF', border: 'none', cursor: 'pointer', fontFamily: 'Poppins, sans-serif' }}
+              >
+                <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(43,28,112,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <MapPin size={14} color="#2B1C70" />
+                </div>
+                <span style={{ fontSize: '13px', fontWeight: 500, color: '#2B1C70', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{address}</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => { if (address.trim()) { setShowAddressModal(false); navigate('/checkout'); } }}
+              style={{ marginTop: '14px', width: '100%', background: address.trim() ? '#D4F84A' : '#e5e7eb', color: '#2B1C70', padding: '14px', borderRadius: '12px', fontWeight: 700, fontSize: '14px', border: 'none', cursor: address.trim() ? 'pointer' : 'default', opacity: address.trim() ? 1 : 0.45, fontFamily: 'Poppins, sans-serif' }}
+            >
+              Continue to checkout
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Customization Modal ──────────────────────────────────────────────── */}
       <AnimatePresence>

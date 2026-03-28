@@ -180,5 +180,12 @@ export default async function handler(req: any, res: any) {
     })
   );
 
+  // If WooCommerce was reachable but every single order failed, surface it as an error
+  // rather than silently returning fallback IDs that look like success.
+  if (wcReady && orderResults.every(o => !o.wooOrderId)) {
+    console.error('[complete-order] All WooCommerce order creations failed. Check WC_URL and credentials.');
+    return res.status(502).json({ error: 'Orders could not be created in WooCommerce. Payment was captured — contact support with your email.' });
+  }
+
   return res.json({ success: true, orders: orderResults });
 }
