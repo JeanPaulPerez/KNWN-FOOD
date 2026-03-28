@@ -56,7 +56,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   const [coupon, setCoupon] = useState<{ code: string; discountType: string; discountValue: number; isFree: boolean; } | null>(null);
 
   useEffect(() => {
-    if (cart.items.length === 0) navigate('/menu');
+    if (cart.items.length === 0) navigate('/order');
   }, [cart.items.length, navigate]);
 
   const subtotal = cart.total;
@@ -121,13 +121,22 @@ function CheckoutForm({ cart }: { cart: any }) {
         if (sErr) throw new Error(sErr.message);
         paymentIntentId = paymentIntent?.id || null;
       }
+      const itemsSnapshot = [...cart.items];
       const orderRes = await fetch('/api/complete-order', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: cart.items, customerInfo, couponCode: coupon?.code, paymentIntentId, isFree, total: finalTotal }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: itemsSnapshot, customerInfo, couponCode: coupon?.code, paymentIntentId, isFree, total: finalTotal }),
       });
       if (!orderRes.ok) throw new Error((await orderRes.json()).error);
       const data = await orderRes.json();
+
+      // Surface WooCommerce sync failures so they're visible during testing
+      const failedWoo = data.orders?.filter((o: any) => !o.wooOrderId) ?? [];
+      if (failedWoo.length > 0) {
+        console.error('[WooCommerce] Order(s) did NOT reach WooCommerce — check WC_URL / keys:', failedWoo);
+      }
+
+      const serviceDay = itemsSnapshot[0]?.serviceDate ?? '';
       cart.clearCart();
-      navigate('/thank-you', { state: { orders: data.orders, payload: { ...customerInfo, items: cart.items, total: finalTotal } } });
+      navigate('/thank-you', { state: { orders: data.orders, payload: { ...customerInfo, serviceDay, items: itemsSnapshot, total: finalTotal } } });
     } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   };
@@ -211,18 +220,10 @@ function CheckoutForm({ cart }: { cart: any }) {
               {!isFree && (
                 <div className="px-8 pb-8 space-y-5">
                   <div>
-                    <label className="text-xs font-bold text-brand-primary mb-1.5 block">Card Number</label>
+                    <label className="text-xs font-bold text-brand-primary mb-1.5 block">Card Number, Expiry & CVC</label>
                     <div className="border border-brand-primary/20 rounded-xl px-5 py-4 bg-white shadow-inner">
                       <CardElement options={CARD_ELEMENT_OPTIONS} />
                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <input type="text" placeholder="MM/YY" className="border border-brand-primary/20 rounded-xl px-4 py-3.5 focus:border-brand-primary text-brand-primary font-medium" />
-                    <input type="text" placeholder="123" className="border border-brand-primary/20 rounded-xl px-4 py-3.5 focus:border-brand-primary text-brand-primary font-medium" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-brand-primary mb-1.5 block">Name on Card</label>
-                    <input type="text" placeholder="John Doe" className="w-full border border-brand-primary/20 rounded-xl px-4 py-3.5 focus:border-brand-primary text-brand-primary font-medium" />
                   </div>
                 </div>
               )}
@@ -350,6 +351,11 @@ function CheckoutForm({ cart }: { cart: any }) {
                   Code applied: {coupon.code} (-${discountAmount.toFixed(2)})
                 </div>
               )}
+              {couponError && (
+                <div className="mt-2 text-[10px] text-red-600 font-bold bg-red-50 px-3 py-1.5 rounded-md inline-block">
+                  {couponError}
+                </div>
+              )}
 
               {/* Tips block (Agregar propina) */}
               <div className="mt-6 border border-brand-primary/10 bg-[#FAFAFC] rounded-2xl p-6">
@@ -372,7 +378,7 @@ function CheckoutForm({ cart }: { cart: any }) {
                                    : "border-gray-200 text-brand-primary/60 hover:border-gray-300"
                         )}
                       >
-                        <span className={clsx("text-sm", isActive && "text-brand-primary")}>{val === 'none' ? 'Ninguno' : `${val}%`}</span>
+                        <span className={clsx("text-sm", isActive && "text-brand-primary")}>{val === 'none' ? 'Ninguno' : `${(val as number) * 100}%`}</span>
                         {amount && <span className={clsx("text-[10px] opacity-60", isActive && "text-brand-primary font-medium")}>${amount}</span>}
                       </button>
                     )
