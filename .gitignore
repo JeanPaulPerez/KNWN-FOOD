@@ -1,9 +1,7 @@
 # Environment variables — NEVER commit these
 .env
-.env.local
-.env.*.local
-.env.production
-.env.production.local
+.env.*
+!.env.example
 
 # Backup files
 .backups/
