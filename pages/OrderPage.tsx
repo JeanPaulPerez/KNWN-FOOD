@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, X, ArrowRight, ArrowLeft, Trash2, Search, MapPin } from 'lucide-react';
+import { ShoppingBag, X, ArrowRight, ArrowLeft, Trash2, Search, MapPin, Clock3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MENUS } from '../data/menus';
 import { MenuItem, Weekday } from '../types';
@@ -55,17 +55,20 @@ function getFoodBgImage(name: string): string {
   return match ? match[1] : '/assets/food-bg/carne-asada.webp';
 }
 
-/** Human-readable delivery context shown below the day pills */
-function getDeliveryNote(): string {
+function getCountdownLabel(): string {
   const now = getEtNow();
-  if (isWeekend(now)) {
-    return "We don't deliver on weekends — showing next week's menu.";
+  const cutoff = new Date(now);
+  cutoff.setHours(22, 0, 0, 0);
+
+  if (now > cutoff) {
+    cutoff.setDate(cutoff.getDate() + 1);
   }
-  if (now.getHours() < CUTOFF_HOUR) {
-    const remaining = CUTOFF_HOUR - now.getHours();
-    return `Order within the next ~${remaining} hour${remaining !== 1 ? 's' : ''} to get today's delivery.`;
-  }
-  return 'Orders placed now will be delivered the next business day.';
+
+  const diffMs = Math.max(0, cutoff.getTime() - now.getTime());
+  const totalMinutes = Math.floor(diffMs / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours} hrs ${String(minutes).padStart(2, '0')} mins`;
 }
 
 // ─── Customization Modal ──────────────────────────────────────────────────────
@@ -247,7 +250,7 @@ export default function OrderPage({ cart }: { cart: any }) {
   };
   const dayKey = getWeekdayKey(activeDate);
   const items = MENUS[dayKey]?.categories[0]?.items ?? [];
-  const deliveryNote = getDeliveryNote();
+  const countdownLabel = getCountdownLabel();
 
   const remaining = Math.max(0, MAX_MEALS - cart.itemCount);
   const progress = Math.min((cart.itemCount / MAX_MEALS) * 100, 100);
@@ -276,57 +279,73 @@ export default function OrderPage({ cart }: { cart: any }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F3FF] pt-[100px] md:pt-[116px]">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
+    <div className="min-h-screen bg-[#F5F3FF]">
+      <div className="border-y border-[#DCD5ED] bg-[#E7E1F0]">
+        <div className="mx-auto grid max-w-[1360px] grid-cols-1 text-[#2B1C70] md:grid-cols-[1fr_360px]">
+          <div className="flex items-center gap-3 px-6 py-3 text-[13px] font-medium md:px-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            <Clock3 size={14} className="shrink-0 text-[#2B1C70]/76" />
+            <span className="text-[#2B1C70]/88">
+              Place your order within <strong className="font-bold text-[#DB5A29]">{countdownLabel}</strong> for next-day lunch delivery
+            </span>
+          </div>
+          <button
+            onClick={() => { setAddress(''); setShowAddressModal(true); }}
+            className="flex items-center gap-3 border-t border-[#DCD5ED] px-6 py-3 text-left text-[13px] font-medium text-[#2B1C70]/88 md:border-l md:border-t-0 md:px-8"
+            style={{ fontFamily: 'Poppins, sans-serif' }}
+          >
+            <MapPin size={14} className="shrink-0 text-[#2B1C70]/76" />
+            <span>{address || 'Enter the delivery address'}</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-[1360px] px-6 py-10 md:px-8 md:py-11">
 
         {/* ── Page header ──────────────────────────────────────────────────── */}
-        <div className="mb-6">
+        <div className="mb-9">
           <h1
-            className="text-[#2B1C70] leading-tight"
-            style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(40px, 6vw, 64px)' }}
+            className="text-[#2B1C70] leading-[0.92]"
+            style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(60px, 6.5vw, 92px)' }}
           >
             This Week's Picks
           </h1>
-          <p className="text-sm text-gray-500 mt-2 max-w-xl" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            {deliveryNote}
+          <p className="mt-4 max-w-[650px] text-[16px] leading-[1.55] text-[#2B1C70]/80 md:text-[17px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            All orders require at least 1-day advance notice. You're viewing meals available for tomorrow and beyond. We'll cook and deliver Monday through Friday.
           </p>
         </div>
 
         {/* ── Day selector ─────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-1">
+        <div className="mb-10 flex items-center gap-5 overflow-x-auto pb-1">
           {/* Back arrow */}
-          <button
-            onClick={handleBack}
-            disabled={!canGoBack}
-            className={clsx(
-              'flex-shrink-0 rounded-xl px-4 py-4 mr-1 transition-all',
-              canGoBack
-                ? 'bg-[#D4F84A] hover:brightness-95 cursor-pointer'
-                : 'bg-gray-100 cursor-not-allowed opacity-40'
-            )}
-          >
-            <ArrowLeft size={20} className="text-[#2B1C70]" />
-          </button>
+          {canGoBack ? (
+            <button
+              onClick={handleBack}
+              className="mr-1 hidden h-[46px] w-[46px] shrink-0 items-center justify-center rounded-full bg-[#D4F84A] transition-all hover:brightness-95 md:flex"
+            >
+              <ArrowLeft size={20} className="text-[#2B1C70]" />
+            </button>
+          ) : (
+            <div className="hidden w-12 shrink-0 md:block" />
+          )}
 
           {visibleDates.map((date, visibleI) => {
             const absIdx = windowStart + visibleI;
             const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
             const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            const isToday = date.toDateString() === getEtNow().toDateString();
             return (
               <button
                 key={absIdx}
                 onClick={() => setActiveIdx(absIdx)}
                 className={clsx(
-                  'flex-shrink-0 flex flex-col items-center px-5 py-2.5 rounded-xl border transition-all duration-200 min-w-[80px]',
+                  'flex min-h-[72px] min-w-[130px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
                   activeIdx === absIdx
-                    ? 'bg-[#2B1C70] text-white border-transparent shadow-md'
-                    : 'bg-white text-[#2B1C70] border-gray-200 hover:border-[#2B1C70]/40'
+                    ? 'border-transparent bg-[#2B1C70] text-white shadow-[0_10px_24px_rgba(43,28,112,0.22)]'
+                    : 'border-[#CFC7E8] bg-white text-[#2B1C70]/72 hover:border-[#2B1C70]/28'
                 )}
                 style={{ fontFamily: 'Poppins, sans-serif' }}
               >
-                <span className="text-sm font-semibold">{isToday ? 'Today' : dayShort}</span>
-                <span className={clsx('text-xs mt-0.5', activeIdx === absIdx ? 'text-white/70' : 'text-gray-400')}>
+                <span className="text-[17px] font-bold leading-none">{dayShort}</span>
+                <span className={clsx('mt-1.5 text-[13px] leading-none', activeIdx === absIdx ? 'text-white/70' : 'text-[#2B1C70]/40')}>
                   {dateStr}
                 </span>
               </button>
@@ -336,7 +355,7 @@ export default function OrderPage({ cart }: { cart: any }) {
             onClick={handleArrow}
             disabled={!canAdvance}
             className={clsx(
-              'flex-shrink-0 rounded-xl px-4 py-4 ml-1 transition-all',
+              'ml-2 flex h-[72px] w-[82px] shrink-0 items-center justify-center rounded-2xl transition-all',
               canAdvance
                 ? 'bg-[#D4F84A] hover:brightness-95 cursor-pointer'
                 : 'bg-gray-100 cursor-not-allowed opacity-40'
@@ -347,20 +366,29 @@ export default function OrderPage({ cart }: { cart: any }) {
         </div>
 
         {/* ── Date header ──────────────────────────────────────────────────── */}
-        <div className="mb-6">
+        <div className="mb-7 max-w-[1120px] md:mb-8">
           <h2
-            className="text-2xl md:text-3xl font-bold text-[#2B1C70]"
+            className="text-[31px] font-semibold leading-[1] text-[#2B1C70] md:text-[36px]"
             style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             {activeDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </h2>
-          <p className="text-sm text-gray-500 mt-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
+          <p className="mt-1 text-[13px] font-medium text-[#2B1C70]/78 md:text-[14px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
             Delivered by 10 am - 12 pm to your office.
           </p>
         </div>
 
         {/* ── Main grid: 2 meal cards + sidebar ────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr_1fr_320px] gap-6 items-start">
+        <div className="relative max-w-[1120px]">
+          {/* Gradient block behind the cards */}
+          <img
+            src="/assets/order/rectangle.png"
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none select-none absolute left-[42%] top-[14px] w-[62%] max-w-[760px] opacity-64 md:left-[40%] md:top-[8px] md:w-[50%] xl:left-[40%] xl:top-[6px] xl:w-[41%]"
+            style={{ zIndex: 0, transform: 'translateX(-56%)' }}
+          />
+          <div className="relative grid grid-cols-1 items-start gap-5 md:grid-cols-2 xl:grid-cols-[360px_360px_280px] xl:gap-7" style={{ zIndex: 1 }}>
 
           {/* Meal cards */}
           <AnimatePresence mode="wait">
@@ -371,44 +399,47 @@ export default function OrderPage({ cart }: { cart: any }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100"
+                className="group relative z-10 flex cursor-pointer flex-col overflow-hidden rounded-[26px] border border-[#E8E1F5] bg-white shadow-[0_12px_28px_rgba(43,28,112,0.07)]"
+                onClick={() => handleAddToWeek(item)}
               >
-                <div className="relative h-56 overflow-hidden bg-[#EEEAF8]">
+                <div className="relative h-[238px] flex-shrink-0 overflow-hidden bg-[#F7F1FB] md:h-[244px]">
                   <img
                     src={getFoodBgImage(item.name)}
                     alt={item.name}
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
                   />
                 </div>
-                <div className="p-4">
+                <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
                   <h3
-                    className="font-bold text-[#2B1C70] text-lg leading-tight"
+                    className="mb-2 text-[17px] font-bold leading-[1.08] text-[#2B1C70] md:text-[18px]"
                     style={{ fontFamily: 'Poppins, sans-serif' }}
                   >
                     {item.name}
                   </h3>
                   <p
-                    className="text-sm text-gray-500 mt-1 line-clamp-2"
+                    className="mb-4 min-h-[46px] line-clamp-2 text-[12px] leading-[1.28] text-[#2B1C70]/68 md:text-[13px]"
                     style={{ fontFamily: 'Poppins, sans-serif' }}
                   >
                     {item.description}
                   </p>
                   {(item.calories || item.protein) && (
-                    <div className="flex gap-4 mt-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                      {item.calories && (
-                        <span className="text-xs text-gray-400">{item.calories} cal</span>
-                      )}
-                      {item.protein && (
-                        <span className="text-xs text-gray-400">{item.protein}g protein</span>
-                      )}
+                    <div className="mb-5 border-y border-[#ECE7F4] py-3.5" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                      <div className="flex gap-9 text-[12px] font-medium text-[#8A7FB0]">
+                        {item.calories && (
+                          <span>{item.calories} cal</span>
+                        )}
+                        {item.protein && (
+                          <span>{item.protein}g protein</span>
+                        )}
+                      </div>
                     </div>
                   )}
                   <button
                     onClick={() => handleAddToWeek(item)}
-                    className="mt-4 w-full bg-[#2B1C70] text-white py-3 rounded-xl font-semibold text-sm hover:bg-[#1E1549] transition-colors"
+                    className="mt-auto w-full rounded-[999px] bg-[#2B1C70] py-3 text-[12px] font-semibold tracking-[0.01em] text-white transition-colors hover:bg-[#1E1549]"
                     style={{ fontFamily: 'Poppins, sans-serif' }}
                   >
-                    Add to My Week · ${item.price.toFixed(2)}
+                    Add to My Week &nbsp;•&nbsp; ${item.price.toFixed(2)}
                   </button>
                 </div>
               </motion.div>
@@ -417,71 +448,105 @@ export default function OrderPage({ cart }: { cart: any }) {
 
           {/* ── Sidebar ──────────────────────────────────────────────────────── */}
           <div
-            className="bg-white rounded-2xl p-5 md:col-span-2 lg:col-span-1 lg:sticky lg:top-28"
+            className="relative z-10 rounded-[24px] border border-[#2B1C70]/10 bg-white p-0 shadow-[0_16px_34px_rgba(43,28,112,0.08)] md:col-span-2 xl:col-span-1 xl:sticky xl:top-28"
             style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             {/* Header */}
-            <div className="flex items-center gap-2 mb-3">
-              <ShoppingBag size={18} className="text-[#2B1C70]" strokeWidth={1.8} />
-              <span className="font-semibold text-[#2B1C70] flex-1 text-sm">My Week Lunch</span>
-              <span className="bg-[#D4F84A] text-[#2B1C70] text-xs font-bold px-2.5 py-0.5 rounded-full min-w-[24px] text-center">
+            <div className="flex items-center justify-between border-b border-[#DDD6EF] px-5 py-4">
+              <div className="flex items-center gap-2.5">
+                <ShoppingBag size={16} className="text-[#2B1C70]" strokeWidth={1.8} />
+                <span className="text-[14px] font-semibold text-[#2B1C70]">My Week Lunch</span>
+              </div>
+              <span className="min-w-[28px] rounded-full bg-[#D4F84A] px-2.5 py-0.5 text-center text-[11px] font-black text-[#2B1C70]">
                 {cart.itemCount}
               </span>
             </div>
 
             {/* Progress */}
-            {remaining > 0 && (
-              <p className="text-xs text-gray-500 mb-2">
-                Add {remaining} more meal{remaining !== 1 ? 's' : ''} to save 10%
-              </p>
-            )}
-            <div className="w-full h-2 bg-gray-200 rounded-full mb-4 overflow-hidden">
-              <div
-                className="h-full bg-[#db5a29] rounded-full transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              />
+            <div className="px-5 pt-4">
+              {remaining > 0 && (
+                <p className="mb-2.5 text-[11px] font-medium text-[#2B1C70]/58">
+                  Add {remaining} more meal{remaining !== 1 ? 's' : ''} to save 10%
+                </p>
+              )}
+              <div className="mb-5 h-[10px] w-full overflow-hidden rounded-full bg-gray-200">
+                <div
+                  className="h-full rounded-full bg-[#db5a29] transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
 
             {/* Cart items */}
             {cart.items.length === 0 ? (
-              <p className="text-xs text-gray-400 text-center py-6">Your week is empty. Add a meal!</p>
+              <div className="space-y-2 py-10 text-center">
+                <ShoppingBag size={32} className="text-[#2B1C70]/15 mx-auto" strokeWidth={1.5} />
+                <p className="text-xs font-medium text-[#2B1C70]/35">Your week is empty.<br/>Add a meal to get started!</p>
+              </div>
             ) : (
-              <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
+              <div className="max-h-[332px] space-y-4 overflow-y-auto px-5 pb-3 pr-4">
                 {groupedItems.map(group => (
                   <div key={group.date}>
-                    <p className="text-xs text-gray-400 font-semibold mb-2">{group.date}</p>
+                    <p className="mb-2.5 text-[12px] font-semibold text-[#2B1C70]/78">{group.date}</p>
                     {group.items.map((item: any) => (
                       <div
                         key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`}
-                        className="flex items-center gap-2 mb-2"
+                        className="mb-2.5 flex items-start gap-3 rounded-[16px] border border-[#DCD5ED] bg-[#FBFAFE] p-3"
                       >
                         <img
                           src={getFoodBgImage(item.name)}
                           alt={item.name}
-                          className="w-11 h-11 rounded-lg object-cover flex-shrink-0"
+                          className="h-14 w-14 flex-shrink-0 rounded-[14px] object-cover"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-[#2B1C70] truncate">{item.name}</p>
-                          <p className="text-xs text-gray-400">${item.price.toFixed(2)}</p>
+                          <p className="truncate text-[13px] font-semibold leading-[1.1] text-[#2B1C70]">{item.name}</p>
+                          <p className="mt-0.5 text-[11px] font-medium text-[#2B1C70]/46">${item.price.toFixed(2)}</p>
+                          {item.customizations && (() => {
+                            const c = item.customizations;
+                            const choices: string[] = [];
+                            if (c.base)    choices.push(c.base);
+                            if (c.protein) choices.push(c.protein);
+                            if (c.sauce)   choices.push(c.sauce);
+                            if (c.swap)    choices.push(`Swap: ${c.swap}`);
+                            const hasAny = c.isVegetarian || choices.length > 0 || c.avoid;
+                            if (!hasAny) return null;
+                            return (
+                              <div className="mt-0.5 space-y-0.5">
+                                {(c.isVegetarian || choices.length > 0) && (
+                                  <div className="flex flex-wrap items-center gap-1">
+                                    {c.isVegetarian && (
+                                      <span className="text-[7px] font-bold bg-[#DCFCE7] text-[#16A34A] px-1.5 py-0.5 rounded-full">🌿 Veg</span>
+                                    )}
+                                    {choices.map((ch, i) => (
+                                      <span key={i} className="text-[7px] font-semibold bg-[#EDE9F7] text-[#5B5291] px-1.5 py-0.5 rounded-full">{ch}</span>
+                                    ))}
+                                  </div>
+                                )}
+                                {c.avoid && (
+                                  <p className="text-[7px] text-gray-400 leading-tight"><span className="text-red-400 font-bold">✕ </span>{c.avoid}</p>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>
-                        <div className="flex items-center gap-1 text-[#2B1C70]">
+                        <div className="flex items-center gap-1 pt-1 text-[#2B1C70]">
                           <button
                             onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, item.customizations)}
-                            className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center text-xs hover:bg-gray-50 transition-colors"
+                            className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[#CFC7E8] text-xs font-bold transition-colors hover:bg-[#F5F3FF]"
                           >
                             −
                           </button>
-                          <span className="text-xs w-4 text-center font-semibold">{item.quantity}</span>
+                          <span className="w-5 text-center text-xs font-bold">{item.quantity}</span>
                           <button
                             onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1, item.customizations)}
-                            className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center text-xs hover:bg-gray-50 transition-colors"
+                            className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[#CFC7E8] text-xs font-bold transition-colors hover:bg-[#F5F3FF]"
                           >
                             +
                           </button>
                         </div>
                         <button
                           onClick={() => cart.removeItem(item.id, item.serviceDate, item.customizations)}
-                          className="text-gray-300 hover:text-red-400 transition-colors ml-1 flex-shrink-0"
+                          className="text-red-400 hover:text-red-600 transition-colors ml-1 flex-shrink-0"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -494,21 +559,22 @@ export default function OrderPage({ cart }: { cart: any }) {
 
             {/* Footer */}
             {cart.items.length > 0 && (
-              <div className="mt-4 pt-3 border-t border-gray-100">
+              <div className="mt-2 border-t border-[#DDD6EF] px-5 pb-4 pt-3.5">
                 {discount > 0 && (
-                  <p className="text-xs text-green-600 text-right mb-2 font-medium">You're saving 10%</p>
+                  <p className="mb-2.5 text-right text-[10px] font-medium text-[#2B1C70]/42">You're saving 10%</p>
                 )}
                 <button
                   onClick={() => { setAddress(''); setShowAddressModal(true); }}
-                  className="w-full bg-[#D4F84A] text-[#2B1C70] py-3.5 rounded-xl font-bold text-sm flex justify-between items-center px-4 hover:brightness-95 transition-all shadow-sm"
+                  className="flex w-full items-center justify-between rounded-[999px] bg-[#D4F84A] px-5 py-3.5 text-[14px] font-black text-[#2B1C70] transition-all hover:brightness-95"
                 >
                   <span>Checkout</span>
-                  <span>$ {displayTotal.toFixed(2)}</span>
+                  <span>${displayTotal.toFixed(2)}</span>
                 </button>
               </div>
             )}
           </div>
         </div>
+      </div>
       </div>
 
       {/* ── Address Modal ────────────────────────────────────────────────────── */}
