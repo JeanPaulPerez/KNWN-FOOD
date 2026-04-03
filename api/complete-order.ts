@@ -96,9 +96,10 @@ async function createWooOrder(
   wcCk: string,
   wcCs: string,
 ): Promise<{ id: number; order_key: string } | null> {
-  const payload = {
+  const payload: any = {
     status: 'processing',
     set_paid: true,
+    ...(customerInfo.wcCustomerId ? { customer_id: customerInfo.wcCustomerId } : {}),
     payment_method: isFree ? 'free_coupon' : 'stripe',
     payment_method_title: isFree ? 'Free (100% Promo)' : 'Credit Card (Stripe)',
     billing: {

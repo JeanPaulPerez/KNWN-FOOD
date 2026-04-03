@@ -23,6 +23,27 @@ import { useUser } from '../store/useUser';
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string);
 
 const TAX_RATE = 0.063; // E.g., Miami tax
+const CHECKOUT_ADDRESS_STORAGE_KEY = 'knwn:selected-address';
+
+type StoredCheckoutAddress = {
+  formatted: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+};
+
+function readStoredCheckoutAddress(): StoredCheckoutAddress | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const raw = window.sessionStorage.getItem(CHECKOUT_ADDRESS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 const CARD_ELEMENT_OPTIONS = {
   style: {
@@ -43,6 +64,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   const { user } = useUser();
   const stripe = useStripe();
   const elements = useElements();
+  const [deliveryAddress] = useState<StoredCheckoutAddress | null>(() => readStoredCheckoutAddress());
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -94,14 +116,15 @@ function CheckoutForm({ cart }: { cart: any }) {
     setLoading(true); setError('');
     const form = new FormData(e.currentTarget);
     const customerInfo = {
-      name:   form.get('firstName') + ' ' + form.get('lastName'),
-      email:  form.get('email') as string,
-      phone:  form.get('phone') as string,
-      street: form.get('street') as string,
-      city:   form.get('city') as string,
-      state:  form.get('state') as string,
-      zip:    form.get('zip') as string,
-      notes:  'N/A',
+      name:           form.get('firstName') + ' ' + form.get('lastName'),
+      email:          form.get('email') as string,
+      phone:          form.get('phone') as string,
+      street:         form.get('street') as string,
+      city:           form.get('city') as string,
+      state:          form.get('state') as string,
+      zip:            form.get('zip') as string,
+      notes:          'N/A',
+      wcCustomerId:   user?.wcCustomerId,
     };
 
     try {
@@ -184,8 +207,10 @@ function CheckoutForm({ cart }: { cart: any }) {
 
             {/* Delivering To Block (Mocked Delivery details as shown) */}
             <div className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-brand-primary/5 flex flex-col items-start gap-1">
-              <h2 className="text-2xl font-bold text-brand-primary">Delivering to Manantial</h2>
-              <p className="text-brand-primary/60 font-medium text-base mb-1 tracking-tight">6778 W FLAGLER ST, MIAMI, FL, 33144-2946, United States</p>
+              <h2 className="text-2xl font-bold text-brand-primary">Delivering to your office</h2>
+              <p className="text-brand-primary/60 font-medium text-base mb-1 tracking-tight">
+                {deliveryAddress?.formatted || 'Add your delivery address from the menu page to prefill checkout.'}
+              </p>
               <button type="button" className="text-brand-orange text-sm font-bold hover:underline underline-offset-4">Edit delivery preferences</button>
             </div>
 
@@ -242,17 +267,17 @@ function CheckoutForm({ cart }: { cart: any }) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="relative">
-                  <input required name="firstName" type="text" defaultValue="Maria" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <input required name="firstName" type="text" defaultValue={user?.name?.split(' ')[0] || ''} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Nombre</label>
                 </div>
                 <div className="relative">
-                  <input required name="lastName" type="text" defaultValue="Salas" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <input required name="lastName" type="text" defaultValue={user?.name?.split(' ').slice(1).join(' ') || ''} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Apellidos</label>
                 </div>
               </div>
 
               <div className="relative">
-                <input required name="street" type="text" defaultValue="6778 West Flagler Street" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                <input required name="street" type="text" defaultValue={deliveryAddress?.street || '6778 West Flagler Street'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                 <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Dirección</label>
               </div>
 
@@ -262,17 +287,17 @@ function CheckoutForm({ cart }: { cart: any }) {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="relative">
-                  <input required name="city" type="text" defaultValue="Miami" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <input required name="city" type="text" defaultValue={deliveryAddress?.city || 'Miami'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Ciudad</label>
                 </div>
                 <div className="relative col-span-1">
                   <select name="state" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 appearance-none font-medium text-brand-primary focus:border-brand-primary outline-none">
-                    <option>Florida</option>
+                    <option>{deliveryAddress?.state || 'Florida'}</option>
                   </select>
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Estado</label>
                 </div>
                 <div className="relative">
-                  <input required name="zip" type="text" defaultValue="33144" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <input required name="zip" type="text" defaultValue={deliveryAddress?.zip || '33144'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Código postal</label>
                 </div>
               </div>

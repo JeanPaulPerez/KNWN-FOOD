@@ -4,17 +4,17 @@
   top: 0;
   z-index: 100;
   background: #f4f1ff;
-  height: 64px;
+  height: 78px;
   display: flex;
   align-items: center;
-  padding: 0 56px;
+  padding: 0 60px;
   justify-content: space-between;
   border-bottom: 1px solid rgba(49, 28, 103, 0.05);
 }
 
 /* ─── Logo ───────────────────────────────────────────────────────────────── */
 .logo {
-  height: 36px;
+  height: 42px;
   width: auto;
   filter: brightness(0) saturate(100%) invert(14%) sepia(60%) saturate(1600%) hue-rotate(237deg) brightness(75%);
 }
@@ -23,13 +23,13 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 48px;
+  gap: 44px;
 }
 
 .navLink {
   font-family: var(--font-ui);
   font-weight: 500;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1;
   color: var(--purple);
   transition: opacity 0.15s;
@@ -43,17 +43,17 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
 }
 
 .orderBtn {
   font-family: var(--font-ui);
-  font-weight: 500;
-  font-size: 13px;
+  font-weight: 600;
+  font-size: 14px;
   color: var(--white);
   background: var(--purple);
   border-radius: 999px;
-  padding: 10px 24px;
+  padding: 12px 26px;
   transition: opacity 0.15s;
   white-space: nowrap;
 }
@@ -69,13 +69,24 @@
   align-items: center;
   justify-content: center;
   padding: 4px;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: 38px;
+  min-width: 38px;
   transition: opacity 0.15s;
 }
 
 .iconBtn:hover {
   opacity: 0.6;
+}
+
+.profileDot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--lime, #D4F84A);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid #f4f1ff;
 }
 
 .cartBadge {
@@ -115,6 +126,7 @@
 @media (max-width: 1024px) {
   .header {
     padding: 0 32px;
+    height: 72px;
   }
   .nav {
     gap: 28px;

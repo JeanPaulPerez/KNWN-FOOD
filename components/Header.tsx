@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, User, Menu, X } from 'lucide-react';
 import s from './Header.module.css';
+import { useUser } from '../store/useUser';
 
 interface HeaderProps {
   cartCount?: number;
   onOpenCart?: () => void;
+  onOpenProfile?: () => void;
 }
 
-export default function Header({ cartCount = 0, onOpenCart }: HeaderProps) {
+export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: HeaderProps) {
   const [open, setOpen] = useState(false);
+  const { isRegistered } = useUser();
 
   return (
     <header className={s.header}>
@@ -39,8 +42,9 @@ export default function Header({ cartCount = 0, onOpenCart }: HeaderProps) {
           {cartCount > 0 && <span className={s.cartBadge}>{cartCount}</span>}
         </button>
 
-        <button className={s.iconBtn} aria-label="Account">
+        <button className={s.iconBtn} aria-label="Account" onClick={onOpenProfile}>
           <User size={20} strokeWidth={1.8} />
+          {isRegistered && <span className={s.profileDot} />}
         </button>
       </div>
 

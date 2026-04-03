@@ -12,6 +12,7 @@ import OrderPage from './pages/OrderPage';
 import { useWooCart } from './store/useWooCart';
 import { useUser } from './store/useUser';
 import RegistrationModal from './components/RegistrationModal';
+import ProfileModal from './components/ProfileModal';
 import Header from './components/Header';
 
 const FOOD_BG_MAP: Record<string, string> = {
@@ -102,16 +103,46 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
               ) : (
                 cart.items.map((item: any) => (
                   <div key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`} className="flex gap-3 bg-brand-bg p-3 rounded-2xl border border-gray-100">
-                    <img src={getFoodBg(item.name)} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" alt={item.name} />
+                    <img src={getFoodBg(item.name)} className="w-14 h-14 object-cover rounded-xl flex-shrink-0" alt={item.name} />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start gap-2">
-                        <h3 className="text-[11px] font-bold leading-tight text-brand-primary truncate">{item.name}</h3>
+                        <h3 className="text-[12px] font-semibold leading-tight text-brand-primary truncate">{item.name}</h3>
                         <span className="text-[11px] font-serif text-brand-primary flex-shrink-0">${item.price * item.quantity}</span>
                       </div>
                       <div className="flex items-center gap-1 mt-0.5 text-brand-primary/40">
                         <Calendar size={9} />
                         <span className="text-[8px] font-black uppercase tracking-widest">{item.serviceDate}</span>
                       </div>
+                      {item.customizations && (() => {
+                        const c = item.customizations;
+                        const choices: string[] = [];
+                        if (c.base)    choices.push(c.base);
+                        if (c.protein) choices.push(c.protein);
+                        if (c.sauce)   choices.push(c.sauce);
+                        if (c.swap)    choices.push(`Swap: ${c.swap}`);
+                        const hasAny = c.isVegetarian || choices.length > 0 || c.avoid || c.vegInstructions;
+                        if (!hasAny) return null;
+                        return (
+                          <div className="mt-1.5 space-y-1">
+                            {(c.isVegetarian || choices.length > 0) && (
+                              <div className="flex flex-wrap items-center gap-1">
+                                {c.isVegetarian && (
+                                  <span className="text-[7px] font-black tracking-wide bg-[#DCFCE7] text-[#16A34A] px-1.5 py-0.5 rounded-full">🌿 Vegetarian</span>
+                                )}
+                                {choices.map((ch, i) => (
+                                  <span key={i} className="text-[7px] font-semibold bg-brand-subtle text-brand-accent px-1.5 py-0.5 rounded-full">{ch}</span>
+                                ))}
+                              </div>
+                            )}
+                            {c.avoid && (
+                              <p className="text-[7px] text-brand-primary/40 leading-tight"><span className="text-red-400 font-black">✕ </span>{c.avoid}</p>
+                            )}
+                            {c.vegInstructions && (
+                              <p className="text-[7px] text-brand-primary/40 italic leading-tight">{c.vegInstructions}</p>
+                            )}
+                          </div>
+                        );
+                      })()}
                       <div className="flex items-center justify-between mt-2.5">
                         <div className="flex items-center bg-white rounded-full border border-gray-100 p-0.5">
                           <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, item.customizations)} className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-brand-bg transition-colors text-brand-primary text-xs font-bold">−</button>
@@ -157,6 +188,7 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
 export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const cart = useWooCart();
   const { isRegistered, register } = useUser();
   const navigate = useNavigate();
@@ -179,7 +211,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen selection:bg-brand-primary selection:text-white flex flex-col font-sans bg-[#F5F3FF]">
-      <Header cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} />
+      <Header cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} onOpenProfile={() => setShowProfile(true)} />
 
       <main className="flex-1">
         <Routes>
@@ -198,6 +230,12 @@ export default function App() {
         cart={cart}
         onFinalize={handleFinalize}
       />
+
+      <AnimatePresence>
+        {showProfile && (
+          <ProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showRegistration && (
