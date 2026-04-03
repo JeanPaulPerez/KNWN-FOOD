@@ -19,8 +19,25 @@
  *    - If any individual order fails, the others still succeed — errors are collected.
  */
 
+// ─── Helper: convert "Monday, Apr 6" → "04/06/2026" (MM/DD/YYYY) ─────────────
+// serviceDate comes in as toLocaleDateString('en-US', { weekday, month, day }) = "Monday, Apr 6"
+// We need a full date with year so PHP strtotime() doesn't guess wrong year.
+function formatServiceDateForWoo(dateStr: string): string {
+  if (!dateStr) return '';
+  const year = new Date().getFullYear();
+  // Strip day-of-week: "Monday, Apr 6" → "Apr 6"
+  const withoutDay = dateStr.replace(/^[A-Za-z]+,\s*/, '');
+  const parsed = new Date(`${withoutDay} ${year}`);
+  if (isNaN(parsed.getTime())) return dateStr;
+  const m = String(parsed.getMonth() + 1).padStart(2, '0');
+  const d = String(parsed.getDate()).padStart(2, '0');
+  return `${m}/${d}/${year}`;
+}
+
 // ─── Helper: build customization meta_data for a single item ──────────────────
-// Keys MUST match the export plugin column names exactly so they appear in the Excel export.
+// KEY RULE: The WP Code Snippet export reads 'Fecha de Servicio' from line item meta
+// for both the "Delivery Date" admin column AND the delivery date range filter.
+// DO NOT change that key — it is hardcoded in the WordPress PHP export snippet.
 function buildItemMeta(item: any): { key: string; value: string }[] {
   const meta: { key: string; value: string }[] = [];
   const c = item.customizations;
@@ -35,7 +52,10 @@ function buildItemMeta(item: any): { key: string; value: string }[] {
     if (c.swap)             meta.push({ key: 'Other',                     value: c.swap });
   }
   if (item.serviceDate) {
-    meta.push({ key: 'Delivery date', value: item.serviceDate });
+    // 'Fecha de Servicio' → required for the WP PHP export column + date filter
+    meta.push({ key: 'Fecha de Servicio', value: item.serviceDate });
+    // 'Delivery date' → maps to the "Delivery date" column header in the Excel export
+    meta.push({ key: 'Delivery date',     value: formatServiceDateForWoo(item.serviceDate) });
   }
   return meta;
 }
@@ -85,13 +105,13 @@ async function createWooOrder(
     // Coupon applied to each order so WooCommerce shows the correct discounted total
     coupon_lines: couponCode ? [{ code: couponCode }] : [],
     customer_note: customerInfo.notes || '',
-    // ORDER-level meta — delivery_date MUST be here so the WP export plugin's
-    // meta_query can find it when filtering by date range.
+    // ORDER-level meta — delivery_date stored in MM/DD/YYYY so PHP strtotime()
+    // parses the correct year when the export plugin does date range filtering.
     meta_data: [
       { key: 'order_source',          value: 'headless-react' },
       { key: 'stripe_payment_intent', value: paymentIntentId || 'N/A (free order)' },
-      { key: 'delivery_date',         value: item.serviceDate || '' },
-      { key: 'Delivery date',         value: item.serviceDate || '' },
+      { key: 'delivery_date',         value: formatServiceDateForWoo(item.serviceDate || '') },
+      { key: 'Fecha de Servicio',     value: item.serviceDate || '' },
     ],
   };
 
