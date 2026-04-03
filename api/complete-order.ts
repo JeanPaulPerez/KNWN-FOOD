@@ -19,19 +19,32 @@
  *    - If any individual order fails, the others still succeed — errors are collected.
  */
 
-// ─── Helper: convert "Monday, Apr 6" → "04/06/2026" (MM/DD/YYYY) ─────────────
-// serviceDate comes in as toLocaleDateString('en-US', { weekday, month, day }) = "Monday, Apr 6"
-// We need a full date with year so PHP strtotime() doesn't guess wrong year.
-function formatServiceDateForWoo(dateStr: string): string {
-  if (!dateStr) return '';
+// ─── Helper: parse "Monday, Apr 6" into a JS Date (current year) ──────────────
+function parseServiceDate(dateStr: string): Date | null {
+  if (!dateStr) return null;
   const year = new Date().getFullYear();
-  // Strip day-of-week: "Monday, Apr 6" → "Apr 6"
-  const withoutDay = dateStr.replace(/^[A-Za-z]+,\s*/, '');
-  const parsed = new Date(`${withoutDay} ${year}`);
-  if (isNaN(parsed.getTime())) return dateStr;
-  const m = String(parsed.getMonth() + 1).padStart(2, '0');
-  const d = String(parsed.getDate()).padStart(2, '0');
-  return `${m}/${d}/${year}`;
+  const withoutDay = dateStr.replace(/^[A-Za-z]+,\s*/, ''); // "Apr 6"
+  const d = new Date(`${withoutDay} ${year}`);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+// "Monday, Apr 6" → "04/06/2026"  (MM/DD/YYYY — used for delivery_date order meta)
+function formatServiceDateForWoo(dateStr: string): string {
+  const d = parseServiceDate(dateStr);
+  if (!d) return dateStr;
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${m}/${day}/${d.getFullYear()}`;
+}
+
+// "Monday, Apr 6" → "06-04-2026"  (DD-MM-YYYY — Tyche Softwares Order Delivery Date plugin format)
+// This is the key the WooCommerce "Delivery Date" column and export filter read: e_deliverydate
+function formatServiceDateTyche(dateStr: string): string {
+  const d = parseServiceDate(dateStr);
+  if (!d) return dateStr;
+  const day = String(d.getDate()).padStart(2, '0');
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  return `${day}-${m}-${d.getFullYear()}`;
 }
 
 // ─── Helper: build customization meta_data for a single item ──────────────────
@@ -105,11 +118,14 @@ async function createWooOrder(
     // Coupon applied to each order so WooCommerce shows the correct discounted total
     coupon_lines: couponCode ? [{ code: couponCode }] : [],
     customer_note: customerInfo.notes || '',
-    // ORDER-level meta — delivery_date stored in MM/DD/YYYY so PHP strtotime()
-    // parses the correct year when the export plugin does date range filtering.
+    // ORDER-level meta.
+    // e_deliverydate = Tyche Softwares "Order Delivery Date" plugin key (DD-MM-YYYY).
+    // The WooCommerce "Delivery Date" admin column and the custom export filter
+    // both read THIS key — it must match for orders to appear in the export.
     meta_data: [
       { key: 'order_source',          value: 'headless-react' },
       { key: 'stripe_payment_intent', value: paymentIntentId || 'N/A (free order)' },
+      { key: 'e_deliverydate',        value: formatServiceDateTyche(item.serviceDate || '') },
       { key: 'delivery_date',         value: formatServiceDateForWoo(item.serviceDate || '') },
       { key: 'Fecha de Servicio',     value: item.serviceDate || '' },
     ],
