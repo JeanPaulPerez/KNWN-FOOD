@@ -26,6 +26,17 @@ type DashboardOrder = {
   }>;
 };
 
+async function parseApiResponse<T = any>(response: Response): Promise<T> {
+  const raw = await response.text();
+
+  try {
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    const sanitized = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    throw new Error(sanitized || 'Server returned an invalid response');
+  }
+}
+
 const TAB_ITEMS: Array<{ id: AccountTab; label: string }> = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'orders', label: 'Orders' },
@@ -82,9 +93,14 @@ export default function Account() {
     setLoadingOrders(true);
     setOrdersError('');
 
-    fetch('/api/account-orders', { credentials: 'include' })
+    const params = new URLSearchParams({ email: user.email });
+    if (user.wcCustomerId) {
+      params.set('wcCustomerId', String(user.wcCustomerId));
+    }
+
+    fetch(`/api/account-orders?${params.toString()}`, { credentials: 'include' })
       .then(async (res) => {
-        const data = await res.json();
+        const data = await parseApiResponse<{ orders?: DashboardOrder[]; error?: string }>(res);
         if (!res.ok) {
           throw new Error(data.error || 'Failed to load orders');
         }
@@ -128,9 +144,13 @@ export default function Account() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId }),
+        body: JSON.stringify({
+          orderId,
+          email: user?.email,
+          wcCustomerId: user?.wcCustomerId ?? null,
+        }),
       });
-      const data = await res.json();
+      const data = await parseApiResponse<{ error?: string; status?: string; refundId?: string; cancelledAt?: string }>(res);
 
       if (!res.ok) {
         throw new Error(data.error || 'Failed to cancel order');

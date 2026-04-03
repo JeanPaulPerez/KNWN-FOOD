@@ -1,7 +1,10 @@
-import { getEtNow } from '../utils/dateLogic';
-
 export const DELIVERY_WINDOW_LABEL = '10:00 AM - 12:00 PM';
 const CANCELLABLE_STATUSES = new Set(['pending', 'processing', 'on-hold']);
+
+function getEtNow(): Date {
+  const nyString = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+  return new Date(nyString);
+}
 
 export type DashboardOrder = {
   id: number;
