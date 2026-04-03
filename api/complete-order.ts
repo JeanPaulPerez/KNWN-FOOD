@@ -20,21 +20,22 @@
  */
 
 // ─── Helper: build customization meta_data for a single item ──────────────────
+// Keys MUST match the export plugin column names exactly so they appear in the Excel export.
 function buildItemMeta(item: any): { key: string; value: string }[] {
   const meta: { key: string; value: string }[] = [];
   const c = item.customizations;
 
   if (c) {
-    if (c.base)             meta.push({ key: 'Base',             value: c.base });
-    if (c.sauce)            meta.push({ key: 'Salsa',            value: c.sauce });
-    if (c.protein)          meta.push({ key: 'Proteína',         value: c.protein });
-    if (c.avoid)            meta.push({ key: 'Excluir',          value: c.avoid });
-    if (c.isVegetarian)     meta.push({ key: 'Vegetariano',      value: 'Sí' });
-    if (c.vegInstructions)  meta.push({ key: 'Instrucciones Veg', value: c.vegInstructions });
-    if (c.swap)             meta.push({ key: 'Swap',             value: c.swap });
+    if (c.base)             meta.push({ key: 'Choose your base',          value: c.base });
+    if (c.sauce)            meta.push({ key: 'Choose your dressing/sauce', value: c.sauce });
+    if (c.protein)          meta.push({ key: 'Protein',                   value: c.protein });
+    if (c.avoid)            meta.push({ key: 'Anything you don\'t like?', value: c.avoid });
+    if (c.isVegetarian)     meta.push({ key: 'Make it vegetarian?',       value: 'TRUE' });
+    if (c.vegInstructions)  meta.push({ key: 'Other',                     value: c.vegInstructions });
+    if (c.swap)             meta.push({ key: 'Other',                     value: c.swap });
   }
   if (item.serviceDate) {
-    meta.push({ key: 'Fecha de Servicio', value: item.serviceDate });
+    meta.push({ key: 'Delivery date', value: item.serviceDate });
   }
   return meta;
 }
@@ -104,7 +105,8 @@ async function createWooOrder(
       console.error(`[WooCommerce] Failed for item "${item.name}":`, err);
       return null;
     }
-    return await response.json();
+    const order = await response.json();
+    return order;
   } catch (err) {
     console.error(`[WooCommerce] Exception for item "${item.name}":`, err);
     return null;
