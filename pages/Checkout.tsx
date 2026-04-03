@@ -24,6 +24,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as 
 
 const TAX_RATE = 0.063; // E.g., Miami tax
 const CHECKOUT_ADDRESS_STORAGE_KEY = 'knwn:selected-address';
+const DELIVERY_TIME_WINDOW = '10 AM - 12 PM';
 
 type StoredCheckoutAddress = {
   formatted: string;
@@ -120,10 +121,13 @@ function CheckoutForm({ cart }: { cart: any }) {
       email:          form.get('email') as string,
       phone:          form.get('phone') as string,
       street:         form.get('street') as string,
+      address2:       form.get('address2') as string,
       city:           form.get('city') as string,
       state:          form.get('state') as string,
       zip:            form.get('zip') as string,
-      notes:          'N/A',
+      notes:          (form.get('deliveryInstructions') as string) || 'N/A',
+      deliveryInstructions: (form.get('deliveryInstructions') as string) || '',
+      deliveryTimeWindow: DELIVERY_TIME_WINDOW,
       wcCustomerId:   user?.wcCustomerId,
     };
 
@@ -146,7 +150,23 @@ function CheckoutForm({ cart }: { cart: any }) {
       }
       const itemsSnapshot = [...cart.items];
       const orderRes = await fetch('/api/complete-order', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: itemsSnapshot, customerInfo, couponCode: coupon?.code, paymentIntentId, isFree, total: finalTotal }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: itemsSnapshot,
+          customerInfo,
+          couponCode: coupon?.code,
+          paymentIntentId,
+          isFree,
+          total: finalTotal,
+          pricing: {
+            subtotal,
+            discount: discountAmount,
+            tax,
+            tip: tipAmount,
+            total: finalTotal,
+          },
+        }),
       });
       if (!orderRes.ok) throw new Error((await orderRes.json()).error);
       const data = await orderRes.json();
@@ -282,7 +302,7 @@ function CheckoutForm({ cart }: { cart: any }) {
               </div>
 
               <div className="relative">
-                <input type="text" placeholder="Casa, apartamento, etc. (opcional)" className="w-full border border-brand-primary/20 rounded-xl px-4 py-4 font-medium text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/40" />
+                <input name="address2" type="text" placeholder="Casa, apartamento, etc. (opcional)" className="w-full border border-brand-primary/20 rounded-xl px-4 py-4 font-medium text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/40" />
               </div>
 
               <div className="grid grid-cols-3 gap-4">
@@ -300,6 +320,15 @@ function CheckoutForm({ cart }: { cart: any }) {
                   <input required name="zip" type="text" defaultValue={deliveryAddress?.zip || '33144'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Código postal</label>
                 </div>
+              </div>
+
+              <div className="relative">
+                <textarea
+                  name="deliveryInstructions"
+                  rows={3}
+                  placeholder={`Delivery instructions (optional). Default window: ${DELIVERY_TIME_WINDOW}`}
+                  className="w-full border border-brand-primary/20 rounded-xl px-4 py-4 font-medium text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/40 resize-none"
+                />
               </div>
             </div>
             

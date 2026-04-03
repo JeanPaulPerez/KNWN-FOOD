@@ -9,6 +9,8 @@ import { clsx } from 'clsx';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const MAX_MEALS = 5;
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const CHECKOUT_ADDRESS_STORAGE_KEY = 'knwn:selected-address';
 const DOW_TO_KEY: Record<number, Weekday> = {
   1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday',
 };
@@ -30,6 +32,112 @@ function getAvailableDates(count = 10): Date[] {
 }
 
 const WINDOW_SIZE = 5;
+
+type ParsedAddress = {
+  formatted: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+  placeId: string;
+};
+
+type AddressSuggestion = {
+  placeId: string;
+  description: string;
+  mainText: string;
+  secondaryText: string;
+};
+
+let googlePlacesLoader: Promise<any> | null = null;
+
+function loadGooglePlaces(apiKey: string) {
+  if (typeof window === 'undefined') {
+    return Promise.reject(new Error('Google Places is only available in the browser.'));
+  }
+
+  if ((window as any).google?.maps?.places) {
+    return Promise.resolve((window as any).google);
+  }
+
+  if (googlePlacesLoader) return googlePlacesLoader;
+
+  googlePlacesLoader = new Promise((resolve, reject) => {
+    const existingScript = document.querySelector('script[data-google-places-loader="true"]') as HTMLScriptElement | null;
+
+    const handleLoad = () => {
+      if ((window as any).google?.maps?.places) {
+        resolve((window as any).google);
+      } else {
+        reject(new Error('Google Places failed to initialize.'));
+      }
+    };
+
+    if (existingScript) {
+      existingScript.addEventListener('load', handleLoad, { once: true });
+      existingScript.addEventListener('error', () => reject(new Error('Failed to load Google Places.')), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    script.dataset.googlePlacesLoader = 'true';
+    script.addEventListener('load', handleLoad, { once: true });
+    script.addEventListener('error', () => reject(new Error('Failed to load Google Places.')), { once: true });
+    document.head.appendChild(script);
+  });
+
+  return googlePlacesLoader;
+}
+
+function getAddressComponent(components: any[] | undefined, type: string, fallback = '') {
+  return components?.find(component => component.types?.includes(type))?.long_name ?? fallback;
+}
+
+function getAddressComponentShort(components: any[] | undefined, type: string, fallback = '') {
+  return components?.find(component => component.types?.includes(type))?.short_name ?? fallback;
+}
+
+function normalizePlaceDetails(place: any, fallbackDescription = ''): ParsedAddress {
+  const components = place?.address_components ?? [];
+  const streetNumber = getAddressComponent(components, 'street_number');
+  const route = getAddressComponent(components, 'route');
+  const street = [streetNumber, route].filter(Boolean).join(' ').trim();
+
+  return {
+    formatted: place?.formatted_address || fallbackDescription,
+    street: street || fallbackDescription,
+    city:
+      getAddressComponent(components, 'locality') ||
+      getAddressComponent(components, 'postal_town') ||
+      getAddressComponent(components, 'administrative_area_level_2'),
+    state:
+      getAddressComponentShort(components, 'administrative_area_level_1') ||
+      getAddressComponent(components, 'administrative_area_level_1'),
+    zip: getAddressComponent(components, 'postal_code'),
+    country: getAddressComponent(components, 'country', 'United States'),
+    placeId: place?.place_id || '',
+  };
+}
+
+function readStoredAddress(): ParsedAddress | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const raw = window.sessionStorage.getItem(CHECKOUT_ADDRESS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistAddress(address: ParsedAddress) {
+  if (typeof window === 'undefined') return;
+  window.sessionStorage.setItem(CHECKOUT_ADDRESS_STORAGE_KEY, JSON.stringify(address));
+}
 
 function getWeekdayKey(date: Date): Weekday {
   return DOW_TO_KEY[date.getDay()] ?? 'monday';
@@ -221,13 +329,23 @@ const CustomizationModal: React.FC<{
 // ─── Main OrderPage ───────────────────────────────────────────────────────────
 export default function OrderPage({ cart }: { cart: any }) {
   const navigate = useNavigate();
+  const initialStoredAddress = React.useMemo(() => readStoredAddress(), []);
   // Compute once per render — stable within a session
   const availableDates = React.useMemo(() => getAvailableDates(10), []);
   const [activeIdx, setActiveIdx] = useState(0);   // index into availableDates
   const [windowStart, setWindowStart] = useState(0); // first visible pill index
   const [customizingItem, setCustomizingItem] = useState<{ item: MenuItem; date: Date } | null>(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState(initialStoredAddress?.formatted ?? '');
+  const [selectedAddress, setSelectedAddress] = useState<ParsedAddress | null>(initialStoredAddress);
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
+  const [placesReady, setPlacesReady] = useState(false);
+  const [placesError, setPlacesError] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+  const autocompleteServiceRef = React.useRef<any>(null);
+  const placesServiceRef = React.useRef<any>(null);
+  const sessionTokenRef = React.useRef<any>(null);
 
   const activeDate = availableDates[activeIdx];
   const visibleDates = availableDates.slice(windowStart, windowStart + WINDOW_SIZE);
@@ -256,6 +374,146 @@ export default function OrderPage({ cart }: { cart: any }) {
   const progress = Math.min((cart.itemCount / MAX_MEALS) * 100, 100);
   const discount = cart.itemCount >= MAX_MEALS ? cart.total * 0.1 : 0;
   const displayTotal = cart.total - discount;
+
+  React.useEffect(() => {
+    if (!showAddressModal) return;
+
+    setSuggestions([]);
+    setActiveSuggestionIndex(-1);
+
+    if (!GOOGLE_MAPS_API_KEY) {
+      setPlacesReady(false);
+      setPlacesError('Missing Google Maps API key. Add VITE_GOOGLE_MAPS_API_KEY to your env file.');
+      return;
+    }
+
+    let cancelled = false;
+    setPlacesError('');
+
+    loadGooglePlaces(GOOGLE_MAPS_API_KEY)
+      .then((google) => {
+        if (cancelled) return;
+
+        autocompleteServiceRef.current ||= new google.maps.places.AutocompleteService();
+        placesServiceRef.current ||= new google.maps.places.PlacesService(document.createElement('div'));
+        sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken();
+        setPlacesReady(true);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setPlacesReady(false);
+        setPlacesError(error instanceof Error ? error.message : 'Unable to load Google Places.');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [showAddressModal]);
+
+  React.useEffect(() => {
+    if (!showAddressModal || !placesReady || !autocompleteServiceRef.current) return;
+
+    const query = address.trim();
+
+    if (!query) {
+      setSuggestions([]);
+      setIsSearching(false);
+      setActiveSuggestionIndex(-1);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setIsSearching(true);
+
+      autocompleteServiceRef.current.getPlacePredictions(
+        {
+          input: query,
+          sessionToken: sessionTokenRef.current,
+          componentRestrictions: { country: 'us' },
+          types: ['address'],
+        },
+        (predictions: any[] | null) => {
+          setIsSearching(false);
+
+          const nextSuggestions = (predictions ?? []).slice(0, 5).map((prediction) => ({
+            placeId: prediction.place_id,
+            description: prediction.description,
+            mainText: prediction.structured_formatting?.main_text ?? prediction.description,
+            secondaryText: prediction.structured_formatting?.secondary_text ?? '',
+          }));
+
+          setSuggestions(nextSuggestions);
+          setActiveSuggestionIndex(nextSuggestions.length ? 0 : -1);
+        }
+      );
+    }, 220);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [address, placesReady, showAddressModal]);
+
+  const handleAddressChange = (nextValue: string) => {
+    setAddress(nextValue);
+    if (selectedAddress?.formatted !== nextValue) {
+      setSelectedAddress(null);
+    }
+  };
+
+  const handleSelectSuggestion = (suggestion: AddressSuggestion) => {
+    if (!placesServiceRef.current) return;
+
+    setAddress(suggestion.description);
+    setSuggestions([]);
+    setIsSearching(true);
+    setPlacesError('');
+
+    placesServiceRef.current.getDetails(
+      {
+        placeId: suggestion.placeId,
+        fields: ['address_components', 'formatted_address', 'place_id'],
+        sessionToken: sessionTokenRef.current,
+      },
+      (place: any, status: string) => {
+        setIsSearching(false);
+
+        if (status !== 'OK' || !place) {
+          setPlacesError('We could not load that address. Try another result.');
+          return;
+        }
+
+        const nextAddress = normalizePlaceDetails(place, suggestion.description);
+        setSelectedAddress(nextAddress);
+        setAddress(nextAddress.formatted);
+        persistAddress(nextAddress);
+
+        if ((window as any).google?.maps?.places?.AutocompleteSessionToken) {
+          sessionTokenRef.current = new (window as any).google.maps.places.AutocompleteSessionToken();
+        }
+      }
+    );
+  };
+
+  const handleContinueToCheckout = () => {
+    const trimmed = address.trim();
+    if (!trimmed) return;
+
+    const finalAddress =
+      selectedAddress && selectedAddress.formatted === trimmed
+        ? selectedAddress
+        : {
+            formatted: trimmed,
+            street: trimmed,
+            city: '',
+            state: '',
+            zip: '',
+            country: 'United States',
+            placeId: '',
+          };
+
+    setSelectedAddress(finalAddress);
+    persistAddress(finalAddress);
+    setShowAddressModal(false);
+    navigate('/checkout');
+  };
 
   // Group cart items by serviceDate
   const groupedItems: { date: string; items: any[] }[] = [];
@@ -289,7 +547,7 @@ export default function OrderPage({ cart }: { cart: any }) {
             </span>
           </div>
           <button
-            onClick={() => { setAddress(''); setShowAddressModal(true); }}
+            onClick={() => setShowAddressModal(true)}
             className="flex items-center gap-3 border-t border-[#DCD5ED] px-6 py-3 text-left text-[13px] font-medium text-[#2B1C70]/88 md:border-l md:border-t-0 md:px-8"
             style={{ fontFamily: 'Poppins, sans-serif' }}
           >
@@ -564,7 +822,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                   <p className="mb-2.5 text-right text-[10px] font-medium text-[#2B1C70]/42">You're saving 10%</p>
                 )}
                 <button
-                  onClick={() => { setAddress(''); setShowAddressModal(true); }}
+                  onClick={() => setShowAddressModal(true)}
                   className="flex w-full items-center justify-between rounded-[999px] bg-[#D4F84A] px-5 py-3.5 text-[14px] font-black text-[#2B1C70] transition-all hover:brightness-95"
                 >
                   <span>Checkout</span>
@@ -600,33 +858,92 @@ export default function OrderPage({ cart }: { cart: any }) {
                 autoFocus
                 type="text"
                 value={address}
-                onChange={e => setAddress(e.target.value)}
+                onChange={e => handleAddressChange(e.target.value)}
                 onKeyDown={e => {
-                  if (e.key === 'Enter' && address.trim()) {
-                    setShowAddressModal(false);
-                    navigate('/checkout');
+                  if (e.key === 'ArrowDown' && suggestions.length > 0) {
+                    e.preventDefault();
+                    setActiveSuggestionIndex(prev => (prev + 1) % suggestions.length);
+                  }
+                  if (e.key === 'ArrowUp' && suggestions.length > 0) {
+                    e.preventDefault();
+                    setActiveSuggestionIndex(prev => (prev <= 0 ? suggestions.length - 1 : prev - 1));
+                  }
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (activeSuggestionIndex >= 0 && suggestions[activeSuggestionIndex]) {
+                      handleSelectSuggestion(suggestions[activeSuggestionIndex]);
+                      return;
+                    }
+                    handleContinueToCheckout();
                   }
                   if (e.key === 'Escape') setShowAddressModal(false);
                 }}
                 placeholder="Search for an address"
                 style={{ width: '100%', boxSizing: 'border-box', paddingLeft: '42px', paddingRight: '16px', paddingTop: '13px', paddingBottom: '13px', borderRadius: '12px', border: '1.5px solid rgba(43,28,112,0.14)', background: '#F5F3FF', fontSize: '14px', color: '#2B1C70', outline: 'none', fontFamily: 'Poppins, sans-serif' }}
               />
+
+              {(suggestions.length > 0 || isSearching || placesError) && (
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, borderRadius: '14px', border: '1px solid rgba(43,28,112,0.1)', background: '#fff', boxShadow: '0 18px 40px rgba(43,28,112,0.14)', overflow: 'hidden', zIndex: 20 }}>
+                  {isSearching && (
+                    <div style={{ padding: '12px 14px', fontSize: '12px', color: 'rgba(43,28,112,0.6)' }}>
+                      Searching addresses...
+                    </div>
+                  )}
+
+                  {!isSearching && placesError && (
+                    <div style={{ padding: '12px 14px', fontSize: '12px', color: '#DB5A29' }}>
+                      {placesError}
+                    </div>
+                  )}
+
+                  {!isSearching && !placesError && suggestions.map((suggestion, index) => (
+                    <button
+                      key={suggestion.placeId}
+                      type="button"
+                      onClick={() => handleSelectSuggestion(suggestion)}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '10px',
+                        padding: '12px 14px',
+                        border: 'none',
+                        borderTop: index === 0 ? 'none' : '1px solid rgba(43,28,112,0.08)',
+                        background: activeSuggestionIndex === index ? '#F5F3FF' : '#fff',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontFamily: 'Poppins, sans-serif',
+                      }}
+                    >
+                      <MapPin size={15} color="#2B1C70" style={{ marginTop: '2px', flexShrink: 0 }} />
+                      <span style={{ minWidth: 0 }}>
+                        <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2B1C70' }}>{suggestion.mainText}</span>
+                        {suggestion.secondaryText && (
+                          <span style={{ display: 'block', fontSize: '12px', color: 'rgba(43,28,112,0.58)', marginTop: '2px' }}>
+                            {suggestion.secondaryText}
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {address.trim() && (
+            {selectedAddress?.formatted && (
               <button
-                onClick={() => { setShowAddressModal(false); navigate('/checkout'); }}
+                onClick={handleContinueToCheckout}
                 style={{ marginTop: '10px', width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', background: '#F5F3FF', border: 'none', cursor: 'pointer', fontFamily: 'Poppins, sans-serif' }}
               >
                 <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(43,28,112,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <MapPin size={14} color="#2B1C70" />
                 </div>
-                <span style={{ fontSize: '13px', fontWeight: 500, color: '#2B1C70', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{address}</span>
+                <span style={{ fontSize: '13px', fontWeight: 500, color: '#2B1C70', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedAddress.formatted}</span>
               </button>
             )}
 
             <button
-              onClick={() => { if (address.trim()) { setShowAddressModal(false); navigate('/checkout'); } }}
+              onClick={handleContinueToCheckout}
               style={{ marginTop: '14px', width: '100%', background: address.trim() ? '#D4F84A' : '#e5e7eb', color: '#2B1C70', padding: '14px', borderRadius: '12px', fontWeight: 700, fontSize: '14px', border: 'none', cursor: address.trim() ? 'pointer' : 'default', opacity: address.trim() ? 1 : 0.45, fontFamily: 'Poppins, sans-serif' }}
             >
               Continue to checkout

@@ -1,3 +1,5 @@
+import { DELIVERY_WINDOW_LABEL } from '../lib/orderLifecycle';
+
 /**
  * api/complete-order.ts
  *
@@ -25,7 +27,13 @@ function parseServiceDate(dateStr: string): Date | null {
   const year = new Date().getFullYear();
   const withoutDay = dateStr.replace(/^[A-Za-z]+,\s*/, ''); // "Apr 6"
   const d = new Date(`${withoutDay} ${year}`);
-  return isNaN(d.getTime()) ? null : d;
+  if (isNaN(d.getTime())) return null;
+
+  if (d.getTime() < Date.now() - 1000 * 60 * 60 * 24 * 30) {
+    d.setFullYear(d.getFullYear() + 1);
+  }
+
+  return d;
 }
 
 // "Monday, Apr 6" → "04-06-26"
@@ -59,11 +67,65 @@ function formatServiceDateTyche(dateStr: string): string {
   return `${day}-${m}-${d.getFullYear()}`;
 }
 
+function formatServiceDateIso(dateStr: string): string {
+  const d = parseServiceDate(dateStr);
+  if (!d) return '';
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${month}-${day}`;
+}
+
+function toCents(amount: number) {
+  return Math.round((Number(amount) || 0) * 100);
+}
+
+function allocateCents(weights: number[], totalCents: number) {
+  if (weights.length === 0) return [];
+
+  const totalWeight = weights.reduce((sum, value) => sum + value, 0);
+  if (totalWeight <= 0) {
+    const evenShare = Math.floor(totalCents / weights.length);
+    const result = Array.from({ length: weights.length }, () => evenShare);
+    let remainder = totalCents - evenShare * weights.length;
+    let index = 0;
+    while (remainder > 0) {
+      result[index] += 1;
+      remainder -= 1;
+      index += 1;
+    }
+    return result;
+  }
+
+  const provisional = weights.map((weight) => {
+    const exact = (weight / totalWeight) * totalCents;
+    return { floor: Math.floor(exact), fraction: exact - Math.floor(exact) };
+  });
+
+  const allocated = provisional.map((entry) => entry.floor);
+  let remainder = totalCents - allocated.reduce((sum, value) => sum + value, 0);
+
+  provisional
+    .map((entry, index) => ({ ...entry, index }))
+    .sort((a, b) => b.fraction - a.fraction)
+    .forEach((entry) => {
+      if (remainder > 0) {
+        allocated[entry.index] += 1;
+        remainder -= 1;
+      }
+    });
+
+  return allocated;
+}
+
+function roundCurrency(amount: number) {
+  return (toCents(amount) / 100).toFixed(2);
+}
+
 // ─── Helper: build customization meta_data for a single item ──────────────────
 // KEY RULE: The WP Code Snippet export reads 'Fecha de Servicio' from line item meta
 // for both the "Delivery Date" admin column AND the delivery date range filter.
 // DO NOT change that key — it is hardcoded in the WordPress PHP export snippet.
-function buildItemMeta(item: any): { key: string; value: string }[] {
+function buildItemMeta(item: any, customerInfo: any): { key: string; value: string }[] {
   const meta: { key: string; value: string }[] = [];
   const c = item.customizations;
 
@@ -79,8 +141,21 @@ function buildItemMeta(item: any): { key: string; value: string }[] {
   if (item.serviceDate) {
     // 'Delivery date' → read by the PHP export (parse_delivery_date expects MM-DD-YY with dashes)
     meta.push({ key: 'Delivery date',     value: formatServiceDateForExport(item.serviceDate) });
-    // 'Fecha de Servicio' → human-readable fallback visible in order detail
-    meta.push({ key: 'Fecha de Servicio', value: item.serviceDate });
+    // Some WordPress export snippets key off this label directly, so keep it machine-readable.
+    meta.push({ key: 'Fecha de Servicio', value: formatServiceDateForExport(item.serviceDate) });
+    meta.push({ key: 'Fecha de Servicio Display', value: item.serviceDate });
+    meta.push({ key: 'Service Date ISO',  value: formatServiceDateIso(item.serviceDate) });
+  }
+  if (customerInfo.deliveryTimeWindow || DELIVERY_WINDOW_LABEL) {
+    meta.push({ key: 'Delivery time', value: customerInfo.deliveryTimeWindow || DELIVERY_WINDOW_LABEL });
+    meta.push({ key: 'Delivery Time', value: customerInfo.deliveryTimeWindow || DELIVERY_WINDOW_LABEL });
+    meta.push({ key: 'delivery_time', value: customerInfo.deliveryTimeWindow || DELIVERY_WINDOW_LABEL });
+  }
+  if (customerInfo.address2) {
+    meta.push({ key: 'Address line 2', value: customerInfo.address2 });
+  }
+  if (customerInfo.deliveryInstructions) {
+    meta.push({ key: 'Delivery instructions', value: customerInfo.deliveryInstructions });
   }
   return meta;
 }
@@ -92,6 +167,13 @@ async function createWooOrder(
   couponCode: string | null,
   paymentIntentId: string | null,
   isFree: boolean,
+  pricing: {
+    subtotal: string;
+    discount: string;
+    tax: string;
+    tip: string;
+    total: string;
+  },
   wcUrl: string,
   wcCk: string,
   wcCs: string,
@@ -102,12 +184,14 @@ async function createWooOrder(
     ...(customerInfo.wcCustomerId ? { customer_id: customerInfo.wcCustomerId } : {}),
     payment_method: isFree ? 'free_coupon' : 'stripe',
     payment_method_title: isFree ? 'Free (100% Promo)' : 'Credit Card (Stripe)',
+    transaction_id: paymentIntentId || '',
     billing: {
       first_name: customerInfo.name?.split(' ')[0] || '',
       last_name:  customerInfo.name?.split(' ').slice(1).join(' ') || '',
       address_1:  customerInfo.street || '',
+      address_2:  customerInfo.address2 || '',
       city:       customerInfo.city || 'Miami',
-      state:      'FL',
+      state:      customerInfo.state || 'FL',
       postcode:   customerInfo.zip || '',
       country:    'US',
       email:      customerInfo.email || '',
@@ -117,8 +201,9 @@ async function createWooOrder(
       first_name: customerInfo.name?.split(' ')[0] || '',
       last_name:  customerInfo.name?.split(' ').slice(1).join(' ') || '',
       address_1:  customerInfo.street || '',
+      address_2:  customerInfo.address2 || '',
       city:       customerInfo.city || 'Miami',
-      state:      'FL',
+      state:      customerInfo.state || 'FL',
       postcode:   customerInfo.zip || '',
       country:    'US',
     },
@@ -126,11 +211,11 @@ async function createWooOrder(
     line_items: [{
       product_id: item._wooProductId || 0,
       quantity:   item.quantity,
-      meta_data:  buildItemMeta(item),
+      meta_data:  buildItemMeta(item, customerInfo),
     }],
     // Coupon applied to each order so WooCommerce shows the correct discounted total
     coupon_lines: couponCode ? [{ code: couponCode }] : [],
-    customer_note: customerInfo.notes || '',
+    customer_note: customerInfo.deliveryInstructions || customerInfo.notes || '',
     // ORDER-level meta.
     // e_deliverydate = Tyche Softwares "Order Delivery Date" plugin key (DD-MM-YYYY).
     // The WooCommerce "Delivery Date" admin column and the custom export filter
@@ -140,7 +225,26 @@ async function createWooOrder(
       { key: 'stripe_payment_intent', value: paymentIntentId || 'N/A (free order)' },
       { key: 'e_deliverydate',        value: formatServiceDateTyche(item.serviceDate || '') },
       { key: 'delivery_date',         value: formatServiceDateForWoo(item.serviceDate || '') },
-      { key: 'Fecha de Servicio',     value: item.serviceDate || '' },
+      { key: 'service_date_export',   value: formatServiceDateForExport(item.serviceDate || '') },
+      { key: 'service_date_iso',      value: formatServiceDateIso(item.serviceDate || '') },
+      { key: 'service_date_display',  value: item.serviceDate || '' },
+      { key: 'Fecha de Servicio',     value: formatServiceDateForExport(item.serviceDate || '') },
+      { key: 'Delivery date',         value: formatServiceDateForExport(item.serviceDate || '') },
+      { key: 'service_day',           value: item.serviceDate || '' },
+      { key: 'service_date_label',    value: item.serviceDate || '' },
+      { key: 'delivery_time_window',  value: customerInfo.deliveryTimeWindow || DELIVERY_WINDOW_LABEL },
+      { key: 'delivery_time',         value: customerInfo.deliveryTimeWindow || DELIVERY_WINDOW_LABEL },
+      { key: 'Delivery Time',         value: customerInfo.deliveryTimeWindow || DELIVERY_WINDOW_LABEL },
+      { key: 'customer_name',         value: customerInfo.name || '' },
+      { key: 'customer_email',        value: customerInfo.email || '' },
+      { key: 'customer_phone',        value: customerInfo.phone || '' },
+      { key: 'address_line_2',        value: customerInfo.address2 || '' },
+      { key: 'delivery_instructions', value: customerInfo.deliveryInstructions || '' },
+      { key: 'knwn_order_subtotal',   value: pricing.subtotal },
+      { key: 'knwn_order_discount',   value: pricing.discount },
+      { key: 'knwn_order_tax',        value: pricing.tax },
+      { key: 'knwn_order_tip',        value: pricing.tip },
+      { key: 'knwn_order_total',      value: pricing.total },
     ],
   };
 
@@ -172,7 +276,7 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { items, customerInfo, couponCode, paymentIntentId, isFree } = req.body;
+  const { items, customerInfo, couponCode, paymentIntentId, isFree, pricing } = req.body;
 
   if (!items || items.length === 0) {
     return res.status(400).json({ error: 'No items in order' });
@@ -205,16 +309,35 @@ export default async function handler(req: any, res: any) {
   const wcCs  = process.env.WC_CONSUMER_SECRET?.trim();
   const wcReady = !!(wcUrl && wcCk && wcCs);
 
+  const itemSubtotals = items.map((item: any) => Number(item.price || 0) * Number(item.quantity || 0));
+  const subtotalWeights = itemSubtotals.map((value) => toCents(value));
+  const subtotalAllocations = allocateCents(subtotalWeights, toCents(pricing?.subtotal ?? itemSubtotals.reduce((sum: number, value: number) => sum + value, 0)));
+  const discountAllocations = allocateCents(subtotalWeights, toCents(pricing?.discount ?? 0));
+  const taxAllocations = allocateCents(subtotalWeights, toCents(pricing?.tax ?? 0));
+  const tipAllocations = allocateCents(subtotalWeights, toCents(pricing?.tip ?? 0));
+  const totalAllocations = allocateCents(subtotalWeights, toCents(pricing?.total ?? 0));
+
   // ── SPLIT: Create one WooCommerce order per item ───────────────────────────
   // Orders are created in parallel for speed.
   const orderResults = await Promise.all(
-    items.map(async (item: any) => {
+    items.map(async (item: any, index: number) => {
       let wooOrderId: number | null = null;
       let wooOrderKey: string | null = null;
 
       if (wcReady) {
         const wooOrder = await createWooOrder(
-          item, customerInfo, couponCode, paymentIntentId, isFree,
+          item,
+          customerInfo,
+          couponCode,
+          paymentIntentId,
+          isFree,
+          {
+            subtotal: roundCurrency(subtotalAllocations[index] / 100),
+            discount: roundCurrency(discountAllocations[index] / 100),
+            tax: roundCurrency(taxAllocations[index] / 100),
+            tip: roundCurrency(tipAllocations[index] / 100),
+            total: roundCurrency(totalAllocations[index] / 100),
+          },
           wcUrl!, wcCk!, wcCs!
         );
         if (wooOrder) {

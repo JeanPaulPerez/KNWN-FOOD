@@ -9,9 +9,9 @@ import Checkout from './pages/Checkout';
 import ThankYou from './pages/ThankYou';
 import About from './pages/About';
 import OrderPage from './pages/OrderPage';
+import Account from './pages/Account';
 import { useWooCart } from './store/useWooCart';
 import { useUser } from './store/useUser';
-import RegistrationModal from './components/RegistrationModal';
 import ProfileModal from './components/ProfileModal';
 import Header from './components/Header';
 
@@ -187,10 +187,9 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
 
 export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [showRegistration, setShowRegistration] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const cart = useWooCart();
-  const { isRegistered, register } = useUser();
+  const { isRegistered } = useUser();
   const navigate = useNavigate();
 
   const handleFinalize = () => {
@@ -198,20 +197,18 @@ export default function App() {
     navigate('/checkout');
   };
 
-  const handleRegistrationConfirm = (userData: any) => {
-    register(userData);
-    setShowRegistration(false);
-    navigate('/checkout');
-  };
+  const handleAccountAction = () => {
+    if (isRegistered) {
+      navigate('/account?tab=orders');
+      return;
+    }
 
-  const handleSkipToCheckout = () => {
-    setShowRegistration(false);
-    navigate('/checkout');
+    setShowProfile(true);
   };
 
   return (
     <div className="min-h-screen selection:bg-brand-primary selection:text-white flex flex-col font-sans bg-[#F5F3FF]">
-      <Header cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} onOpenProfile={() => setShowProfile(true)} />
+      <Header cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} onOpenProfile={handleAccountAction} />
 
       <main className="flex-1">
         <Routes>
@@ -221,6 +218,7 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/checkout" element={<Checkout cart={cart} />} />
           <Route path="/thank-you" element={<ThankYou />} />
+          <Route path="/account" element={<Account />} />
         </Routes>
       </main>
 
@@ -234,17 +232,6 @@ export default function App() {
       <AnimatePresence>
         {showProfile && (
           <ProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showRegistration && (
-          <RegistrationModal
-            isOpen={showRegistration}
-            onClose={() => setShowRegistration(false)}
-            onConfirm={handleRegistrationConfirm}
-            onSkip={handleSkipToCheckout}
-          />
         )}
       </AnimatePresence>
 

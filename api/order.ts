@@ -1,5 +1,12 @@
 
 import nodemailer from 'nodemailer';
+import {
+  DELIVERY_WINDOW_LABEL,
+  formatServiceDateForExport,
+  formatServiceDateForWoo,
+  formatServiceDateIso,
+  formatServiceDateTyche,
+} from '../lib/orderLifecycle';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -41,6 +48,8 @@ export default async function handler(req: any, res: any) {
         // Fecha de servicio específica para este item
         if (item.serviceDate) {
           item_meta.push({ key: "Fecha de Servicio", value: item.serviceDate });
+          item_meta.push({ key: "Delivery date", value: formatServiceDateForExport(item.serviceDate) });
+          item_meta.push({ key: "service_date_iso", value: formatServiceDateIso(item.serviceDate) });
         }
 
         return {
@@ -78,7 +87,15 @@ export default async function handler(req: any, res: any) {
         customer_note: payload.notes || "",
         meta_data: [
           { key: "service_day", value: payload.serviceDay },
-          { key: "order_type", value: "Headless React Order" }
+          { key: "order_type", value: "Headless React Order" },
+          { key: "e_deliverydate", value: formatServiceDateTyche(payload.serviceDay) },
+          { key: "delivery_date", value: formatServiceDateForWoo(payload.serviceDay) },
+          { key: "service_date_iso", value: formatServiceDateIso(payload.serviceDay) },
+          { key: "Fecha de Servicio", value: payload.serviceDay },
+          { key: "Delivery date", value: formatServiceDateForExport(payload.serviceDay) },
+          { key: "delivery_time", value: payload.deliveryTimeWindow || DELIVERY_WINDOW_LABEL },
+          { key: "customer_name", value: payload.name || '' },
+          { key: "customer_email", value: payload.email || '' },
         ]
       };
 
@@ -181,4 +198,3 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({ success: true, orderId, wooOrderId, wooOrderKey, warning: 'Order saved in WC but email failed.' });
   }
 }
-

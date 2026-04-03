@@ -15,6 +15,9 @@ interface ImportMetaEnv {
 
     // Stripe publishable key — intentionally public
     readonly VITE_STRIPE_PUBLISHABLE_KEY: string;
+
+    // Google Maps Places browser key — safe only with proper HTTP referrer restrictions
+    readonly VITE_GOOGLE_MAPS_API_KEY?: string;
 }
 
 interface ImportMeta {

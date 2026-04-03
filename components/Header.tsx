@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, User, Menu, X } from 'lucide-react';
 import s from './Header.module.css';
 import { useUser } from '../store/useUser';
@@ -13,6 +13,16 @@ interface HeaderProps {
 export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: HeaderProps) {
   const [open, setOpen] = useState(false);
   const { isRegistered } = useUser();
+  const navigate = useNavigate();
+
+  const handleAccountClick = () => {
+    if (onOpenProfile) {
+      onOpenProfile();
+      return;
+    }
+
+    navigate('/account');
+  };
 
   return (
     <header className={s.header}>
@@ -42,7 +52,7 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
           {cartCount > 0 && <span className={s.cartBadge}>{cartCount}</span>}
         </button>
 
-        <button className={s.iconBtn} aria-label="Account" onClick={onOpenProfile}>
+        <button className={s.iconBtn} aria-label="Account" onClick={handleAccountClick}>
           <User size={20} strokeWidth={1.8} />
           {isRegistered && <span className={s.profileDot} />}
         </button>
@@ -50,6 +60,11 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
 
       {/* Mobile right: cart + hamburger */}
       <div className={s.mobileRight}>
+        <button className={s.iconBtn} aria-label="Account" onClick={onOpenProfile}>
+          <User size={20} strokeWidth={1.8} />
+          {isRegistered && <span className={s.profileDot} />}
+        </button>
+
         <button className={s.iconBtn} onClick={onOpenCart} aria-label="Cart">
           <ShoppingBag size={20} strokeWidth={1.8} />
           {cartCount > 0 && <span className={s.cartBadge}>{cartCount}</span>}
