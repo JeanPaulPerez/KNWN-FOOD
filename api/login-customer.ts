@@ -2,13 +2,11 @@
  * api/login-customer.ts
  *
  * Authenticates a customer against WordPress using Basic Auth,
- * then fetches their WooCommerce profile (name, email, phone, address).
+ * then returns their WooCommerce profile.
  *
  * WordPress 5.6+ supports Application Passwords for REST API auth.
  * Alternatively install the "JSON Basic Authentication" plugin for WP.
  */
-import { buildSessionCookie, createSessionToken, SessionUser } from '../lib/authSession';
-
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -21,13 +19,14 @@ export default async function handler(req: any, res: any) {
   }
 
   const wcUrl = process.env.WC_URL?.trim();
-  const wcCk = process.env.WC_CONSUMER_KEY?.trim();
-  const wcCs = process.env.WC_CONSUMER_SECRET?.trim();
+  const wcCk  = process.env.WC_CONSUMER_KEY?.trim();
+  const wcCs  = process.env.WC_CONSUMER_SECRET?.trim();
 
   if (!wcUrl || !wcCk || !wcCs) {
     return res.status(500).json({ error: 'Store not configured' });
   }
 
+  // Step 1 — verify credentials against WordPress REST API
   const userAuth = Buffer.from(`${email}:${password}`).toString('base64');
   try {
     const meRes = await fetch(`${wcUrl}/wp-json/wp/v2/users/me`, {
@@ -40,6 +39,7 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ error: 'Could not reach the store' });
   }
 
+  // Step 2 — fetch WooCommerce customer profile using admin credentials
   const adminAuth = Buffer.from(`${wcCk}:${wcCs}`).toString('base64');
   try {
     const searchRes = await fetch(
@@ -50,21 +50,16 @@ export default async function handler(req: any, res: any) {
     if (!Array.isArray(customers) || customers.length === 0) {
       return res.status(404).json({ error: 'No customer account found for this email' });
     }
-
-    const customer = customers[0];
-    const user: SessionUser = {
-      wcCustomerId: customer.id,
-      name: `${customer.first_name} ${customer.last_name}`.trim(),
-      email: customer.email,
-      phone: customer.billing?.phone || '',
-      street: customer.billing?.address_1 || '',
-      city: customer.billing?.city || '',
-      state: customer.billing?.state || '',
-      zip: customer.billing?.postcode || '',
-    };
-
-    res.setHeader('Set-Cookie', buildSessionCookie(createSessionToken(user)));
-    return res.json(user);
+    const c = customers[0];
+    return res.json({
+      wcCustomerId: c.id,
+      name:   `${c.first_name} ${c.last_name}`.trim(),
+      email:  c.email,
+      phone:  c.billing?.phone   || '',
+      street: c.billing?.address_1 || '',
+      city:   c.billing?.city    || '',
+      zip:    c.billing?.postcode || '',
+    });
   } catch {
     return res.status(500).json({ error: 'Failed to fetch customer profile' });
   }
