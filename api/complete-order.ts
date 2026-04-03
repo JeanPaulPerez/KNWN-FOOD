@@ -85,9 +85,13 @@ async function createWooOrder(
     // Coupon applied to each order so WooCommerce shows the correct discounted total
     coupon_lines: couponCode ? [{ code: couponCode }] : [],
     customer_note: customerInfo.notes || '',
+    // ORDER-level meta — delivery_date MUST be here so the WP export plugin's
+    // meta_query can find it when filtering by date range.
     meta_data: [
       { key: 'order_source',          value: 'headless-react' },
       { key: 'stripe_payment_intent', value: paymentIntentId || 'N/A (free order)' },
+      { key: 'delivery_date',         value: item.serviceDate || '' },
+      { key: 'Delivery date',         value: item.serviceDate || '' },
     ],
   };
 
