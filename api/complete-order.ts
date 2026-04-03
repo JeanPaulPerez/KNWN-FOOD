@@ -28,7 +28,20 @@ function parseServiceDate(dateStr: string): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
-// "Monday, Apr 6" → "04/06/2026"  (MM/DD/YYYY — used for delivery_date order meta)
+// "Monday, Apr 6" → "04-06-26"
+// REQUIRED FORMAT for the WooCommerce export PHP function parse_delivery_date():
+//   explode('-', $date_string) must yield exactly 3 parts [MM, DD, YY]
+//   Any other format (slashes, 4-digit year) returns false → item excluded from export.
+function formatServiceDateForExport(dateStr: string): string {
+  const d = parseServiceDate(dateStr);
+  if (!d) return dateStr;
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const yy = String(d.getFullYear()).slice(-2); // 2-digit year
+  return `${m}-${day}-${yy}`; // "04-06-26"
+}
+
+// "Monday, Apr 6" → "04/06/2026"  (MM/DD/YYYY — fallback for order-level meta)
 function formatServiceDateForWoo(dateStr: string): string {
   const d = parseServiceDate(dateStr);
   if (!d) return dateStr;
@@ -37,8 +50,7 @@ function formatServiceDateForWoo(dateStr: string): string {
   return `${m}/${day}/${d.getFullYear()}`;
 }
 
-// "Monday, Apr 6" → "06-04-2026"  (DD-MM-YYYY — Tyche Softwares Order Delivery Date plugin format)
-// This is the key the WooCommerce "Delivery Date" column and export filter read: e_deliverydate
+// "Monday, Apr 6" → "06-04-2026"  (DD-MM-YYYY — Tyche Softwares plugin format for admin column)
 function formatServiceDateTyche(dateStr: string): string {
   const d = parseServiceDate(dateStr);
   if (!d) return dateStr;
@@ -65,10 +77,10 @@ function buildItemMeta(item: any): { key: string; value: string }[] {
     if (c.swap)             meta.push({ key: 'Other',                     value: c.swap });
   }
   if (item.serviceDate) {
-    // 'Fecha de Servicio' → required for the WP PHP export column + date filter
+    // 'Delivery date' → read by the PHP export (parse_delivery_date expects MM-DD-YY with dashes)
+    meta.push({ key: 'Delivery date',     value: formatServiceDateForExport(item.serviceDate) });
+    // 'Fecha de Servicio' → human-readable fallback visible in order detail
     meta.push({ key: 'Fecha de Servicio', value: item.serviceDate });
-    // 'Delivery date' → maps to the "Delivery date" column header in the Excel export
-    meta.push({ key: 'Delivery date',     value: formatServiceDateForWoo(item.serviceDate) });
   }
   return meta;
 }
