@@ -1,12 +1,41 @@
 /**
  * api/login-customer.ts
  *
- * Authenticates a customer against WordPress using Basic Auth,
- * then returns their WooCommerce profile.
- *
- * WordPress 5.6+ supports Application Passwords for REST API auth.
- * Alternatively install the "JSON Basic Authentication" plugin for WP.
+ * Authenticates a customer against WordPress using the standard wp-login flow,
+ * then returns their WooCommerce profile and creates the headless session cookie.
  */
+import { buildSessionCookie, createSessionToken, SessionUser } from '../lib/authSession';
+
+function buildWordPressLoginBody(email: string, password: string, wcUrl: string) {
+  return new URLSearchParams({
+    log: email,
+    pwd: password,
+    'wp-submit': 'Log In',
+    redirect_to: `${wcUrl}/wp-admin/`,
+    testcookie: '1',
+    rememberme: 'forever',
+  }).toString();
+}
+
+async function authenticateWithWordPress(wcUrl: string, email: string, password: string) {
+  const response = await fetch(`${wcUrl}/wp-login.php`, {
+    method: 'POST',
+    redirect: 'manual',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Cookie: 'wordpress_test_cookie=WP Cookie check',
+    },
+    body: buildWordPressLoginBody(email, password, wcUrl),
+  });
+
+  const setCookie = response.headers.get('set-cookie') || '';
+  const location = response.headers.get('location') || '';
+  const loggedInCookiePresent = setCookie.includes('wordpress_logged_in_');
+  const redirectedToAdmin = response.status >= 300 && response.status < 400 && /wp-admin/i.test(location);
+
+  return loggedInCookiePresent || redirectedToAdmin;
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -26,13 +55,9 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ error: 'Store not configured' });
   }
 
-  // Step 1 — verify credentials against WordPress REST API
-  const userAuth = Buffer.from(`${email}:${password}`).toString('base64');
   try {
-    const meRes = await fetch(`${wcUrl}/wp-json/wp/v2/users/me`, {
-      headers: { Authorization: `Basic ${userAuth}` },
-    });
-    if (!meRes.ok) {
+    const authenticated = await authenticateWithWordPress(wcUrl, email, password);
+    if (!authenticated) {
       return res.status(401).json({ error: 'Email or password incorrect' });
     }
   } catch {
@@ -51,16 +76,21 @@ export default async function handler(req: any, res: any) {
       return res.status(404).json({ error: 'No customer account found for this email' });
     }
     const c = customers[0];
-    return res.json({
+    const user: SessionUser = {
       wcCustomerId: c.id,
-      name:   `${c.first_name} ${c.last_name}`.trim(),
-      email:  c.email,
-      phone:  c.billing?.phone   || '',
+      name: `${c.first_name} ${c.last_name}`.trim(),
+      email: c.email,
+      phone: c.billing?.phone || '',
       street: c.billing?.address_1 || '',
-      city:   c.billing?.city    || '',
+      city: c.billing?.city || '',
+      state: c.billing?.state || 'FL',
       zip:    c.billing?.postcode || '',
-    });
-  } catch {
+    };
+
+    res.setHeader('Set-Cookie', buildSessionCookie(createSessionToken(user)));
+    return res.json(user);
+  } catch (err) {
+    console.error('[login-customer] exception:', err);
     return res.status(500).json({ error: 'Failed to fetch customer profile' });
   }
 }

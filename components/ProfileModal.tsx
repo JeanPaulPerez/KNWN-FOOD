@@ -11,6 +11,17 @@ interface ProfileModalProps {
 
 type AuthMode = 'login' | 'register';
 
+async function parseApiResponse<T = any>(response: Response): Promise<T> {
+  const raw = await response.text();
+
+  try {
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    const sanitized = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    throw new Error(sanitized || 'Server returned an invalid response');
+  }
+}
+
 export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const navigate = useNavigate();
   const { user, register, logout } = useUser();
@@ -54,7 +65,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
+      const data = await parseApiResponse<any>(res);
 
       if (!res.ok) {
         setError(data.error || 'Login failed');
@@ -88,7 +99,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(registerData),
       });
-      const data = await res.json();
+      const data = await parseApiResponse<any>(res);
 
       if (!res.ok) {
         setError(data.error || 'Registration failed');
