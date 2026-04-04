@@ -4,20 +4,17 @@
  * Updates the authenticated WooCommerce customer profile and keeps the
  * headless account session in sync.
  */
-import { buildSessionCookie, createSessionToken, getSessionUserFromRequest, SessionUser } from '../lib/authSession';
-
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST' && req.method !== 'PUT') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const sessionUser = getSessionUserFromRequest(req);
-  if (!sessionUser) {
-    return res.status(401).json({ error: 'Authentication required' });
-  }
+  const { name, email, phone, street, city, state, zip, wcCustomerId: bodyCustomerId } = req.body || {};
+  const targetEmail = email || '';
 
-  const { name, email, phone, street, city, state, zip } = req.body || {};
-  const targetEmail = email || sessionUser.email;
+  if (!targetEmail) {
+    return res.status(400).json({ error: 'Authentication required' });
+  }
 
   if (!targetEmail) {
     return res.status(400).json({ error: 'Email is required' });
@@ -45,7 +42,7 @@ export default async function handler(req: any, res: any) {
       phone:      phone || '',
       address_1:  street || '',
       city:       city || 'Miami',
-      state:      state || sessionUser.state || 'FL',
+      state:      state || 'FL',
       postcode:   zip || '',
       country:    'US',
     },
@@ -54,7 +51,7 @@ export default async function handler(req: any, res: any) {
       last_name:  lastName,
       address_1:  street || '',
       city:       city || 'Miami',
-      state:      state || sessionUser.state || 'FL',
+      state:      state || 'FL',
       postcode:   zip || '',
       country:    'US',
     },
@@ -63,11 +60,11 @@ export default async function handler(req: any, res: any) {
   const authHeader = `Basic ${Buffer.from(`${wcCk}:${wcCs}`).toString('base64')}`;
 
   try {
-    let customerId = sessionUser.wcCustomerId || 0;
+    let customerId = (bodyCustomerId ? Number(bodyCustomerId) : 0) || 0;
 
     if (!customerId) {
       const searchRes = await fetch(
-        `${wcUrl}/wp-json/wc/v3/customers?email=${encodeURIComponent(sessionUser.email)}&per_page=1`,
+        `${wcUrl}/wp-json/wc/v3/customers?email=${encodeURIComponent(targetEmail)}&per_page=1`,
         { headers: { Authorization: authHeader } }
       );
       const existing = await searchRes.json() as any[];
@@ -91,18 +88,16 @@ export default async function handler(req: any, res: any) {
         return res.status(502).json({ error: 'Failed to update customer' });
       }
       const updated = await updateRes.json() as any;
-      const user: SessionUser = {
+      return res.json({
         wcCustomerId: customerId,
-        name: `${updated.first_name || firstName} ${updated.last_name || lastName}`.trim(),
-        email: updated.email || targetEmail,
-        phone: updated.billing?.phone || phone || '',
+        name:   `${updated.first_name || firstName} ${updated.last_name || lastName}`.trim(),
+        email:  updated.email || targetEmail,
+        phone:  updated.billing?.phone   || phone  || '',
         street: updated.billing?.address_1 || street || '',
-        city: updated.billing?.city || city || '',
-        state: updated.billing?.state || state || sessionUser.state || 'FL',
-        zip: updated.billing?.postcode || zip || '',
-      };
-      res.setHeader('Set-Cookie', buildSessionCookie(createSessionToken(user)));
-      return res.json(user);
+        city:   updated.billing?.city    || city   || '',
+        state:  updated.billing?.state   || state  || 'FL',
+        zip:    updated.billing?.postcode || zip   || '',
+      });
     }
 
     return res.status(404).json({ error: 'Customer account not found' });

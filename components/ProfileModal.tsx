@@ -15,7 +15,7 @@ async function parseApiResponse<T = any>(response: Response): Promise<T> {
   const raw = await response.text();
 
   try {
-    return raw ? JSON.parse(raw) : {};
+    return raw ? JSON.parse(raw) : ({} as T);
   } catch {
     const sanitized = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     throw new Error(sanitized || 'Server returned an invalid response');
@@ -141,10 +141,14 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         <div className="px-8 pt-8 pb-0 flex items-start justify-between">
           <div>
             <h2 className="text-2xl font-serif text-brand-primary">
-              {user ? `Hi, ${user.name?.split(' ')[0] || user.email}` : 'Account Access'}
+              {user
+                ? `Hi, ${user.name?.split(' ')[0] || user.email}`
+                : mode === 'login'
+                ? 'Sign In'
+                : 'Create Account'}
             </h2>
             <p className="text-[9px] font-black uppercase tracking-[0.3em] text-brand-primary/30 mt-1">
-              {user ? 'Your account' : 'Sign in or register'}
+              {user ? 'Your account' : 'Access your KNWN account'}
             </p>
           </div>
           <button

@@ -1,7 +1,219 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Loader2, LogOut, MapPin, Package2, CreditCard, UserCircle2, LayoutDashboard } from 'lucide-react';
+import { Loader2, LogOut, MapPin, Package2, CreditCard, UserCircle2, LayoutDashboard, Trash2, Plus, X } from 'lucide-react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useUser } from '../store/useUser';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string);
+
+const CARD_ELEMENT_OPTIONS = {
+  style: {
+    base: {
+      fontSize: '15px',
+      color: '#1E0B6E',
+      fontFamily: '"Poppins", sans-serif',
+      fontSmoothing: 'antialiased',
+      '::placeholder': { color: '#1E0B6E40' },
+    },
+    invalid: { color: '#ef4444', iconColor: '#ef4444' },
+  },
+};
+
+type SavedCard = {
+  id: string;
+  brand: string;
+  last4: string;
+  expMonth: number;
+  expYear: number;
+};
+
+function brandLabel(brand: string) {
+  const map: Record<string, string> = {
+    visa: 'Visa', mastercard: 'Mastercard', amex: 'Amex',
+    discover: 'Discover', jcb: 'JCB', unionpay: 'UnionPay',
+    diners: 'Diners',
+  };
+  return map[brand] || brand.charAt(0).toUpperCase() + brand.slice(1);
+}
+
+function AddCardForm({ email, name, onSuccess, onCancel }: {
+  email: string; name: string;
+  onSuccess: () => void; onCancel: () => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+    setLoading(true);
+    setError('');
+
+    try {
+      const siRes = await fetch('/api/setup-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name }),
+      });
+      const siData = await siRes.json();
+      if (!siRes.ok) throw new Error(siData.error || 'Failed to initialize card setup');
+
+      const cardEl = elements.getElement(CardElement);
+      if (!cardEl) throw new Error('Card element not found');
+
+      const { error: stripeError } = await stripe.confirmCardSetup(siData.clientSecret, {
+        payment_method: { card: cardEl, billing_details: { email, name } },
+      });
+
+      if (stripeError) throw new Error(stripeError.message);
+      onSuccess();
+    } catch (err: any) {
+      setError(err.message || 'Failed to save card');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-4 rounded-2xl border border-[#D8D0EC] p-4 space-y-3">
+      <div className="rounded-xl bg-brand-bg border border-[#D8D0EC] px-4 py-3">
+        <CardElement options={CARD_ELEMENT_OPTIONS} />
+      </div>
+      {error && <p className="text-[12px] text-red-500 font-medium">{error}</p>}
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={loading || !stripe}
+          className="flex-1 py-3 rounded-xl bg-brand-lime text-brand-primary text-[11px] font-black uppercase tracking-[0.2em] disabled:opacity-60 flex items-center justify-center gap-2"
+        >
+          {loading ? <><Loader2 size={13} className="animate-spin" /> Saving...</> : 'Save card'}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-3 rounded-xl bg-brand-primary/5 text-brand-primary/50 hover:bg-brand-primary/10 transition-colors"
+        >
+          <X size={14} />
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function PaymentMethodsPanel({ email, name }: { email: string; name: string }) {
+  const [cards, setCards] = useState<SavedCard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const fetchCards = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/payment-methods?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to load cards');
+      setCards(data.paymentMethods || []);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [email]);
+
+  useEffect(() => { fetchCards(); }, [fetchCards]);
+
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      const res = await fetch('/api/payment-methods', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentMethodId: id }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to remove card');
+      }
+      setCards((prev) => prev.filter((c) => c.id !== id));
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  return (
+    <Elements stripe={stripePromise}>
+      <div>
+        {loading && (
+          <div className="flex items-center gap-2 text-brand-primary/40 text-sm py-4">
+            <Loader2 size={15} className="animate-spin" /> Loading cards...
+          </div>
+        )}
+        {!loading && error && (
+          <p className="text-[13px] text-red-500 py-2">{error}</p>
+        )}
+        {!loading && !error && cards.length === 0 && !showAddForm && (
+          <p className="text-[14px] text-[#2B1C70]/50 py-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            No saved cards yet.
+          </p>
+        )}
+        {!loading && cards.map((card) => (
+          <div
+            key={card.id}
+            className="flex items-center justify-between py-3 border-b border-[#D8D0EC]/50 last:border-0"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-7 rounded-md bg-brand-primary/8 flex items-center justify-center">
+                <CreditCard size={14} className="text-brand-primary/60" />
+              </div>
+              <div>
+                <p className="text-[13px] font-semibold text-brand-primary" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                  {brandLabel(card.brand)} •••• {card.last4}
+                </p>
+                <p className="text-[11px] text-brand-primary/40" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                  Expires {String(card.expMonth).padStart(2, '0')}/{card.expYear}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => handleDelete(card.id)}
+              disabled={deletingId === card.id}
+              className="p-2 rounded-xl hover:bg-red-50 text-brand-primary/30 hover:text-red-400 transition-colors disabled:opacity-40"
+            >
+              {deletingId === card.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+            </button>
+          </div>
+        ))}
+
+        {!loading && showAddForm && (
+          <AddCardForm
+            email={email}
+            name={name}
+            onSuccess={() => { setShowAddForm(false); fetchCards(); }}
+            onCancel={() => setShowAddForm(false)}
+          />
+        )}
+
+        {!loading && !showAddForm && (
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="mt-4 flex items-center gap-2 py-3 px-4 rounded-xl border border-dashed border-brand-primary/25 text-brand-primary/50 hover:border-brand-primary/50 hover:text-brand-primary/70 transition-colors text-[12px] font-semibold"
+            style={{ fontFamily: 'Poppins, sans-serif' }}
+          >
+            <Plus size={14} />
+            Add a new card
+          </button>
+        )}
+      </div>
+    </Elements>
+  );
+}
 
 type AccountTab = 'dashboard' | 'orders' | 'addresses' | 'payments' | 'details';
 
@@ -187,7 +399,7 @@ export default function Account() {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(accountForm),
+        body: JSON.stringify({ ...accountForm, wcCustomerId: user?.wcCustomerId }),
       });
       const data = await res.json();
 
@@ -431,9 +643,9 @@ export default function Account() {
                 Payment methods
               </h2>
             </div>
-            <p className="text-[14px] text-[#2B1C70]/62" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              Saved payment methods are not yet exposed in the headless account area. Payments are currently managed at checkout and refund handling is done server-side from WooCommerce and Stripe.
-            </p>
+            {user && (
+              <PaymentMethodsPanel email={user.email} name={user.name || ''} />
+            )}
           </div>
         )}
 

@@ -5,8 +5,6 @@
  * Auth: signed session cookie, with optional email + wcCustomerId fallback.
  */
 
-import { getSessionUserFromRequest } from '../lib/authSession';
-
 const CANCELLABLE_STATUSES = new Set(['pending', 'processing', 'on-hold']);
 const DELIVERY_WINDOW_LABEL = '10:00 AM - 12:00 PM';
 
@@ -56,9 +54,8 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const sessionUser = getSessionUserFromRequest(req);
-  const email = sessionUser?.email || (req.query?.email as string) || '';
-  const wcCustomerId = sessionUser?.wcCustomerId || (req.query?.wcCustomerId ? Number(req.query.wcCustomerId) : null);
+  const email = (req.query?.email as string) || '';
+  const wcCustomerId = req.query?.wcCustomerId ? Number(req.query.wcCustomerId) : null;
 
   if (!email) {
     return res.status(401).json({ error: 'Authentication required' });

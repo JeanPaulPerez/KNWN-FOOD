@@ -4,7 +4,6 @@
  * Creates a new WordPress / WooCommerce customer account.
  * Returns the customer profile on success so the frontend can store it locally.
  */
-import { buildSessionCookie, createSessionToken, SessionUser } from '../lib/authSession';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -80,19 +79,16 @@ export default async function handler(req: any, res: any) {
       return res.status(502).json({ error: data.message || 'Failed to create account' });
     }
 
-    const user: SessionUser = {
+    return res.json({
       wcCustomerId: data.id,
-      name: `${data.first_name || firstName}`.trim(),
-      email: data.email || email,
-      phone: data.billing?.phone || '',
+      name:   `${data.first_name || firstName}`.trim(),
+      email:  data.email || email,
+      phone:  data.billing?.phone   || '',
       street: data.billing?.address_1 || '',
-      city: data.billing?.city || '',
-      state: data.billing?.state || 'FL',
-      zip: data.billing?.postcode || '',
-    };
-
-    res.setHeader('Set-Cookie', buildSessionCookie(createSessionToken(user)));
-    return res.json(user);
+      city:   data.billing?.city    || '',
+      state:  data.billing?.state   || 'FL',
+      zip:    data.billing?.postcode || '',
+    });
   } catch (err) {
     console.error('[register-customer] exception:', err);
     return res.status(500).json({ error: 'Failed to create account' });

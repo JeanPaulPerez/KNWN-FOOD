@@ -56,15 +56,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!res.ok) {
-        setUser(null);
+        // No server session — keep any user already loaded from localStorage
         return null;
       }
 
       const data = await res.json();
-      setUser(data.user ?? null);
+      if (data.user) setUser(data.user);
       return data.user ?? null;
     } catch {
-      setUser(null);
+      // Network error — keep localStorage user intact
       return null;
     } finally {
       setIsHydrating(false);
