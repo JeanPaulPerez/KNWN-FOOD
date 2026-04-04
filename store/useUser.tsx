@@ -15,13 +15,15 @@ interface UserContextValue {
   user: User | null;
   isRegistered: boolean;
   isHydrating: boolean;
-  register: (userData: User) => void;
+  token: string | null;
+  register: (userData: User & { _token?: string }) => void;
   updateUser: (userData: Partial<User>) => void;
   logout: () => Promise<void>;
   refreshSession: () => Promise<User | null>;
 }
 
 const STORAGE_KEY = 'knwn_user';
+const TOKEN_KEY   = 'knwn_token';
 const UserContext = createContext<UserContextValue | undefined>(undefined);
 
 function loadUserFromStorage(): User | null {
@@ -35,8 +37,14 @@ function loadUserFromStorage(): User | null {
   }
 }
 
+function loadTokenFromStorage(): string | null {
+  if (typeof window === 'undefined') return null;
+  return window.localStorage.getItem(TOKEN_KEY);
+}
+
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(loadUserFromStorage);
+  const [token, setToken] = useState<string | null>(loadTokenFromStorage);
   const [isHydrating, setIsHydrating] = useState(true);
 
   useEffect(() => {
@@ -75,8 +83,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     refreshSession().catch(() => setIsHydrating(false));
   }, [refreshSession]);
 
-  const register = useCallback((userData: User) => {
-    setUser(userData);
+  const register = useCallback((userData: User & { _token?: string }) => {
+    const { _token, ...userOnly } = userData;
+    setUser(userOnly);
+    if (_token) {
+      setToken(_token);
+      window.localStorage.setItem(TOKEN_KEY, _token);
+    }
   }, []);
 
   const updateUser = useCallback((userData: Partial<User>) => {
@@ -85,12 +98,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await fetch('/api/account-session', {
-        method: 'DELETE',
-        credentials: 'include',
-      });
+      await fetch('/api/account-session', { method: 'DELETE', credentials: 'include' });
     } finally {
       setUser(null);
+      setToken(null);
+      window.localStorage.removeItem(TOKEN_KEY);
     }
   }, []);
 
@@ -99,12 +111,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       user,
       isRegistered: !!user,
       isHydrating,
+      token,
       register,
       updateUser,
       logout,
       refreshSession,
     }),
-    [isHydrating, logout, refreshSession, register, updateUser, user]
+    [isHydrating, logout, refreshSession, register, token, updateUser, user]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

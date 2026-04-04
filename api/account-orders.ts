@@ -1,9 +1,23 @@
 /**
  * api/account-orders.ts
  *
- * Fetches WooCommerce orders for the logged-in user.
- * Auth: signed session cookie, with optional email + wcCustomerId fallback.
+ * Fetches WooCommerce orders for the authenticated user.
+ * Requires a signed token (Authorization: Bearer <token>) issued at login.
  */
+import crypto from 'node:crypto';
+
+const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000;
+
+function verifyToken(token: string | undefined, email: string): boolean {
+  const secret = process.env.STRIPE_SECRET_KEY || process.env.WC_CONSUMER_SECRET || '';
+  if (!token || !secret) return false;
+  const [ts, sig] = token.split('.');
+  if (!ts || !sig) return false;
+  if (Date.now() - Number(ts) > TOKEN_TTL) return false;
+  const expected = crypto.createHmac('sha256', secret).update(`${email}:${ts}`).digest('hex');
+  return sig === expected;
+}
+
 
 const CANCELLABLE_STATUSES = new Set(['pending', 'processing', 'on-hold']);
 const DELIVERY_WINDOW_LABEL = '10:00 AM - 12:00 PM';
@@ -56,8 +70,9 @@ export default async function handler(req: any, res: any) {
 
   const email = (req.query?.email as string) || '';
   const wcCustomerId = req.query?.wcCustomerId ? Number(req.query.wcCustomerId) : null;
+  const token = (req.headers?.authorization as string | undefined)?.replace('Bearer ', '');
 
-  if (!email) {
+  if (!email || !verifyToken(token, email)) {
     return res.status(401).json({ error: 'Authentication required' });
   }
 

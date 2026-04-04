@@ -250,10 +250,10 @@ async function createWooOrder(
 
   try {
     const response = await fetch(
-      `${wcUrl}/wp-json/wc/v3/orders?consumer_key=${wcCk}&consumer_secret=${wcCs}`,
+      `${wcUrl}/wp-json/wc/v3/orders`,
       {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Basic ${Buffer.from(`${wcCk}:${wcCs}`).toString('base64')}` },
         body:    JSON.stringify(payload),
       }
     );

@@ -2,9 +2,27 @@
  * api/login-customer.ts
  *
  * Authenticates a customer against WordPress using the standard wp-login flow,
- * then returns their WooCommerce profile as plain JSON.
+ * then returns their WooCommerce profile + a signed session token.
  * Session is persisted client-side via useUser (localStorage).
  */
+import crypto from 'node:crypto';
+
+const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+function signToken(email: string, secret: string): string {
+  const ts = Date.now();
+  const sig = crypto.createHmac('sha256', secret).update(`${email}:${ts}`).digest('hex');
+  return `${ts}.${sig}`;
+}
+
+export function verifyToken(token: string | undefined, email: string, secret: string): boolean {
+  if (!token) return false;
+  const [ts, sig] = token.split('.');
+  if (!ts || !sig) return false;
+  if (Date.now() - Number(ts) > TOKEN_TTL) return false;
+  const expected = crypto.createHmac('sha256', secret).update(`${email}:${ts}`).digest('hex');
+  return sig === expected;
+}
 
 function buildWordPressLoginBody(email: string, password: string, wcUrl: string) {
   return new URLSearchParams({
@@ -112,6 +130,7 @@ export default async function handler(req: any, res: any) {
       return res.status(404).json({ error: 'No customer account found for this email' });
     }
     const c = customers[0];
+    const secret = process.env.STRIPE_SECRET_KEY || wcCs!;
     return res.json({
       wcCustomerId: c.id,
       name:   `${c.first_name} ${c.last_name}`.trim(),
@@ -121,6 +140,7 @@ export default async function handler(req: any, res: any) {
       city:   c.billing?.city    || '',
       state:  c.billing?.state   || 'FL',
       zip:    c.billing?.postcode || '',
+      _token: signToken(c.email, secret),
     });
   } catch (err) {
     console.error('[login-customer] exception:', err);

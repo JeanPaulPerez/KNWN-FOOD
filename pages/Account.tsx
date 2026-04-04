@@ -103,7 +103,7 @@ function AddCardForm({ email, name, onSuccess, onCancel }: {
   );
 }
 
-function PaymentMethodsPanel({ email, name }: { email: string; name: string }) {
+function PaymentMethodsPanel({ email, name, token }: { email: string; name: string; token: string | null }) {
   const [cards, setCards] = useState<SavedCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -114,7 +114,9 @@ function PaymentMethodsPanel({ email, name }: { email: string; name: string }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`/api/payment-methods?email=${encodeURIComponent(email)}`);
+      const res = await fetch(`/api/payment-methods?email=${encodeURIComponent(email)}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load cards');
       setCards(data.paymentMethods || []);
@@ -132,8 +134,8 @@ function PaymentMethodsPanel({ email, name }: { email: string; name: string }) {
     try {
       const res = await fetch('/api/payment-methods', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentMethodId: id }),
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ paymentMethodId: id, email }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -267,7 +269,7 @@ function getStatusStyles(statusLabel: string) {
 export default function Account() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, isHydrating, logout, updateUser } = useUser();
+  const { user, token, isHydrating, logout, updateUser } = useUser();
   const [orders, setOrders] = useState<DashboardOrder[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [ordersError, setOrdersError] = useState('');
@@ -310,7 +312,10 @@ export default function Account() {
       params.set('wcCustomerId', String(user.wcCustomerId));
     }
 
-    fetch(`/api/account-orders?${params.toString()}`, { credentials: 'include' })
+    fetch(`/api/account-orders?${params.toString()}`, {
+        credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       .then(async (res) => {
         const data = await parseApiResponse<{ orders?: DashboardOrder[]; error?: string }>(res);
         if (!res.ok) {
@@ -355,7 +360,7 @@ export default function Account() {
       const res = await fetch('/api/cancel-order', {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           orderId,
           email: user?.email,
@@ -644,7 +649,7 @@ export default function Account() {
               </h2>
             </div>
             {user && (
-              <PaymentMethodsPanel email={user.email} name={user.name || ''} />
+              <PaymentMethodsPanel email={user.email} name={user.name || ''} token={token} />
             )}
           </div>
         )}

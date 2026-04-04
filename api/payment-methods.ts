@@ -1,9 +1,23 @@
 /**
  * api/payment-methods.ts
  *
- * GET  ?email=... → list saved cards for the Stripe customer
- * DELETE {paymentMethodId} → detach (remove) a saved card
+ * GET  ?email=... → list saved cards (requires Bearer token)
+ * DELETE {paymentMethodId, email} → detach a card (requires Bearer token)
  */
+import crypto from 'node:crypto';
+
+const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000;
+
+function verifyToken(token: string | undefined, email: string): boolean {
+  const secret = process.env.STRIPE_SECRET_KEY || process.env.WC_CONSUMER_SECRET || '';
+  if (!token || !secret) return false;
+  const [ts, sig] = token.split('.');
+  if (!ts || !sig) return false;
+  if (Date.now() - Number(ts) > TOKEN_TTL) return false;
+  const expected = crypto.createHmac('sha256', secret).update(`${email}:${ts}`).digest('hex');
+  return sig === expected;
+}
+
 
 async function getStripeCustomerId(secretKey: string, email: string): Promise<string | null> {
   const res = await fetch(
@@ -18,10 +32,12 @@ export default async function handler(req: any, res: any) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) return res.status(500).json({ error: 'Payment system not configured' });
 
+  const token = (req.headers?.authorization as string | undefined)?.replace('Bearer ', '');
+
   // LIST payment methods
   if (req.method === 'GET') {
     const email = req.query?.email as string;
-    if (!email) return res.status(400).json({ error: 'Email is required' });
+    if (!email || !verifyToken(token, email)) return res.status(401).json({ error: 'Authentication required' });
 
     try {
       const customerId = await getStripeCustomerId(secretKey, email);
@@ -53,8 +69,8 @@ export default async function handler(req: any, res: any) {
 
   // DELETE (detach) a payment method
   if (req.method === 'DELETE') {
-    const { paymentMethodId } = req.body || {};
-    if (!paymentMethodId) return res.status(400).json({ error: 'paymentMethodId is required' });
+    const { paymentMethodId, email: bodyEmail } = req.body || {};
+    if (!paymentMethodId || !bodyEmail || !verifyToken(token, bodyEmail)) return res.status(401).json({ error: 'Authentication required' });
 
     try {
       const detachRes = await fetch(

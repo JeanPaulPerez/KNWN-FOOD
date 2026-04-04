@@ -47,7 +47,8 @@ export default async function handler(req: any, res: any) {
 
   try {
     const response = await fetch(
-      `${wcUrl}/wp-json/wc/v3/coupons?code=${encodeURIComponent(upperCode)}&consumer_key=${wcCk}&consumer_secret=${wcCs}`
+      `${wcUrl}/wp-json/wc/v3/coupons?code=${encodeURIComponent(upperCode)}`,
+      { headers: { Authorization: `Basic ${Buffer.from(`${wcCk}:${wcCs}`).toString('base64')}` } }
     );
 
     if (!response.ok) {

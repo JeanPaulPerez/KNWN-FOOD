@@ -2,8 +2,17 @@
  * api/register-customer.ts
  *
  * Creates a new WordPress / WooCommerce customer account.
- * Returns the customer profile on success so the frontend can store it locally.
+ * Returns the customer profile + signed session token on success.
  */
+import crypto from 'node:crypto';
+
+const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000;
+
+function signToken(email: string, secret: string): string {
+  const ts = Date.now();
+  const sig = crypto.createHmac('sha256', secret).update(`${email}:${ts}`).digest('hex');
+  return `${ts}.${sig}`;
+}
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -79,6 +88,7 @@ export default async function handler(req: any, res: any) {
       return res.status(502).json({ error: data.message || 'Failed to create account' });
     }
 
+    const secret = process.env.STRIPE_SECRET_KEY || wcCs!;
     return res.json({
       wcCustomerId: data.id,
       name:   `${data.first_name || firstName}`.trim(),
@@ -88,6 +98,7 @@ export default async function handler(req: any, res: any) {
       city:   data.billing?.city    || '',
       state:  data.billing?.state   || 'FL',
       zip:    data.billing?.postcode || '',
+      _token: signToken(data.email || email, secret),
     });
   } catch (err) {
     console.error('[register-customer] exception:', err);

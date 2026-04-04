@@ -2,8 +2,22 @@
  * api/cancel-order.ts
  *
  * Cancels a WooCommerce order and issues a Stripe refund if applicable.
- * Auth: signed session cookie, with optional email + wcCustomerId fallback.
+ * Requires a signed Bearer token matching the requesting user's email.
  */
+import crypto from 'node:crypto';
+
+const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000;
+
+function verifyToken(token: string | undefined, email: string): boolean {
+  const secret = process.env.STRIPE_SECRET_KEY || process.env.WC_CONSUMER_SECRET || '';
+  if (!token || !secret) return false;
+  const [ts, sig] = token.split('.');
+  if (!ts || !sig) return false;
+  if (Date.now() - Number(ts) > TOKEN_TTL) return false;
+  const expected = crypto.createHmac('sha256', secret).update(`${email}:${ts}`).digest('hex');
+  return sig === expected;
+}
+
 
 const CANCELLABLE_STATUSES = new Set(['pending', 'processing', 'on-hold']);
 
@@ -55,8 +69,9 @@ export default async function handler(req: any, res: any) {
   const { orderId, email: bodyEmail, wcCustomerId: bodyCustomerId } = req.body || {};
   const email = bodyEmail || '';
   const wcCustomerId = bodyCustomerId ? Number(bodyCustomerId) : null;
+  const token = (req.headers?.authorization as string | undefined)?.replace('Bearer ', '');
 
-  if (!orderId || !email) {
+  if (!orderId || !email || !verifyToken(token, email)) {
     return res.status(401).json({ error: 'Authentication required' });
   }
 
