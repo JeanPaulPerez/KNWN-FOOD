@@ -25,14 +25,14 @@
 }
 
 .icon {
-  width: 84px;
-  height: 84px;
+  width: 165px;
+  height: 165px;
   object-fit: contain;
 }
 
 .title {
   font-family: var(--font-ui);
-  font-size: 19px;
+  font-size: 22px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: -0.03em;

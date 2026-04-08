@@ -1,110 +1,136 @@
-/* ─── Hero Section ────────────────────────────────────────────────────────── */
 .hero {
   background: #f4f1ff;
   overflow: hidden;
 }
 
 .inner {
-  max-width: 1240px;
+  max-width: 1250px;
   margin: 0 auto;
-  padding: 44px 56px 18px;
+  padding: 28px 56px 18px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 480px);
-  min-height: 460px;
+  grid-template-columns: minmax(0, 1fr) minmax(620px, 760px);
+  min-height: 660px;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
 }
 
-/* ─── Left column ─────────────────────────────────────────────────────────── */
 .left {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding-bottom: 28px;
+  gap: 18px;
+  max-width: 760px;
+  padding-bottom: 24px;
 }
 
 .tag {
+  margin: 0;
   font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--purple);
-  opacity: 0.55;
+  color: #3f3187;
 }
 
 .heading {
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  align-items: flex-start;
+  line-height: 0.88;
 }
 
 .headingSerif {
+  display: block;
   font-family: var(--font-display);
-  font-size: clamp(52px, 5.8vw, 78px);
+  font-size: clamp(66px, 6vw, 92px);
   font-weight: 400;
-  font-style: normal;
   color: var(--purple);
-  line-height: 0.98;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
 }
 
 .headingBold {
+  display: inline-block;
+  margin-top: 20px;
   font-family: var(--font-ui);
-  font-size: clamp(50px, 5.7vw, 74px);
-  font-weight: 800;
-  font-style: italic;
+  font-size: clamp(40px, 5.8vw, 65px);
+  font-weight: 900;
   color: var(--orange);
-  line-height: 0.98;
+  letter-spacing: -0.06em;
+  white-space: nowrap;
 }
 
 .body {
+  margin: 0;
+  max-width: 760px;
   font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.55;
-  color: var(--purple);
-  max-width: 390px;
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #3f3187;
+}
+
+.bodyLine {
+  display: block;
+  white-space: nowrap;
 }
 
 .cta {
-  display: inline-block;
+  display: inline-flex;
   align-self: flex-start;
+  align-items: center;
+  justify-content: center;
+  min-width: 208px;
+  margin: 15px 0px 15px 0px;
+  padding: 10px 50px;
+  border-radius: 999px;
   background: var(--purple);
   color: #ffffff;
   font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 500;
-  padding: 14px 40px;
-  border-radius: 999px;
-  transition: opacity 0.15s;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  transition: transform 0.18s ease, opacity 0.18s ease;
 }
 
 .cta:hover {
-  opacity: 0.85;
+  opacity: 0.92;
+  transform: translateY(-1px);
 }
 
 .badges {
   display: flex;
   align-items: center;
-  gap: 22px;
-  flex-wrap: wrap;
+  gap: 28px;
+  flex-wrap: nowrap;
+}
+
+.badgeIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--orange);
+  flex-shrink: 0;
 }
 
 .badge {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 10px;
   font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--purple);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: #3f3187;
+  white-space: nowrap;
 }
 
 .badge strong {
-  font-weight: 700;
+  font-weight: 800;
+  color: var(--purple);
 }
 
-/* ─── Right column ────────────────────────────────────────────────────────── */
 .right {
   display: flex;
   justify-content: flex-end;
@@ -112,96 +138,240 @@
   height: 100%;
 }
 
-.heroImg {
-  width: 100%;
-  max-width: 470px;
+.collage {
+  position: relative;
+  width: min(100%, 900px);
+  aspect-ratio: 1 / 0.9;
+}
+
+.glowBlue,
+.glowOrange {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(44px);
+  pointer-events: none;
+}
+
+.glowBlue {
+  top: 144px;
+  right: 124px;
+  width: 270px;
+  height: 214px;
+  background: rgba(130, 145, 255, 0.32);
+}
+
+.glowOrange {
+  left: 190px;
+  bottom: 50px;
+  width: 236px;
+  height: 194px;
+  background: rgba(255, 155, 125, 1);
+}
+
+.bowl {
+  position: absolute;
+  width: auto;
   height: auto;
   object-fit: contain;
-  mix-blend-mode: multiply;
+  filter: drop-shadow(0 24px 32px rgba(108, 82, 170, 0.16));
 }
 
-/* ════════════════════════════════════════════════════════════════════════════
-   RESPONSIVE
-════════════════════════════════════════════════════════════════════════════ */
-
-/* ── Laptop (769px – 1024px) ─────────────────────────────────────────────── */
-@media (max-width: 1024px) {
-  .inner {
-    padding: 36px 28px 16px;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
-    min-height: 400px;
-  }
-
-  .heroImg {
-    max-width: 390px;
-  }
+.bowlTop {
+  top: -6px;
+  right: -2px;
+  width: min(42vw, 390px);
 }
 
-/* ── Tablet (481px – 768px): single column, image below ─────────────────── */
-@media (max-width: 768px) {
+.bowlBottom {
+  left: 200px;
+  bottom: -8px;
+  width: min(30vw, 390px);
+}
+
+.sticker {
+  position: absolute;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  z-index: 2;
+}
+
+.stickerTop {
+  top: -50px;
+  left: 280px;
+  width: min(30vw, 290px);
+  transform: rotate(-3deg);
+}
+
+.stickerBottom {
+  right: 70px;
+  bottom: -10px;
+  width: min(30vw, 290px);
+  transform: rotate(3deg);
+}
+
+@media (max-width: 1200px) {
   .inner {
-    grid-template-columns: 1fr;
-    padding: 28px 20px 0;
-    min-height: unset;
-    gap: 0;
+    padding: 24px 36px 12px;
+    grid-template-columns: minmax(0, 1fr) minmax(500px, 640px);
+    min-height: 600px;
   }
 
   .left {
-    gap: 14px;
-    padding-bottom: 24px;
+    max-width: 560px;
+  }
+
+  .body,
+  .badge {
+    font-size: 17px;
+  }
+
+  .bowlTop {
+    width: min(43vw, 320px);
+  }
+
+  .bowlBottom {
+    width: min(48vw, 360px);
+    left: 38px;
+  }
+}
+
+@media (max-width: 960px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    min-height: unset;
+    padding: 28px 24px 8px;
+  }
+
+  .left {
+    max-width: 100%;
     align-items: center;
     text-align: center;
   }
 
+  .heading {
+    align-items: center;
+  }
+
   .headingSerif,
   .headingBold {
-    font-size: clamp(34px, 8vw, 48px);
+    white-space: normal;
   }
 
   .body {
-    max-width: 320px;
-    font-size: 13px;
+    max-width: 620px;
+  }
+
+  .bodyLine {
+    white-space: normal;
   }
 
   .cta {
     align-self: center;
-    padding: 14px 44px;
   }
 
   .badges {
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
+    justify-content: center;
+    row-gap: 12px;
   }
 
   .right {
     justify-content: center;
   }
 
-  .heroImg {
-    max-width: 340px;
-    width: 82%;
+  .collage {
+    width: min(100%, 640px);
+  }
+
+  .body {
+    font-size: 19px;
   }
 }
 
-/* ── Mobile (320px – 480px) ──────────────────────────────────────────────── */
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .inner {
-    padding: 22px 14px 0;
+    padding: 22px 16px 0;
   }
 
-  .headingSerif,
+  .tag {
+    font-size: 11px;
+  }
+
+  .headingSerif {
+    font-size: clamp(42px, 11vw, 60px);
+    line-height: 0.95;
+  }
+
   .headingBold {
-    font-size: clamp(28px, 10vw, 38px);
-    line-height: 1.02;
+    margin-top: 6px;
+    font-size: clamp(40px, 10vw, 56px);
+    line-height: 0.94;
   }
 
-  .heroImg {
-    width: 92%;
-    max-width: 280px;
+  .body {
+    font-size: 15px;
+    line-height: 1.18;
+  }
+
+  .cta {
+    min-width: 190px;
+    padding: 14px 28px;
+    font-size: 16px;
+  }
+
+  .badges {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   }
 
   .badge {
-    font-size: 12px;
+    justify-content: center;
+    font-size: 15px;
+  }
+
+  .collage {
+    aspect-ratio: 1 / 1;
+  }
+
+  .glowBlue {
+    top: 88px;
+    right: 48px;
+    width: 170px;
+    height: 150px;
+    filter: blur(30px);
+  }
+
+  .glowOrange {
+    left: 34px;
+    bottom: 54px;
+    width: 155px;
+    height: 138px;
+    filter: blur(28px);
+  }
+
+  .bowlTop {
+    top: -4px;
+    right: -10px;
+    width: min(72vw, 276px);
+  }
+
+  .bowlBottom {
+    left: 2px;
+    bottom: -18px;
+    width: min(82vw, 330px);
+  }
+
+  .stickerTop {
+    top: 32px;
+    left: 28px;
+    width: min(48vw, 176px);
+  }
+
+  .stickerBottom {
+    right: 2px;
+    bottom: 36px;
+    width: min(56vw, 214px);
   }
 }

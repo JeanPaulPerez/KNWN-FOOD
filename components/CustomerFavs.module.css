@@ -2,6 +2,8 @@
 .section {
   background: #f4f1ff;
   overflow: hidden;
+  padding-top: 80px;
+  padding-bottom: 80px;
 }
 
 /* ─── Inner container ─────────────────────────────────────────────────────── */
@@ -9,36 +11,38 @@
   position: relative;
   max-width: 1280px;
   margin: 0 auto;
-  min-height: 560px;
-  padding: 40px 0 60px;
+  min-height: 680px;
+  padding: 100px 0 60px;
 }
 
 /* ─── Day badge — sits ON TOP of the bowl ────────────────────────────────── */
 .dayBadge {
   position: absolute;
-  top: 110px;
-  left: 56px;
+  top: 80px;
+  left: 40px;
   background: #d4f84a;
   color: var(--purple);
   font-family: var(--font-ui);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
-  padding: 8px 22px;
+  padding: 10px 28px;
   border-radius: 999px;
-  z-index: 5;   /* above bowl (z-index 3) */
+  z-index: 5;
+  /* above bowl (z-index 3) */
 }
 
 /* ─── Food cutout bowl ────────────────────────────────────────────────────── */
 .foodImg {
   position: absolute;
-  left: 10px;
+  left: -20px;
   top: 50%;
-  transform: translateY(-46%);
-  width: 510px;
+  transform: translateY(-48%);
+  width: 660px;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 24px 48px rgba(49, 28, 103, 0.15));
-  z-index: 3;   /* in front of blob */
+  z-index: 3;
+  /* in front of blob */
 }
 
 /* ─── Right area: heading + blob, fixed width, centered ──────────────────── */
@@ -49,12 +53,12 @@
 .heading {
   position: absolute;
   /* horizontally center over the blob area (440 → 900, center at 670px) */
-  left: 440px;
-  width: 460px;
-  top: 36px;
-  text-align: center;
-  font-family: var(--font-display);
-  font-size: 56px;
+  left: 680px;
+  width: 500px;
+  top: 28px;
+  text-align: left;
+  font-family: 'NothingYouCouldDo', cursive;
+  font-size: 72px;
   font-weight: 400;
   color: var(--purple);
   line-height: 1.05;
@@ -64,11 +68,14 @@
 /* ─── Blob wrap — fixed width, vertically centered ───────────────────────── */
 .blobWrap {
   position: absolute;
-  left: 440px;
-  width: 460px;        /* fixed — no right:0 */
+  left: 520px;
+  width: 700px;
+  min-height: 520px;
+  /* fixed — no right:0 */
   top: 50%;
   transform: translateY(-44%);
-  z-index: 2;          /* behind bowl */
+  z-index: 2;
+  /* behind bowl */
 }
 
 .blob {
@@ -86,10 +93,11 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  /* left: 80px to clear bowl overlap; right: 28px to stay inside blob edge */
-  padding: 44px 28px 44px 80px;
-  /* constrain text to blob visible area */
+  align-items: flex-start;
+  justify-content: center;
+  gap: 18px;
+  min-height: 520px;
+  padding: 60px 80px 60px 130px;
   max-width: 100%;
   box-sizing: border-box;
 }
@@ -97,69 +105,80 @@
 /* ─── Card content ────────────────────────────────────────────────────────── */
 .dishName {
   font-family: var(--font-ui);
-  font-size: 20px;
+  font-size: 38px;
   font-weight: 700;
   color: var(--purple);
   line-height: 1.2;
+  margin-top: 90px;
 }
 
 .dishDesc {
   font-family: var(--font-ui);
-  font-size: 13.5px;
+  font-size: 30px;
   font-weight: 400;
   color: var(--purple);
-  line-height: 1.65;
+  line-height: 1;
   /* constrain text width so it wraps inside the blob */
-  max-width: 240px;
+  max-width: 600px;
 }
 
 .deliveryRow {
   display: flex;
   align-items: center;
   gap: 10px;
+  align-self: center;
+  margin-top: 5px;
 }
 
-.deliveryBox {
-  display: inline-block;
-  width: 48px;
-  height: 20px;
+.pricePill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--purple);
-  border-radius: 3px;
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-size: 18px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 999px;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .deliveryText {
   font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 400;
+  font-size: 18px;
+  font-weight: 600;
   color: var(--purple);
 }
 
 .menuBtn {
   display: inline-block;
-  align-self: flex-start;
+  align-self: center;
   background: var(--orange);
   color: #ffffff;
   font-family: var(--font-ui);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 13px 28px;
+  padding: 16px 40px;
   border-radius: 6px;
   transition: opacity 0.15s;
 }
 
-.menuBtn:hover { opacity: 0.88; }
+.menuBtn:hover {
+  opacity: 0.88;
+}
 
 /* ─── Arrows ──────────────────────────────────────────────────────────────── */
 .arrowLeft {
   position: absolute;
-  left: 16px;
+  left: -30px;
   top: 50%;
   transform: translateY(-50%);
-  width: 36px;
-  height: 36px;
+  width: 65px;
+  height: 65px;
   border-radius: 50%;
   background: var(--purple);
   color: #ffffff;
@@ -170,15 +189,17 @@
   transition: opacity 0.15s;
 }
 
-.arrowLeft:hover { opacity: 0.8; }
+.arrowLeft:hover {
+  opacity: 0.8;
+}
 
 .arrowRight {
   position: absolute;
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  width: 36px;
-  height: 36px;
+  width: 65px;
+  height: 65px;
   border-radius: 50%;
   background: var(--purple);
   color: #ffffff;
@@ -189,7 +210,9 @@
   transition: opacity 0.15s;
 }
 
-.arrowRight:hover { opacity: 0.8; }
+.arrowRight:hover {
+  opacity: 0.8;
+}
 
 /* ════════════════════════════════════════════════════════════════════════════
    RESPONSIVE
@@ -202,19 +225,19 @@
   }
 
   .foodImg {
-    width: 400px;
+    width: 520px;
     left: 0;
   }
 
   .heading {
-    left: 360px;
-    width: 380px;
-    font-size: 44px;
+    left: 520px;
+    width: 420px;
+    font-size: 56px;
   }
 
   .blobWrap {
-    left: 360px;
-    width: 380px;
+    left: 480px;
+    width: 420px;
   }
 
   .cardBody {
@@ -222,7 +245,7 @@
   }
 
   .dishDesc {
-    max-width: 200px;
+    max-width: 240px;
   }
 
   .dayBadge {
@@ -262,7 +285,8 @@
     position: static;
     transform: none;
     width: min(340px, 80vw);
-    margin-bottom: -24px; /* slight overlap onto card */
+    margin-bottom: -24px;
+    /* slight overlap onto card */
     z-index: 3;
   }
 
@@ -270,7 +294,8 @@
     position: static;
     transform: none;
     width: 100%;
-    background: #fff8e1;     /* fallback card colour matching blob yellow */
+    background: #fff8e1;
+    /* fallback card colour matching blob yellow */
     border-radius: 20px;
     overflow: hidden;
   }
@@ -317,12 +342,32 @@
   }
 
   /* reorder children into readable flow */
-  .heading    { order: 1; }
-  .dayBadge   { order: 2; }
-  .foodImg    { order: 3; }
-  .blobWrap   { order: 4; }
-  .arrowLeft  { order: 5; margin-top: 20px; margin-right: 12px; }
-  .arrowRight { order: 5; margin-top: 20px; }
+  .heading {
+    order: 1;
+  }
+
+  .dayBadge {
+    order: 2;
+  }
+
+  .foodImg {
+    order: 3;
+  }
+
+  .blobWrap {
+    order: 4;
+  }
+
+  .arrowLeft {
+    order: 5;
+    margin-top: 20px;
+    margin-right: 12px;
+  }
+
+  .arrowRight {
+    order: 5;
+    margin-top: 20px;
+  }
 
   /* allow arrows to sit side-by-side on the same row */
   .inner {

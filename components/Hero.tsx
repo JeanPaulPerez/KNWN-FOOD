@@ -7,10 +7,8 @@ export default function Hero() {
   return (
     <section className={s.hero}>
       <div className={s.inner}>
-
-        {/* ── LEFT: text ── */}
         <div className={s.left}>
-          <p className={s.tag}>No subcription required</p>
+          <p className={s.tag}>No subscription required</p>
 
           <h1 className={s.heading}>
             <span className={s.headingSerif}>Made this morning.</span>
@@ -18,33 +16,60 @@ export default function Hero() {
           </h1>
 
           <p className={s.body}>
-            Stop eating week-old meal prep. We cook fresh daily
-            and deliver to your office or home instantly.
+            <span className={s.bodyLine}>Stop eating week-old meal prep. We cook fresh daily</span>
+            <span className={s.bodyLine}>and deliver to your office or home instantly.</span>
           </p>
 
           <Link to="/menu" className={s.cta}>Order Now</Link>
 
           <div className={s.badges}>
             <span className={s.badge}>
-              <MapPin size={14} strokeWidth={1.8} />
+              <span className={s.badgeIcon}>
+                <MapPin size={18} strokeWidth={2} />
+              </span>
               <strong>Free</strong>&nbsp;Next Day Delivery
             </span>
             <span className={s.badge}>
-              <Clock size={14} strokeWidth={1.8} />
+              <span className={s.badgeIcon}>
+                <Clock size={18} strokeWidth={2} />
+              </span>
               Order by 10:00 PM.
             </span>
           </div>
         </div>
 
-        {/* ── RIGHT: hero collage image ── */}
         <div className={s.right}>
-          <img
-            src="/assets/hero-bg/HomePage_ KNWN.png"
-            alt="Fresh food bowls"
-            className={s.heroImg}
-          />
-        </div>
+          <div className={s.collage} aria-hidden="true">
+            <div className={s.glowBlue} />
+            <div className={s.glowOrange} />
 
+            <img
+              src="/assets/food-cutout/pesto-pasta.png"
+              alt=""
+              className={`${s.bowl} ${s.bowlTop}`}
+              loading="eager"
+            />
+            <img
+              src="/assets/food-cutout/thai-beef-salad.png"
+              alt=""
+              className={`${s.bowl} ${s.bowlBottom}`}
+              loading="eager"
+            />
+
+            <img
+              src="/assets/stickers/real-ingredients.png"
+              alt=""
+              className={`${s.sticker} ${s.stickerTop}`}
+              loading="eager"
+            />
+            <img
+              src="/assets/stickers/pay-less-eat-better.png"
+              alt=""
+              className={`${s.sticker} ${s.stickerBottom}`}
+              loading="eager"
+            />
+          </div>
+        </div>
       </div>
     </section>
   );

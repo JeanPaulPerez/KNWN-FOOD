@@ -1,20 +1,20 @@
 /* ─── Outer section (lavender bg, padding around the banner) ─────────────── */
 .section {
   background: #f4f1ff;
-  padding: 40px 40px 40px;
+  padding: 32px 24px;
 }
 
 /* ─── Dark purple rounded banner ─────────────────────────────────────────── */
 .banner {
-  max-width: 1200px;
+  max-width: 1250px;
   margin: 0 auto;
   background: var(--purple);
-  border-radius: 20px;
+  border-radius: 24px;
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto minmax(240px, 380px) auto;
   align-items: center;
-  gap: 40px;
-  padding: 36px 36px 36px 52px;
+  gap: 36px;
+  padding: 48px 220px 48px 60px;
   overflow: hidden;
   position: relative;
 }
@@ -22,10 +22,10 @@
 /* ─── Headline ────────────────────────────────────────────────────────────── */
 .headline {
   font-family: var(--font-ui);
-  font-size: 24px;
+  font-size: 34px;
   font-weight: 800;
   color: #ffffff;
-  line-height: 1.25;
+  line-height: 1.15;
   white-space: nowrap;
 }
 
@@ -35,9 +35,9 @@
   align-items: center;
   background: #ffffff;
   border-radius: 999px;
-  padding: 10px 10px 10px 20px;
+  padding: 12px 12px 12px 24px;
   gap: 10px;
-  max-width: 420px;
+  max-width: 380px;
   width: 100%;
 }
 
@@ -52,7 +52,7 @@
   outline: none;
   background: transparent;
   font-family: var(--font-ui);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   color: var(--purple);
   min-width: 0;
@@ -63,16 +63,18 @@
 }
 
 .arrowBtn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  height: 52px;
+  padding: 0 28px;
+  border-radius: 999px;
   background: #d4f84a;
   color: var(--purple);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  gap: 8px;
   transition: opacity 0.15s;
+  white-space: nowrap;
 }
 
 .arrowBtn:hover {
@@ -82,8 +84,8 @@
 /* ─── "Now serving" text ─────────────────────────────────────────────────── */
 .serving {
   font-family: var(--font-ui);
-  font-size: 15px;
-  font-weight: 400;
+  font-size: 17px;
+  font-weight: 500;
   color: #ffffff;
   line-height: 1.6;
   text-align: center;
@@ -91,13 +93,13 @@
 
 /* ─── Delivery illustration ───────────────────────────────────────────────── */
 .moto {
-  height: 200px;
+  position: absolute;
+  right: -40px;
+  top: -20px;
+  bottom: 0;
+  height: 150%;
   width: auto;
   object-fit: contain;
-  flex-shrink: 0;
-  margin-right: -12px;
-  margin-bottom: -36px;
-  align-self: flex-end;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -107,21 +109,21 @@
 /* ── Laptop (769px – 1024px) ─────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .section {
-    padding: 40px 24px 32px;
+    padding: 28px 16px;
   }
 
   .banner {
-    gap: 24px;
-    padding: 28px 24px 28px 36px;
+    gap: 28px;
+    padding: 36px 28px 36px 44px;
   }
 
   .headline {
-    font-size: 20px;
+    font-size: 26px;
   }
 
   .moto {
-    height: 170px;
-    margin-bottom: -28px;
+    height: 210px;
+    margin-top: -40px;
   }
 }
 

@@ -72,7 +72,7 @@ export default function CustomerFavs() {
             <h3 className={s.dishName}>{item.name}</h3>
             <p className={s.dishDesc}>{item.desc}</p>
             <div className={s.deliveryRow}>
-              <span className={s.deliveryBox} />
+              <span className={s.pricePill}>$12.90</span>
               <span className={s.deliveryText}>Delivery Included</span>
             </div>
             <Link to="/menu" className={s.menuBtn}>See Full Menu</Link>
@@ -81,12 +81,12 @@ export default function CustomerFavs() {
 
         {/* Left arrow */}
         <button className={s.arrowLeft} onClick={prev} aria-label="Previous">
-          <ChevronLeft size={20} strokeWidth={2} />
+          <ChevronLeft size={32} strokeWidth={2.5} />
         </button>
 
         {/* Right arrow */}
         <button className={s.arrowRight} onClick={next} aria-label="Next">
-          <ChevronRight size={20} strokeWidth={2} />
+          <ChevronRight size={32} strokeWidth={2.5} />
         </button>
 
       </div>

@@ -1,21 +1,21 @@
 /* ─── Section ─────────────────────────────────────────────────────────────── */
 .section {
   background: #f4f1ff;
-  padding: 48px 24px 56px;
+  padding: 56px 40px 72px;
 }
 
 .inner {
-  max-width: 1100px;
+  max-width: 1280px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 28px;
 }
 
 /* ─── Heading ─────────────────────────────────────────────────────────────── */
 .heading {
   font-family: 'NothingYouCouldDo', cursive;
-  font-size: 36px;
+  font-size: 68px;
   font-weight: 400;
   color: var(--orange);
   line-height: 1;
@@ -25,14 +25,14 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 14px;
 }
 
 /* ─── Each cell — square via aspect-ratio ────────────────────────────────── */
 .cell {
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  border-radius: 6px;
+  border-radius: 18px;
 }
 
 .photo {
@@ -62,7 +62,7 @@
   }
 
   .grid {
-    gap: 8px;
+    gap: 10px;
   }
 }
 
@@ -78,7 +78,7 @@
 
   .grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    gap: 8px;
   }
 }
 
@@ -102,6 +102,6 @@
   }
 
   .cell {
-    border-radius: 5px;
+    border-radius: 12px;
   }
 }
