@@ -68,8 +68,8 @@ const FAQItem: React.FC<{ q: string; a: string; isOpen: boolean; onToggle: () =>
       <span
         className={s.faqQuestion}
         style={{
-          fontFamily: isOpen && dark ? '"Instrument Serif", serif' : 'Poppins, sans-serif',
-          fontWeight: isOpen && dark ? 600 : 500,
+          fontFamily: 'Poppins, sans-serif',
+          fontWeight: isOpen ? 700 : 400,
           color:      isOpen && dark ? '#FFFFFF' : '#2D1B69',
         }}
       >
@@ -95,7 +95,7 @@ const FAQItem: React.FC<{ q: string; a: string; isOpen: boolean; onToggle: () =>
         >
           <p
             className={s.faqAnswer}
-            style={{ color: dark ? 'rgba(255,255,255,0.72)' : 'rgba(45,27,105,0.6)' }}
+            style={{ color: dark ? '#ffffff' : 'rgba(45,27,105,0.6)' }}
           >
             {a}
           </p>
@@ -113,7 +113,6 @@ export default function FAQ() {
   return (
     <section className={s.section}>
       <div className={s.card}>
-        <div className={s.glow} />
 
         <div className={s.inner}>
           {/* Heading */}
@@ -155,7 +154,6 @@ export default function FAQ() {
               {/* Still have questions? */}
               <div className={s.stillHave}>
                 <div className={s.stickerWrap}>
-                  <div className={s.stickerBg} />
                   <img
                     src={COPY.stickerImage}
                     alt=""

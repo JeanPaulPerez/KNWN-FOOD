@@ -1,0 +1,64 @@
+.heroSection {
+  padding: 8px 16px 0;
+}
+
+@media (min-width: 768px) {
+  .heroSection {
+    padding: 8px 24px 0;
+  }
+}
+
+.heroInner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.heroImg {
+  width: 100%;
+  border-radius: 16px;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .heroImg {
+    border-radius: 24px;
+  }
+}
+
+/* Orange ribbon */
+.ribbon {
+  background: #db5a29;
+  padding: 16px 0;
+}
+
+@media (min-width: 768px) {
+  .ribbon {
+    padding: 20px 0;
+  }
+}
+
+.ribbonInner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px 40px;
+  padding: 0 16px;
+  color: white;
+  font-family: Poppins, sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: clamp(16px, 1.4vw, 25px);
+}
+
+.dot {
+  opacity: 1;
+  font-size: clamp(18px, 1.6vw, 22px);
+}
+
+@media (max-width: 767px) {
+  .dot {
+    display: none;
+  }
+}

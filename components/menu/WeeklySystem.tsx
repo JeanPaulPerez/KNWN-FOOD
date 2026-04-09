@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Leaf } from 'lucide-react';
 import { MENUS } from '../../data/menus';
 import { MenuItem, Weekday } from '../../types';
 import { getEtNow } from '../../utils/dateLogic';
@@ -8,10 +7,10 @@ import s from './WeeklySystem.module.css';
 
 // ─── COPY — edit labels & images here ────────────────────────────────────────
 const COPY = {
-  heading:    'The Weekly System',
-  subtitle:   'Choose between two fresh options every day.',
-  vegBadge:   'Vegetarian Options Available',
-  tryNowCta:  'TRY NOW',
+  heading: 'The Weekly System',
+  subtitle: 'Choose between two fresh options every day.',
+  vegBadge: 'Vegetarian Options Available',
+  tryNowCta: 'TRY NOW',
   defaultDay: 1, // 0 = Monday … 4 = Friday
 } as const;
 
@@ -53,11 +52,11 @@ const FRIDAY: [string, string] = [
 
 // ─── Do not edit below — maps constants to day keys ──────────────────────────
 const DAY_IMAGES: Record<Weekday, [string, string]> = {
-  monday:    MONDAY,
-  tuesday:   TUESDAY,
+  monday: MONDAY,
+  tuesday: TUESDAY,
   wednesday: WEDNESDAY,
-  thursday:  THURSDAY,
-  friday:    FRIDAY,
+  thursday: THURSDAY,
+  friday: FRIDAY,
 };
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
@@ -95,71 +94,68 @@ export default function WeeklySystem({ onItemSelect }: Props) {
     <section className={s.section}>
       <div className={s.inner}>
 
-      {/* Title */}
-      <h1 className={s.title}>{COPY.heading}</h1>
-      <p className={s.subtitle}>{COPY.subtitle}</p>
+        {/* Title */}
+        <h1 className={s.title}>{COPY.heading}</h1>
+        <p className={s.subtitle}>{COPY.subtitle}</p>
 
-      {/* Day selector */}
-      <div className={s.daySelectorWrap}>
-        <div className={s.daySelector}>
-          {DAY_LABELS.map((label, i) => (
-            <button
-              key={label}
-              onClick={() => setActiveDay(i)}
-              className={s.dayBtn}
-              style={{
-                color:      activeDay === i ? 'white'        : '#C64D29',
-                fontWeight: activeDay === i ? 700            : 400,
-                background: activeDay === i ? '#C64D29'      : 'transparent',
-                letterSpacing: activeDay === i ? '0.01em'   : '0',
-              }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Meal cards */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeDay}
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -14 }}
-          transition={{ duration: 0.25 }}
-          className={s.cardsGrid}
-        >
-          {items.map((item, idx) => (
-            <div key={item.id} className={s.card}>
-              {item.customizationOptions?.hasVegetarianOption && (
-                <div className={s.vegIcon}>
-                  <Leaf size={16} color="white" strokeWidth={2} />
-                </div>
-              )}
-              <img
-                src={images[idx]}
-                alt={item.name}
-                className={s.cardImage}
-              />
-            </div>
-          ))}
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Bottom row — veg badge + TRY NOW */}
-      <div className={s.bottomRow}>
-        <div className={s.vegBadge}>
-          <div className={s.vegBadgeIcon}>
-            <Leaf size={18} color="white" strokeWidth={2} />
+        {/* Day selector */}
+        <div className={s.daySelectorWrap}>
+          <div className={s.daySelector}>
+            {DAY_LABELS.map((label, i) => (
+              <button
+                key={label}
+                onClick={() => setActiveDay(i)}
+                className={s.dayBtn}
+                style={{
+                  color: '#DB5A29',
+                  fontWeight: activeDay === i ? 700 : 400,
+                  background: 'transparent',
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-          <span className={s.vegBadgeText}>{COPY.vegBadge}</span>
         </div>
 
-        <button className={s.tryNowBtn} onClick={() => handleTryNow()}>
-          {COPY.tryNowCta}
-        </button>
-      </div>
+        {/* Meal cards */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeDay}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -14 }}
+            transition={{ duration: 0.25 }}
+            className={s.cardsGrid}
+          >
+            {items.map((item, idx) => (
+              <div key={item.id} className={s.card}>
+                <img src="/assets/icons/plate-shadow.png" alt="" className={s.plateShadow} />
+                {item.customizationOptions?.hasVegetarianOption && (
+                  <img src="/assets/icons/hoja.png" alt="" className={s.vegIcon} />
+                )}
+                <img
+                  src={images[idx]}
+                  alt={item.name}
+                  className={s.cardImage}
+                  style={item.name === 'Chicken Lime' ? { transform: 'scale(1.02)', transformOrigin: 'center -60%' } : undefined}
+                />
+              </div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Bottom row — veg badge + TRY NOW */}
+        <div className={s.bottomRow}>
+          <div className={s.vegBadge}>
+            <img src="/assets/icons/hoja.png" alt="" className={s.vegBadgeIcon} />
+            <span className={s.vegBadgeText}>{COPY.vegBadge}</span>
+          </div>
+
+          <button className={s.tryNowBtn} onClick={() => handleTryNow()} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+            <img src="/assets/icons/try-now.png" alt="TRY NOW" className={s.tryNowImg} />
+          </button>
+        </div>
 
       </div>{/* end .inner */}
     </section>

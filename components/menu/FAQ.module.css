@@ -6,21 +6,46 @@
 .section {
   background: #EEEAF8;
   padding: 64px 20px;
+  position: relative;
+  overflow: hidden;
 }
-@media (min-width: 768px) { .section { padding: 64px 48px; } }
+
+/* Background glow image — behind the card */
+.bgGlow {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 900px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: 64px 48px;
+  }
+}
 
 /* White card container */
 .card {
-  max-width: 56rem;
+  max-width: 1280px;
   margin: 0 auto;
   position: relative;
   overflow: hidden;
+  z-index: 1;
   border-radius: 24px;
-  padding: 48px;
+  padding: 56px 64px;
   background: white;
   box-shadow: 0 8px 40px rgba(150, 130, 200, 0.15), 0 2px 12px rgba(150, 130, 200, 0.08);
 }
-@media (max-width: 640px) { .card { padding: 32px 20px; } }
+
+@media (max-width: 640px) {
+  .card {
+    padding: 32px 20px;
+  }
+}
 
 /* Decorative bottom-right glow */
 .glow {
@@ -30,9 +55,9 @@
   width: 70%;
   height: 80%;
   background: radial-gradient(ellipse at center,
-    rgba(255, 175, 155, 0.45) 0%,
-    rgba(255, 190, 170, 0.15) 45%,
-    transparent 70%);
+      rgba(255, 175, 155, 0.45) 0%,
+      rgba(255, 190, 170, 0.15) 45%,
+      transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -50,17 +75,18 @@
 
 .heading {
   font-family: "Instrument Serif", serif;
-  font-size: clamp(36px, 5vw, 52px);
-  font-weight: 700;
+  font-size: clamp(50px, 5vw, 80px);
+  font-weight: 600;
   color: #2D1B69;
 }
 
 .subheading {
-  font-family: "Instrument Serif", serif;
-  font-size: clamp(22px, 3vw, 32px);
+  font-family: "Nothing You Could Do", cursive;
+  font-size: clamp(22px, 3vw, 45px);
   letter-spacing: 0.07em;
+  font-weight: 600;
   color: #DB5A29;
-  margin-top: 6px;
+  margin: -20px 0 0 350px;
 }
 
 /* Two-column grid */
@@ -69,10 +95,25 @@
   grid-template-columns: 1fr;
   gap: 16px;
 }
-@media (min-width: 768px) { .grid { grid-template-columns: 1fr 1fr; gap: 24px; } }
 
-.leftCol  { display: flex; flex-direction: column; gap: 12px; }
-.rightCol { display: flex; flex-direction: column; gap: 12px; }
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
 /* FAQ item (left column — accordion style) */
 /* Dynamic open/dark states are handled via inline style in TSX */
@@ -91,7 +132,8 @@
 }
 
 .faqQuestion {
-  font-size: 14px;
+  font-family: Poppins, sans-serif;
+  font-size: 22px;
   line-height: 1.4;
 }
 
@@ -108,7 +150,7 @@
 .faqAnswer {
   padding: 0 20px 20px;
   font-family: Poppins, sans-serif;
-  font-size: 13px;
+  font-size: 20px;
   line-height: 1.6;
   overflow: hidden;
 }
@@ -128,12 +170,16 @@
   cursor: pointer;
   transition: background 150ms;
 }
-.rightBtn:hover { background: rgba(45, 27, 105, 0.04); }
+
+.rightBtn:hover {
+  background: rgba(45, 27, 105, 0.04);
+}
 
 .rightBtnText {
-  font-size: 14px;
+  font-family: Poppins, sans-serif;
+  font-size: 22px;
   color: #2D1B69;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.4;
 }
 
@@ -153,7 +199,7 @@
 
 /* Still have questions sticker + email */
 .stillHave {
-  margin-top: 24px;
+  margin-top: 0px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -166,9 +212,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 120px;
-  height: 60px;
-  transform: rotate(-2deg);
+  width: 180px;
+  height: 180px;
+  transform: rotate(-10deg);
 }
 
 .stickerBg {
@@ -192,7 +238,7 @@
   z-index: 10;
   text-align: center;
   font-family: Poppins, sans-serif;
-  font-size: 11px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.35;
   white-space: pre-line;
@@ -202,7 +248,7 @@
 .emailBlock {
   font-family: Poppins, sans-serif;
   color: #2D1B69;
-  font-size: 14px;
+  font-size: 20px;
   line-height: 1.4;
 }
 
@@ -211,7 +257,10 @@
   color: #2D1B69;
   transition: color 150ms;
 }
-.emailLink:hover { color: #DB5A29; }
+
+.emailLink:hover {
+  color: #DB5A29;
+}
 
 .emailSuffix {
   display: block;

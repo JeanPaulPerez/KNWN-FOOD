@@ -8,16 +8,22 @@
   background: #DB5A29;
   padding: 64px 20px;
 }
-@media (min-width: 768px) { .section { padding: 64px 48px; } }
+
+@media (min-width: 768px) {
+  .section {
+    padding: 64px 48px;
+  }
+}
 
 /* Heading */
 .heading {
   text-align: center;
   font-family: "Instrument Serif", serif;
-  font-size: clamp(40px, 6vw, 64px);
+  font-size: clamp(40px, 6vw, 85px);
   font-weight: 700;
   color: white;
   line-height: 1;
+  letter-spacing: 5px;
 }
 
 .headingAccent {
@@ -30,8 +36,8 @@
   color: white;
   text-align: center;
   font-family: Poppins, sans-serif;
-  font-size: 13px;
-  max-width: 680px;
+  font-size: 20px;
+  max-width: 900px;
   margin-left: auto;
   margin-right: auto;
   line-height: 1.6;
@@ -43,11 +49,23 @@
   max-width: 64rem;
   margin: 40px auto 0;
 }
-@media (min-width: 1024px) { .tableWrap { max-width: 1120px; } }
+
+@media (min-width: 1024px) {
+  .tableWrap {
+    max-width: 1120px;
+  }
+}
 
 /* ── Desktop table ── */
-.desktopTable { display: none; }
-@media (min-width: 768px) { .desktopTable { display: block; } }
+.desktopTable {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktopTable {
+    display: block;
+  }
+}
 
 .headerRow {
   margin-left: 34.5%;
@@ -73,7 +91,10 @@
   background: #D8D3EA;
   font-family: Poppins, sans-serif;
 }
-.headerCell + .headerCell { border-left: 2px solid #D75E2B; }
+
+.headerCell+.headerCell {
+  border-left: 2px solid #D75E2B;
+}
 
 .bodyRows {
   margin-top: 10px;
@@ -113,8 +134,17 @@
 }
 
 /* ── Mobile table ── */
-.mobileTable { display: flex; flex-direction: column; gap: 12px; }
-@media (min-width: 768px) { .mobileTable { display: none; } }
+.mobileTable {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .mobileTable {
+    display: none;
+  }
+}
 
 .mobileRow {
   overflow: hidden;
@@ -176,8 +206,18 @@
   width: 220px;
   transform: rotate(-4deg);
 }
-@media (min-width: 768px)  { .stickerDesktop { display: block; } }
-@media (min-width: 1024px) { .stickerDesktop { width: 255px; } }
+
+@media (min-width: 768px) {
+  .stickerDesktop {
+    display: block;
+  }
+}
+
+@media (min-width: 1024px) {
+  .stickerDesktop {
+    width: 255px;
+  }
+}
 
 .stickerMobile {
   display: block;
@@ -185,4 +225,9 @@
   width: 210px;
   transform: rotate(-4deg);
 }
-@media (min-width: 768px) { .stickerMobile { display: none; } }
+
+@media (min-width: 768px) {
+  .stickerMobile {
+    display: none;
+  }
+}
