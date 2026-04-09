@@ -1,0 +1,239 @@
+/* ── CustomizationModal.module.css ────────────────────────────────────────────
+   Edit visual styles here. Copy/labels live in CustomizationModal.tsx → COPY block.
+─────────────────────────────────────────────────────────────────────────── */
+
+/* Backdrop overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.40);
+  backdrop-filter: blur(4px);
+}
+@media (min-width: 768px) {
+  .overlay {
+    align-items: center;
+    padding: 16px;
+  }
+}
+
+/* Modal panel */
+.modal {
+  position: relative;
+  background: white;
+  width: 100%;
+  border-radius: 2.5rem 2.5rem 0 0;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  max-height: 92dvh;
+}
+@media (min-width: 768px) {
+  .modal {
+    max-width: 480px;
+    border-radius: 2.5rem;
+    max-height: 85vh;
+  }
+}
+
+/* Scrollable content area */
+.scrollBody {
+  overflow-y: auto;
+  flex: 1;
+  padding-bottom: 96px;
+  scrollbar-width: none;
+}
+.scrollBody::-webkit-scrollbar { display: none; }
+
+/* Image header */
+.imageHeader {
+  position: relative;
+  height: 256px;
+  background: #EEEAF8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  padding: 10px;
+  background: rgba(45, 27, 105, 0.10);
+  color: #2D1B69;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 150ms;
+}
+.closeBtn:hover { background: rgba(45, 27, 105, 0.20); }
+
+.headerImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+}
+
+/* Content body */
+.body {
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Delivery badge */
+.deliveryBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: #D4F53C;
+  color: #2D1B69;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Item title */
+.itemTitle {
+  font-size: 2rem;
+  font-family: serif;
+  color: #2D1B69;
+  line-height: 1.2;
+  margin-top: 8px;
+}
+
+/* Item description */
+.itemDesc {
+  font-size: 13px;
+  color: rgba(45, 27, 105, 0.50);
+  font-weight: 500;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+/* Option section (base / sauce / veg / dislikes) */
+.optSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.optHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.optLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2D1B69;
+}
+
+.optRequired {
+  font-size: 9px;
+  background: #FEF0C7;
+  color: #93370D;
+  padding: 4px 8px;
+  border-radius: 2px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.optOptional {
+  font-size: 9px;
+  color: rgba(45, 27, 105, 0.40);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Radio / checkbox row */
+.optRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+}
+
+/* Sticky action bar */
+.actionBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: white;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.08);
+  z-index: 20;
+}
+@media (min-width: 768px) { .actionBar { padding: 24px; } }
+
+/* Quantity control */
+.qtyControl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f3f4f6;
+  border-radius: 9999px;
+  padding: 12px 16px;
+  width: 112px;
+}
+
+.qtyBtn {
+  color: rgba(45, 27, 105, 0.60);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1;
+  transition: color 150ms;
+}
+.qtyBtn:hover { color: #2D1B69; }
+
+.qtyValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2D1B69;
+}
+
+/* Add to Week button */
+.addBtn {
+  flex: 1;
+  background: #2D1B69;
+  color: white;
+  padding: 16px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(45, 27, 105, 0.25);
+  transition: filter 150ms;
+}
+.addBtn:hover { filter: brightness(1.1); }

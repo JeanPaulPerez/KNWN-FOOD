@@ -1,0 +1,188 @@
+/* ── ComparisonTable.module.css ───────────────────────────────────────────────
+   Edit visual styles here. Copy/table data lives in ComparisonTable.tsx → COPY block.
+   Dynamic row highlight colors (highlighted vs white) stay inline in TSX.
+─────────────────────────────────────────────────────────────────────────── */
+
+/* Section */
+.section {
+  background: #DB5A29;
+  padding: 64px 20px;
+}
+@media (min-width: 768px) { .section { padding: 64px 48px; } }
+
+/* Heading */
+.heading {
+  text-align: center;
+  font-family: "Instrument Serif", serif;
+  font-size: clamp(40px, 6vw, 64px);
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.headingAccent {
+  font-family: "Nothing You Could Do", cursive;
+  color: #D4F53C;
+}
+
+.subtitle {
+  margin-top: 16px;
+  color: white;
+  text-align: center;
+  font-family: Poppins, sans-serif;
+  font-size: 13px;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* Table wrapper */
+.tableWrap {
+  position: relative;
+  max-width: 64rem;
+  margin: 40px auto 0;
+}
+@media (min-width: 1024px) { .tableWrap { max-width: 1120px; } }
+
+/* ── Desktop table ── */
+.desktopTable { display: none; }
+@media (min-width: 768px) { .desktopTable { display: block; } }
+
+.headerRow {
+  margin-left: 34.5%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(43, 28, 112, 0.06);
+}
+
+.headerCell {
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.02;
+  color: #34206E;
+  white-space: pre-line;
+  background: #D8D3EA;
+  font-family: Poppins, sans-serif;
+}
+.headerCell + .headerCell { border-left: 2px solid #D75E2B; }
+
+.bodyRows {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 1.9fr repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+  border-radius: 22px;
+  box-shadow: 0 12px 28px rgba(95, 41, 14, 0.08);
+  /* background set inline (highlighted ? #34206E : #FFFFFF) */
+}
+
+.rowLabel {
+  display: flex;
+  min-height: 88px;
+  align-items: center;
+  padding: 0 32px;
+  text-align: left;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+  font-family: Poppins, sans-serif;
+  /* color set inline */
+}
+
+.checkCell {
+  display: flex;
+  min-height: 88px;
+  align-items: center;
+  justify-content: center;
+  border-left: 2px solid #D75E2B;
+}
+
+/* ── Mobile table ── */
+.mobileTable { display: flex; flex-direction: column; gap: 12px; }
+@media (min-width: 768px) { .mobileTable { display: none; } }
+
+.mobileRow {
+  overflow: hidden;
+  border-radius: 24px;
+  border: 2px solid #D75E2B;
+  box-shadow: 0 10px 26px rgba(69, 27, 10, 0.12);
+  /* background set inline */
+}
+
+.mobileRowLabel {
+  padding: 16px 20px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  font-family: Poppins, sans-serif;
+  /* color set inline */
+}
+
+.mobileGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 2px solid #D75E2B;
+}
+
+.mobileCell {
+  display: flex;
+  min-height: 78px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  text-align: center;
+  /* dynamic borders set inline */
+}
+
+.mobileCellLabel {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-family: Poppins, sans-serif;
+  /* color set inline */
+}
+
+.mobileCellEmpty {
+  font-size: 11px;
+  font-weight: 500;
+  font-family: Poppins, sans-serif;
+  /* color set inline */
+}
+
+/* Sticker */
+.stickerDesktop {
+  pointer-events: none;
+  position: absolute;
+  bottom: 1.15rem;
+  right: -2rem;
+  display: none;
+  width: 220px;
+  transform: rotate(-4deg);
+}
+@media (min-width: 768px)  { .stickerDesktop { display: block; } }
+@media (min-width: 1024px) { .stickerDesktop { width: 255px; } }
+
+.stickerMobile {
+  display: block;
+  margin: 16px auto 0;
+  width: 210px;
+  transform: rotate(-4deg);
+}
+@media (min-width: 768px) { .stickerMobile { display: none; } }
