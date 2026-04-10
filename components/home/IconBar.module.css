@@ -21,7 +21,7 @@
   text-align: center;
   gap: 12px;
   min-height: 212px;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .iconWrap {
