@@ -39,10 +39,13 @@ export default function ComparisonTable() {
 
         {/* Desktop table */}
         <div className={s.desktopTable}>
-          <div className={s.headerRow}>
-            {COMPARISON_COLUMNS.map((col) => (
-              <div key={col.compact} className={s.headerCell}>{col.label}</div>
-            ))}
+          <div className={s.headerRowContainer}>
+            <div />
+            <div className={s.headerRow}>
+              {COMPARISON_COLUMNS.map((col) => (
+                <div key={col.compact} className={s.headerCell}>{col.label}</div>
+              ))}
+            </div>
           </div>
 
           <div className={s.bodyRows}>

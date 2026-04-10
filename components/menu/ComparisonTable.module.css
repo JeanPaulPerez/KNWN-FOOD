@@ -3,40 +3,29 @@
    Dynamic row highlight colors (highlighted vs white) stay inline in TSX.
 ─────────────────────────────────────────────────────────────────────────── */
 
-/* Section — lavender outer wrapper, same as ZipCode */
+/* Section */
 .section {
-  background: #f4f1ff;
-  padding: 32px 24px;
+  background: #DB5A29;
+  padding: 40px 24px;
+  width: 100%;
 }
 
-/* Orange card — max-width matches ZipCode banner */
+/* Constrained content wrapper */
 .inner {
   max-width: 1400px;
   margin: 0 auto;
-  background: #DB5A29;
-  border-radius: 24px;
-  padding: 64px 48px;
+  position: relative;
 }
 
 @media (max-width: 768px) {
   .section {
-    padding: 24px 16px;
-  }
-
-  .inner {
-    padding: 48px 24px;
-    border-radius: 18px;
+    padding: 32px 16px;
   }
 }
 
 @media (max-width: 480px) {
   .section {
-    padding: 16px 12px;
-  }
-
-  .inner {
-    padding: 36px 16px;
-    border-radius: 14px;
+    padding: 24px 12px;
   }
 }
 
@@ -92,8 +81,13 @@
   }
 }
 
+.headerRowContainer {
+  display: grid;
+  grid-template-columns: 1.9fr repeat(4, minmax(0, 1fr));
+}
+
 .headerRow {
-  margin-left: 34.5%;
+  grid-column: span 4 / span 4;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   overflow: hidden;

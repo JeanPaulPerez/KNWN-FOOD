@@ -20,34 +20,34 @@ const FAQ_LEFT = [
   },
   {
     q: 'Can I pause or cancel anytime?',
-    a: 'Yes! You can pause or cancel your order anytime before 10 PM the day before without any fees.',
+    a: 'Yes. You can pause or cancel anytime. Just make sure to cancel your next delivery before 9 PM the day before.',
   },
   {
     q: "What if I don't like it?",
-    a: "We stand behind our food 100%. If you're not satisfied, reach out and we'll make it right — no questions asked.",
+    a: "If something isn’t right with your order, please contact us as soon as possible. We want to know what happened and make it right.",
   },
   {
     q: 'Do I have to order every week?',
-    a: 'No subscription required. Order whenever you want — once a week, daily, or whenever the mood strikes.',
+    a: 'No. You can order only when you want. Choose the days that work for you, with no weekly commitment.',
   },
 ];
 
 const FAQ_RIGHT = [
   {
     q: 'What if I have dietary restrictions?',
-    a: "Every meal has customization options. You can swap bases, sauces, and remove ingredients you don't like.",
+    a: 'We offer customization for many dietary restrictions. You can remove certain ingredients when placing your order. For allergies, please note that all our food is prepared in a commercial kitchen that handles common ingredients, including, but not limited to, wheat, soy, dairy, eggs, peanuts, tree nuts, fish, and shellfish. While we take responsible precautions to prevent cross-contamination, we cannot guarantee that any dish is 100% free of allergens.',
   },
   {
     q: 'When do I get my delivery?',
-    a: 'Orders placed before 10 PM are delivered the next business day by lunchtime.',
+    a: 'Deliveries arrive between 10 AM and 12 PM on your selected day. Please be ready to receive your order during that window.',
   },
   {
     q: 'Are the meals made fresh?',
-    a: 'Yes — we cook every morning and deliver the same day. Never frozen, never reheated.',
+    a: 'Yes. All meals are prepared fresh the same morning of your delivery. We thrive on real, fresh, honest food.',
   },
   {
     q: 'Do you deliver everywhere?',
-    a: 'We currently serve Brickell, Downtown, Bayside, and Coral Gables. More zones coming soon!',
+    a: 'Not yet. We currently deliver only in selected areas. Enter your zip code to check availability.',
   },
 ];
 
@@ -138,17 +138,17 @@ export default function FAQ() {
               ))}
             </div>
 
-            {/* Right column — pill buttons */}
+            {/* Right column — accordion */}
             <div className={s.rightCol}>
               {FAQ_RIGHT.map((faq, i) => (
-                <button
+                <FAQItem
                   key={i}
-                  className={s.rightBtn}
-                  onClick={() => setOpenRight(openRight === i ? null : i)}
-                >
-                  <span className={s.rightBtnText}>{faq.q}</span>
-                  <span className={s.rightBtnIcon}>+</span>
-                </button>
+                  q={faq.q}
+                  a={faq.a}
+                  isOpen={openRight === i}
+                  onToggle={() => setOpenRight(openRight === i ? null : i)}
+                  dark={openRight === i}
+                />
               ))}
 
               {/* Still have questions? */}

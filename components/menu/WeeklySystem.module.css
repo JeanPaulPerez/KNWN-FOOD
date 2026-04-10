@@ -5,8 +5,8 @@
 
 /* Section */
 .section {
-  background: #EEEAF8;
-  padding: 56px 24px 56px;
+  background: #f4f1ff;
+  padding: 30px 24px 30px;
 }
 
 /* Inner content wrapper — limits width and centers everything */
@@ -18,29 +18,30 @@
 
 /* Title */
 .title {
-  font-family: "Instrument Serif", serif;
+  font-family: var(--font-display);
   font-style: normal;
   font-weight: 400;
   color: #2D1B69;
-  font-size: clamp(60px, 7vw, 80px);
+  font-size: clamp(50px, 5.5vw, 80px);
   line-height: 0.90;
   text-align: center;
+  margin-top: 50px;
 }
 
 /* Subtitle */
 .subtitle {
-  font-family: poppins;
-  font-size: 30px;
+  font-family: var(--font-ui);
+  font-size: 20px;
   color: #2E1B69;
   text-align: center;
-  margin-top: 8px;
+  margin-top: 30px;
 }
 
 /* Day selector container */
 .daySelectorWrap {
   display: flex;
   justify-content: center;
-  margin-top: 24px;
+  margin-top: 40px;
   position: relative;
   z-index: 10;
 }
@@ -50,128 +51,132 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
   border-radius: 9999px;
-  padding: 5px 100px;
+  padding: 5px 30px;
   border: 1px solid #C64D29;
   background: rgba(255, 255, 255, 0.15);
 }
 
 /* Day pill button — dynamic colors (active/inactive) stay inline in TSX */
 .dayBtn {
-  padding: 10px 22px;
+  padding: 6px 16px;
   border-radius: 9999px;
-  font-family: Poppins, sans-serif;
-  font-size: 25px;
+  font-family: var(--font-ui);
+  font-size: 20px;
   cursor: pointer;
   transition: all 200ms;
   border: none;
 }
 
-/* Meal cards grid — no max-width here, constrained by .inner (1280px) */
+/* Meal cards grid — expanded but bound by aspect-ratio so it doesn't push the viewport */
 .cardsGrid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 18px;
-  margin: -100px 100px 0 0;
+  max-width: 1400px;
+  margin: -50px auto 0;
+  grid-auto-rows: min-content;
+  align-items: start;
 }
 
 @media (min-width: 768px) {
   .cardsGrid {
     grid-template-columns: 1fr 1fr;
+    gap: 40px;
   }
 }
 
-/* Individual card — fixed square container so ALL plates render at identical
-   dimensions regardless of each PNG's internal whitespace.
-   To resize all plates at once: change aspect-ratio here. */
+/* Individual card */
 .card {
   position: relative;
   cursor: default;
-  aspect-ratio: 0.68 / 1;
+  aspect-ratio: 1.05 / 1;
 }
 
-/* Plate shadow — sits behind the food image, centered at bottom */
+/* Plate shadow — adjusted to follow the larger plate image */
 .plateShadow {
   position: absolute;
-  bottom: 20%;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 15%;
+  left: 0;
+  transform: translateX(-7%);
   width: 100%;
-  opacity: 0.8;
+  opacity: 0.4;
   /* ← controla opacidad (0 = invisible, 1 = 100%) */
   z-index: 0;
   pointer-events: none;
 }
 
-/* Vegetarian icon — percentage of the fixed container = always same position */
+/* Vegetarian icon */
 .vegIcon {
   position: absolute;
-  top: 25%;
-  right: 20%;
-  width: 55px;
-  height: 55px;
+  top: 20%;
+  right: 38%;
+  width: 40px;
+  height: 40px;
   z-index: 20;
 }
 
-/* Card plate image — fills the fixed container, scaled proportionally */
+/* Card plate image */
 .cardImage {
   display: block;
-  width: 108%;
-  height: 108%;
+  width: 125%;
+  height: 125%;
   object-fit: contain;
-  object-position: center 6%;
+  object-position: top center;
   filter: none;
   transition: opacity 250ms ease;
   position: relative;
   z-index: 1;
+  transform: translateX(-7%);
 }
 
-/* Bottom row — full width of .inner (1280px) */
+/* Bottom row */
 .bottomRow {
-  margin-top: 8px;
+  margin-top: -15px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: Poppins, sans-serif;
+  font-family: var(--font-ui);
+  position: relative;
+  z-index: 10;
 }
 
 /* Veg badge */
 .vegBadge {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   color: #C64D29;
 }
 
 .vegBadgeIcon {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
 }
 
 .vegBadgeText {
-  font-size: 25px;
-  font-weight: 200;
-  font-family: poppins;
+  font-size: 24px;
+  font-weight: 300;
 }
 
 /* TRY NOW button */
 .tryNowBtn {
-  background: #A0451C;
-  color: white;
-  font-family: Poppins, sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  padding: 13px 42px;
-  border-radius: 6px;
+  background: transparent;
+  padding: 0;
   border: none;
   cursor: pointer;
-  transition: opacity 200ms;
+  transition: transform 200ms ease, opacity 200ms;
 }
 
 .tryNowBtn:hover {
   opacity: 0.9;
+  transform: scale(1.03);
 }
 
 .tryNowImg {
@@ -185,23 +190,23 @@
   }
 
   .daySelector {
-    padding: 5px 28px;
+    padding: 5px 20px;
   }
 
   .dayBtn {
-    padding: 10px 18px;
-    font-size: 17px;
+    padding: 8px 14px;
+    font-size: 15px;
   }
 
   .card {
-    aspect-ratio: 0.72 / 1;
+    aspect-ratio: 0.85 / 1;
   }
 
   .vegIcon {
     top: 17.5%;
     right: 10%;
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
   }
 }
 
@@ -237,7 +242,7 @@
   }
 
   .card {
-    aspect-ratio: 0.74 / 1;
+    aspect-ratio: 0.85 / 1;
   }
 
   .vegIcon {
@@ -248,7 +253,7 @@
   }
 
   .bottomRow {
-    margin-top: 18px;
+    margin-top: 8px;
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;

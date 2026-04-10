@@ -9,16 +9,16 @@ const COPY = {
 } as const;
 
 const COMPARISON_COLUMNS = [
-  { label: 'Pricing',        compact: 'Pricing' },
-  { label: 'Food\nQuality',  compact: 'Food Quality' },
-  { label: 'Convenience',    compact: 'Convenience' },
+  { label: 'Pricing', compact: 'Pricing' },
+  { label: 'Food\nQuality', compact: 'Food Quality' },
+  { label: 'Convenience', compact: 'Convenience' },
   { label: 'No Hidden Fees', compact: 'No Hidden Fees' },
 ];
 
 const COMPARISON_ROWS = [
-  { label: 'KNWN Real Food Lunch',       highlighted: true,  checks: [true,  true,  true,  true]  },
-  { label: 'Meal Prep Service',          highlighted: false, checks: [true,  false, false, false] },
-  { label: 'Restaurant & Delivery Apps', highlighted: false, checks: [false, false, true,  false] },
+  { label: 'KNWN Real Food Lunch', highlighted: true, checks: [true, true, true, true] },
+  { label: 'Meal Prep Service', highlighted: false, checks: [true, false, false, false] },
+  { label: 'Restaurant & Delivery Apps', highlighted: false, checks: [false, false, true, false] },
 ];
 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
@@ -26,8 +26,8 @@ export default function FindRealLunch() {
   return (
     <section style={{ background: '#f4f1ff' }} className="py-10 px-5 md:px-6">
       <div
-        style={{ background: '#DB5A29', borderRadius: '24px', maxWidth: '1280px' }}
-        className="mx-auto py-16 px-5 md:px-12"
+        style={{ background: '#DB5A29', borderRadius: '24px', maxWidth: '1400px' }}
+        className="mx-auto py-10 px-5 md:px-12"
       >
         <div className="mx-auto max-w-7xl">
 
@@ -56,8 +56,10 @@ export default function FindRealLunch() {
 
             {/* Desktop */}
             <div className="hidden md:block">
-              <div className="ml-[34.5%] grid grid-cols-4 overflow-hidden rounded-[20px] shadow-[0_8px_20px_rgba(43,28,112,0.06)]">
-                {COMPARISON_COLUMNS.map((col, i) => (
+              <div className="grid grid-cols-[1.9fr_repeat(4,minmax(0,1fr))]">
+                <div />
+                <div className="col-span-4 grid grid-cols-4 overflow-hidden rounded-[20px] shadow-[0_8px_20px_rgba(43,28,112,0.06)]">
+                  {COMPARISON_COLUMNS.map((col, i) => (
                   <div
                     key={col.compact}
                     className="flex min-h-[76px] items-center justify-center px-4 text-center text-[17px] font-medium leading-[1.02] text-[#34206E] whitespace-pre-line"
@@ -70,6 +72,7 @@ export default function FindRealLunch() {
                     {col.label}
                   </div>
                 ))}
+                </div>
               </div>
 
               <div className="mt-[10px] space-y-[9px]">
