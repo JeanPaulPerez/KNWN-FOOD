@@ -55,7 +55,7 @@ const STEPS = [
     description:
       'Delivered fresh to your office everyday, exactly when you need it.',
     ctaLabel: 'Order Now',
-    ctaHref: '/menu',
+    ctaHref: '/order',
   },
 ] satisfies Step[];
 

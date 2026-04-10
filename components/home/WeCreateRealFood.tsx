@@ -20,7 +20,7 @@ export default function WeCreateRealFood() {
           <br />
           lunch experiences
         </h2>
-        <Link to="/menu" className={s.btn}>Order Now</Link>
+        <Link to="/order" className={s.btn}>Order Now</Link>
       </div>
     </section>
   );

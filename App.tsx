@@ -1,6 +1,14 @@
 
-import React, { useState } from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]);
+  return null;
+}
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, X, ChevronRight, AlertTriangle, Calendar, ArrowRight } from 'lucide-react';
 import Home from './pages/Home';
@@ -208,6 +216,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen selection:bg-brand-primary selection:text-white flex flex-col font-sans bg-[#F5F3FF]">
+      <ScrollToTop />
       <Header cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} onOpenProfile={handleAccountAction} />
 
       <main className="flex-1">
