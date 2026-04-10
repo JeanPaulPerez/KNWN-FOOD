@@ -244,7 +244,7 @@ async function parseApiResponse<T = any>(response: Response): Promise<T> {
   const raw = await response.text();
 
   try {
-    return raw ? JSON.parse(raw) : {};
+    return (raw ? JSON.parse(raw) : {}) as T;
   } catch {
     const sanitized = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     throw new Error(sanitized || 'Server returned an invalid response');

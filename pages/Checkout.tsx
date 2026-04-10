@@ -417,8 +417,8 @@ function CheckoutForm({ cart }: { cart: any }) {
                 <div className="flex-1 min-h-[52px]">
                   {paymentRequest ? (
                     <PaymentRequestButtonElement
-                      paymentRequest={paymentRequest}
                       options={{
+                        paymentRequest,
                         style: {
                           paymentRequestButton: { theme: 'dark', height: '52px', type: 'default' },
                         },
