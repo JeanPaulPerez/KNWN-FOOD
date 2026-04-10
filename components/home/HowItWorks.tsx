@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import s from './HowItWorks.module.css';
 
 type Step = {
@@ -100,14 +101,24 @@ export default function HowItWorks() {
                     </button>
                   </div>
 
-                  {step.id === activeStepId && (
-                    <>
-                      <p className={s.desc}>{step.description}</p>
-                      {step.ctaLabel && step.ctaHref ? (
-                        <Link to={step.ctaHref} className={s.exploreBtn}>{step.ctaLabel}</Link>
-                      ) : null}
-                    </>
-                  )}
+                  <AnimatePresence initial={false}>
+                    {step.id === activeStepId && (
+                      <motion.div
+                        key="content"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.28, ease: 'easeInOut' }}
+                        style={{ overflow: 'hidden' }}
+                        className={s.stepContent}
+                      >
+                        <p className={s.desc}>{step.description}</p>
+                        {step.ctaLabel && step.ctaHref ? (
+                          <Link to={step.ctaHref} className={s.exploreBtn}>{step.ctaLabel}</Link>
+                        ) : null}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {index < STEPS.length - 1 && <hr className={s.divider} />}
