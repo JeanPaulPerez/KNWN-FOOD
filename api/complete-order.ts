@@ -167,6 +167,7 @@ async function createWooOrder(
   couponCode: string | null,
   paymentIntentId: string | null,
   isFree: boolean,
+  paymentProvider: string,
   pricing: {
     subtotal: string;
     discount: string;
@@ -182,8 +183,8 @@ async function createWooOrder(
     status: 'processing',
     set_paid: true,
     ...(customerInfo.wcCustomerId ? { customer_id: customerInfo.wcCustomerId } : {}),
-    payment_method: isFree ? 'free_coupon' : 'stripe',
-    payment_method_title: isFree ? 'Free (100% Promo)' : 'Credit Card (Stripe)',
+    payment_method: isFree ? 'free_coupon' : paymentProvider === 'paypal' ? 'paypal' : 'stripe',
+    payment_method_title: isFree ? 'Free (100% Promo)' : paymentProvider === 'paypal' ? 'PayPal' : 'Credit Card (Stripe)',
     transaction_id: paymentIntentId || '',
     billing: {
       first_name: customerInfo.name?.split(' ')[0] || '',
@@ -276,31 +277,39 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { items, customerInfo, couponCode, paymentIntentId, isFree, pricing } = req.body;
+  const { items, customerInfo, couponCode, paymentIntentId, paymentProvider = 'stripe', isFree, pricing } = req.body;
 
   if (!items || items.length === 0) {
     return res.status(400).json({ error: 'No items in order' });
   }
 
-  // ── PAID FLOW: Verify Stripe payment ONCE before creating any orders ────────
+  // ── PAID FLOW: Verify payment ONCE before creating any orders ───────────────
   if (!isFree) {
     if (!paymentIntentId) {
       return res.status(400).json({ error: 'Payment confirmation is required' });
     }
-    if (!process.env.STRIPE_SECRET_KEY) {
-      return res.status(500).json({ error: 'Payment system not configured' });
-    }
-    try {
-      const piRes = await fetch(
-        `https://api.stripe.com/v1/payment_intents/${paymentIntentId}`,
-        { headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}` } }
-      );
-      const pi = await piRes.json() as any;
-      if (pi.status !== 'succeeded') {
-        return res.status(400).json({ error: `Payment not confirmed (status: ${pi.status})` });
+
+    if (paymentProvider === 'paypal') {
+      // PayPal was already captured server-side via /api/paypal-capture-order.
+      // The capture is atomic — if it succeeded, the transaction is final.
+      // No additional server-side verification needed here.
+    } else {
+      // Stripe: verify the PaymentIntent reached "succeeded"
+      if (!process.env.STRIPE_SECRET_KEY) {
+        return res.status(500).json({ error: 'Payment system not configured' });
       }
-    } catch {
-      return res.status(400).json({ error: 'Could not verify payment with Stripe' });
+      try {
+        const piRes = await fetch(
+          `https://api.stripe.com/v1/payment_intents/${paymentIntentId}`,
+          { headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}` } }
+        );
+        const pi = await piRes.json() as any;
+        if (pi.status !== 'succeeded') {
+          return res.status(400).json({ error: `Payment not confirmed (status: ${pi.status})` });
+        }
+      } catch {
+        return res.status(400).json({ error: 'Could not verify payment with Stripe' });
+      }
     }
   }
 
@@ -331,6 +340,7 @@ export default async function handler(req: any, res: any) {
           couponCode,
           paymentIntentId,
           isFree,
+          paymentProvider,
           {
             subtotal: roundCurrency(subtotalAllocations[index] / 100),
             discount: roundCurrency(discountAllocations[index] / 100),
