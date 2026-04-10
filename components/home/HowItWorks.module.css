@@ -100,7 +100,7 @@
   flex-direction: column;
   align-items: stretch;
   gap: 0;
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 .stepHeader {
@@ -115,7 +115,7 @@
   align-items: flex-start;
   gap: 20px;
   text-align: left;
-  margin-top: 8px;
+  margin-top: 18px;
 }
 
 .pillActive,
@@ -272,21 +272,22 @@
     font-size: clamp(36px, 6vw, 46px);
   }
 
-  .steps {
-    justify-content: flex-start;
-  }
-
-  .stepActive,
-  .step {
-    padding: 6px 0;
-  }
-
   .headingCompact .headingBottom {
     font-size: clamp(28px, 5vw, 36px);
   }
 
   .desc {
     max-width: 100%;
+  }
+
+  .steps {
+    justify-content: flex-start;
+    gap: 4px;
+  }
+
+  .stepActive,
+  .step {
+    padding: 4px 0;
   }
 }
 
