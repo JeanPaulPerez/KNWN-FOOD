@@ -24,10 +24,21 @@
   justify-content: flex-start;
 }
 
-.icon {
-  width: 165px;
+.iconWrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   height: 165px;
+  width: 100%;
+}
+
+.icon {
+  max-width: 165px;
+  max-height: 165px;
+  width: auto;
+  height: auto;
   object-fit: contain;
+  display: block;
 }
 
 .title {
@@ -62,9 +73,13 @@
     gap: 18px;
   }
 
-  .icon {
-    width: 72px;
+  .iconWrap {
     height: 72px;
+  }
+
+  .icon {
+    max-width: 72px;
+    max-height: 72px;
   }
 
   .item {
@@ -88,9 +103,13 @@
     gap: 22px 18px;
   }
 
-  .icon {
-    width: 64px;
+  .iconWrap {
     height: 64px;
+  }
+
+  .icon {
+    max-width: 64px;
+    max-height: 64px;
   }
 
   .item {
@@ -122,9 +141,13 @@
     min-height: 140px;
   }
 
-  .icon {
-    width: 52px;
+  .iconWrap {
     height: 52px;
+  }
+
+  .icon {
+    max-width: 52px;
+    max-height: 52px;
   }
 
   .title {

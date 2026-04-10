@@ -30,7 +30,9 @@ export default function IconBar() {
       <div className={s.inner}>
         {VALUES.map(v => (
           <div key={v.title} className={s.item}>
-            <img src={v.icon} alt={v.title} className={s.icon} />
+            <div className={s.iconWrap}>
+              <img src={v.icon} alt={v.title} className={s.icon} />
+            </div>
             <h4 className={s.title}>{v.title}</h4>
             <p className={s.desc}>{v.desc}</p>
           </div>
