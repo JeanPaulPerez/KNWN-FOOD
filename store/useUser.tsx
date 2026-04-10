@@ -45,7 +45,7 @@ function loadTokenFromStorage(): string | null {
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(loadUserFromStorage);
   const [token, setToken] = useState<string | null>(loadTokenFromStorage);
-  const [isHydrating, setIsHydrating] = useState(true);
+  const [isHydrating, setIsHydrating] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -58,29 +58,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const refreshSession = useCallback(async () => {
-    try {
-      const res = await fetch('/api/account-session', {
-        credentials: 'include',
-      });
-
-      if (!res.ok) {
-        // No server session — keep any user already loaded from localStorage
-        return null;
-      }
-
-      const data = await res.json();
-      if (data.user) setUser(data.user);
-      return data.user ?? null;
-    } catch {
-      // Network error — keep localStorage user intact
-      return null;
-    } finally {
-      setIsHydrating(false);
-    }
-  }, []);
+    setIsHydrating(false);
+    return user;
+  }, [user]);
 
   useEffect(() => {
-    refreshSession().catch(() => setIsHydrating(false));
+    setIsHydrating(false);
   }, [refreshSession]);
 
   const register = useCallback((userData: User & { _token?: string }) => {
@@ -97,13 +80,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    try {
-      await fetch('/api/account-session', { method: 'DELETE', credentials: 'include' });
-    } finally {
-      setUser(null);
-      setToken(null);
-      window.localStorage.removeItem(TOKEN_KEY);
-    }
+    setUser(null);
+    setToken(null);
+    window.localStorage.removeItem(TOKEN_KEY);
   }, []);
 
   const value = useMemo<UserContextValue>(
