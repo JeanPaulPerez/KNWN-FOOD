@@ -274,51 +274,51 @@ function CheckoutForm({ cart }: { cart: any }) {
               )}
             </div>
 
-            {/* Billing Address (Dirección de facturación) */}
+            {/* Billing Address */}
             <div className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-brand-primary/5 space-y-4">
-              <h2 className="text-xl font-bold text-brand-primary mb-4">Dirección de facturación</h2>
-              
+              <h2 className="text-xl font-bold text-brand-primary mb-4">Billing Address</h2>
+
               <div className="relative">
                 <select className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 appearance-none font-medium text-brand-primary focus:border-brand-primary outline-none cursor-pointer">
-                  <option>Estados Unidos</option>
+                  <option>United States</option>
                 </select>
-                <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">País / Región</label>
+                <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Country / Region</label>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="relative">
                   <input required name="firstName" type="text" defaultValue={user?.name?.split(' ')[0] || ''} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
-                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Nombre</label>
+                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">First Name</label>
                 </div>
                 <div className="relative">
                   <input required name="lastName" type="text" defaultValue={user?.name?.split(' ').slice(1).join(' ') || ''} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
-                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Apellidos</label>
+                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Last Name</label>
                 </div>
               </div>
 
               <div className="relative">
                 <input required name="street" type="text" defaultValue={deliveryAddress?.street || '6778 West Flagler Street'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
-                <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Dirección</label>
+                <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Address</label>
               </div>
 
               <div className="relative">
-                <input name="address2" type="text" placeholder="Casa, apartamento, etc. (opcional)" className="w-full border border-brand-primary/20 rounded-xl px-4 py-4 font-medium text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/40" />
+                <input name="address2" type="text" placeholder="Apt, suite, etc. (optional)" className="w-full border border-brand-primary/20 rounded-xl px-4 py-4 font-medium text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/40" />
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="relative">
                   <input required name="city" type="text" defaultValue={deliveryAddress?.city || 'Miami'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
-                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Ciudad</label>
+                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">City</label>
                 </div>
                 <div className="relative col-span-1">
                   <select name="state" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 appearance-none font-medium text-brand-primary focus:border-brand-primary outline-none">
                     <option>{deliveryAddress?.state || 'Florida'}</option>
                   </select>
-                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Estado</label>
+                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">State</label>
                 </div>
                 <div className="relative">
                   <input required name="zip" type="text" defaultValue={deliveryAddress?.zip || '33144'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
-                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Código postal</label>
+                  <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">ZIP Code</label>
                 </div>
               </div>
 
@@ -411,14 +411,14 @@ function CheckoutForm({ cart }: { cart: any }) {
                 </div>
               )}
 
-              {/* Tips block (Agregar propina) */}
+              {/* Tips block */}
               <div className="mt-6 border border-brand-primary/10 bg-[#FAFAFC] rounded-2xl p-6">
-                <h4 className="font-bold text-brand-primary text-sm mb-1">Agregar propina</h4>
+                <h4 className="font-bold text-brand-primary text-sm mb-1">Add a Tip</h4>
                 <p className="text-xs text-brand-primary/60 mb-4 flex gap-2 items-center">
                   <div className="w-3 h-3 rounded bg-[#00A9E0] text-white flex items-center justify-center"><Check size={8} strokeWidth={4} /></div>
-                  Da una muestra de apoyo al equipo de Manantial Market
+                  Show your support for the KNWN team
                 </p>
-                
+
                 <div className="grid grid-cols-4 gap-2 mb-3">
                   {[0.10, 0.15, 0.20, 'none'].map((val) => {
                     const isActive = tipRate === val;
@@ -428,23 +428,23 @@ function CheckoutForm({ cart }: { cart: any }) {
                         key={val} type="button" onClick={() => setTipRate(val as number|'none')}
                         className={clsx(
                           "py-3 flex flex-col items-center justify-center rounded-xl border font-bold transition-all shadow-sm bg-white",
-                          isActive ? "border-[#00D632] shadow-[#00D632]/20 shadow-md ring-1 ring-[#00D632]" 
+                          isActive ? "border-[#00D632] shadow-[#00D632]/20 shadow-md ring-1 ring-[#00D632]"
                                    : "border-gray-200 text-brand-primary/60 hover:border-gray-300"
                         )}
                       >
-                        <span className={clsx("text-sm", isActive && "text-brand-primary")}>{val === 'none' ? 'Ninguno' : `${(val as number) * 100}%`}</span>
+                        <span className={clsx("text-sm", isActive && "text-brand-primary")}>{val === 'none' ? 'None' : `${(val as number) * 100}%`}</span>
                         {amount && <span className={clsx("text-[10px] opacity-60", isActive && "text-brand-primary font-medium")}>${amount}</span>}
                       </button>
                     )
                   })}
                 </div>
-                
+
                 <div className="flex border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
-                  <div className="px-4 py-3 text-xs text-brand-primary/40 font-semibold flex-1">Propina personalizada</div>
+                  <div className="px-4 py-3 text-xs text-brand-primary/40 font-semibold flex-1">Custom tip</div>
                   <div className="flex items-center gap-1 border-r border-gray-200 px-3 opacity-30"><span className="px-1 text-lg">−</span><span className="px-1 text-lg">+</span></div>
-                  <button type="button" className="px-4 py-3 text-[11px] font-bold text-brand-primary/50 bg-gray-50 uppercase hover:bg-gray-100 transition-colors">Agregar propina</button>
+                  <button type="button" className="px-4 py-3 text-[11px] font-bold text-brand-primary/50 bg-gray-50 uppercase hover:bg-gray-100 transition-colors">Add tip</button>
                 </div>
-                <p className="text-[10px] text-brand-primary/60 font-medium italic mt-4 text-center">Muchas gracias.</p>
+                <p className="text-[10px] text-brand-primary/60 font-medium italic mt-4 text-center">Thank you.</p>
               </div>
 
               {/* Order Total */}
