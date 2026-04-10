@@ -4,7 +4,7 @@
 }
 
 .card {
-  max-width: 1250px;
+  max-width: 1400px;
   margin: 0 auto;
   background: #fff;
   border-radius: 28px;
@@ -65,7 +65,7 @@
 .headingTop {
   display: block;
   font-family: var(--font-display);
-  font-size: clamp(48px, 4vw, 62px);
+  font-size: clamp(48px, 5vw, 76px);
   font-weight: 600;
   letter-spacing: -0.04em;
 }
@@ -75,7 +75,7 @@
   margin-top: -8px;
   margin-left: 60px;
   font-family: "Nothing You Could Do", cursive;
-  font-size: clamp(42px, 2.6vw, 46px);
+  font-size: clamp(42px, 3.2vw, 58px);
   font-weight: 600;
   letter-spacing: -0.03em;
 }
@@ -159,7 +159,7 @@
   margin: 0;
   max-width: 320px;
   font-family: var(--font-ui);
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: #4a3d8a;

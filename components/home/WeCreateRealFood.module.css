@@ -141,3 +141,18 @@
     font-size: 12px;
   }
 }
+
+/* ── Small mobile (≤ 380px) ─────────────────────────────────────────────── */
+@media (max-width: 380px) {
+  .section {
+    height: 220px;
+  }
+
+  .heading {
+    font-size: clamp(20px, 7vw, 26px);
+  }
+
+  .handwriting {
+    font-size: clamp(22px, 8vw, 30px);
+  }
+}

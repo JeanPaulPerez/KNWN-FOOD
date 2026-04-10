@@ -5,22 +5,28 @@ import s from './FoundersStory.module.css';
 const PROBLEM_CARDS = [
   {
     label: 'Another $22 sad salad?',
-    img:   '/assets/about/Untitled design.png',
-    alt:   'Another $22 sad salad',
+    img: '/assets/about/Untitled design.png',
+    alt: 'Another $22 sad salad',
+    cardClass: s.problemCard1,
+    imgClass: s.problemImg1,
     style: { transform: 'rotate(-2deg) translateY(18px)', transformOrigin: 'center bottom' },
     imgStyle: { objectFit: 'cover' as const },
   },
   {
     label: 'Another pile of delivery fees?',
-    img:   "/assets/about/Fee's.png",
-    alt:   'Another pile of delivery fees',
+    img: "/assets/about/Fee's.png",
+    alt: 'Another pile of delivery fees',
+    cardClass: s.problemCard2,
+    imgClass: s.problemImg2,
     style: { transform: 'rotate(1deg)', transformOrigin: 'center bottom' },
-    imgStyle: { objectFit: 'contain' as const, padding: '20px', background: 'white' },
+    imgStyle: { objectFit: 'contain' as const },
   },
   {
     label: 'Another fake fresh meal prep?',
-    img:   '/assets/about/Meal Prep.png',
-    alt:   'Another fake fresh meal prep',
+    img: '/assets/about/Meal Prep.png',
+    alt: 'Another fake fresh meal prep',
+    cardClass: s.problemCard3,
+    imgClass: s.problemImg3,
     style: { transform: 'rotate(2.5deg) translateY(-22px)', transformOrigin: 'center bottom' },
     imgStyle: { objectFit: 'cover' as const },
   },
@@ -62,11 +68,11 @@ export default function FoundersStory() {
 
         {/* Problem cards */}
         <div className={s.problemGrid}>
-          {PROBLEM_CARDS.map(({ label, img, alt, style, imgStyle }) => (
-            <div key={label} className={s.problemCard} style={style}>
+          {PROBLEM_CARDS.map(({ label, img, alt, style, imgStyle, cardClass, imgClass }) => (
+            <div key={label} className={`${s.problemCard} ${cardClass}`} style={style}>
               <span className={s.problemLabel}>{label}</span>
               <div className={s.problemImgWrap}>
-                <img src={img} alt={alt} className={s.problemImg} style={imgStyle} />
+                <img src={img} alt={alt} className={`${s.problemImg} ${imgClass}`} style={imgStyle} />
               </div>
             </div>
           ))}
@@ -78,7 +84,7 @@ export default function FoundersStory() {
             Honestly? Some days it felt easier to skip lunch than to decide what to eat.
           </h3>
           <p className={s.quoteTag}>
-            Overpriced lunches &nbsp;·&nbsp; Stacked fees &nbsp;·&nbsp; Daily overthinking.
+            Overpriced lunches. Stacked fees. Daily overthinking.
           </p>
         </div>
 

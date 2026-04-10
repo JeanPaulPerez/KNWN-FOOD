@@ -6,7 +6,7 @@
 
 /* ─── Dark purple rounded banner ─────────────────────────────────────────── */
 .banner {
-  max-width: 1250px;
+  max-width: 1400px;
   margin: 0 auto;
   background: var(--purple);
   border-radius: 24px;
