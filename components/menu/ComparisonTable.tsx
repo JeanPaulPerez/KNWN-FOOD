@@ -25,6 +25,7 @@ const COMPARISON_ROWS = [
 export default function ComparisonTable() {
   return (
     <section className={s.section}>
+      <div className={s.inner}>
 
       {/* Heading */}
       <h2 className={s.heading}>
@@ -129,6 +130,7 @@ export default function ComparisonTable() {
         <img src={COPY.stickerImage} alt="Try now" className={s.stickerMobile} />
       </div>
 
+      </div>
     </section>
   );
 }
