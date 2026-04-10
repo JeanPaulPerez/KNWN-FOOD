@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingBag, User, Menu, X } from 'lucide-react';
 import s from './Header.module.css';
 import { useUser } from '../store/useUser';
@@ -14,6 +14,7 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
   const [open, setOpen] = useState(false);
   const { isRegistered } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleAccountClick = () => {
     if (onOpenProfile) {
@@ -22,6 +23,21 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
     }
 
     navigate('/account');
+  };
+
+  const handleHowItWorksClick = (e: React.MouseEvent, closeMenu?: () => void) => {
+    e.preventDefault();
+    if (closeMenu) closeMenu();
+    const scroll = () => {
+      const el = document.getElementById('how-it-works');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    };
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(scroll, 150);
+    } else {
+      scroll();
+    }
   };
 
   return (
@@ -39,7 +55,7 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
       {/* Desktop nav */}
       <nav className={s.nav}>
         <Link to="/menu"  className={s.navLink}>Menu</Link>
-        <a href="/#how-it-works" className={s.navLink}>How it Works</a>
+        <a href="#" onClick={(e) => handleHowItWorksClick(e)} className={s.navLink}>How it Works</a>
         <Link to="/about" className={s.navLink}>About Us</Link>
       </nav>
 
@@ -83,7 +99,7 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
       {open && (
         <div className={s.drawer}>
           <Link to="/menu"  className={s.drawerLink} onClick={() => setOpen(false)}>Menu</Link>
-          <a href="/#how-it-works" className={s.drawerLink} onClick={() => setOpen(false)}>How it Works</a>
+          <a href="#" className={s.drawerLink} onClick={(e) => handleHowItWorksClick(e, () => setOpen(false))}>How it Works</a>
           <Link to="/about" className={s.drawerLink} onClick={() => setOpen(false)}>About Us</Link>
           <Link to="/order" className={s.drawerOrderBtn} onClick={() => setOpen(false)}>Order Now</Link>
         </div>

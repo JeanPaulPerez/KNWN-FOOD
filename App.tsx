@@ -265,24 +265,24 @@ export default function App() {
             <h4 className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black mb-5 md:mb-8 text-white/40">Explore</h4>
             <ul className="text-white/80 text-[10px] md:text-xs font-black uppercase tracking-widest">
               <li><Link to="/menu" className="flex items-center min-h-[44px] hover:text-white transition-colors">Menu</Link></li>
-              <li><Link to="/" className="flex items-center min-h-[44px] hover:text-white transition-colors">Story</Link></li>
-              <li><Link to="/" className="flex items-center min-h-[44px] hover:text-white transition-colors">Values</Link></li>
+              <li><Link to="/about" className="flex items-center min-h-[44px] hover:text-white transition-colors">Story</Link></li>
+              <li><Link to="/about" className="flex items-center min-h-[44px] hover:text-white transition-colors">Values</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black mb-5 md:mb-8 text-white/40">Connect</h4>
             <ul className="text-white/80 text-[10px] md:text-xs font-black uppercase tracking-widest">
-              <li><Link to="/" className="flex items-center min-h-[44px] hover:text-white transition-colors">Instagram</Link></li>
-              <li><Link to="/" className="flex items-center min-h-[44px] hover:text-white transition-colors">LinkedIn</Link></li>
-              <li><Link to="/" className="flex items-center min-h-[44px] hover:text-white transition-colors">Newsletter</Link></li>
+              <li><a href="https://www.instagram.com/knwnfood/" target="_blank" rel="noopener noreferrer" className="flex items-center min-h-[44px] hover:text-white transition-colors">Instagram</a></li>
+              <li><a href="https://www.linkedin.com/company/knwnfood/" target="_blank" rel="noopener noreferrer" className="flex items-center min-h-[44px] hover:text-white transition-colors">LinkedIn</a></li>
+              <li><Link to="/menu" className="flex items-center min-h-[44px] hover:text-white transition-colors">Newsletter</Link></li>
             </ul>
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-10 md:mt-16 lg:mt-24 pt-6 md:pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[8px] md:text-[9px] tracking-[0.3em] text-white/20 uppercase font-black text-center md:text-left">
           <p>© 2024 KNWN FOOD. ARCHITECTING TOMORROW'S DINING.</p>
           <div className="flex gap-6 md:gap-8">
-            <Link to="/" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="/" className="hover:text-white transition-colors">Terms of Service</Link>
+            <a href="https://knwnfood.com/privacy-policy/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="https://knwnfood.com/terms-of-service/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Terms of Service</a>
           </div>
         </div>
       </footer>
