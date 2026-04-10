@@ -232,7 +232,7 @@ const CustomizationModal: React.FC<{
 
           <div className="px-6 py-8 space-y-8">
             <div className="space-y-2">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#D4F53C] text-[#2D1B69] rounded-md text-[10px] font-black uppercase tracking-widest">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#dddd12] text-[#2D1B69] rounded-md text-[10px] font-black uppercase tracking-widest">
                 • Scheduled Delivery • {date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: '2-digit' })}
               </span>
               <h2 className="text-[2rem] font-serif text-[#2D1B69] leading-tight">{item.name}</h2>
