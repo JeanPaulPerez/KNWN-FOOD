@@ -100,7 +100,7 @@
   flex-direction: column;
   align-items: stretch;
   gap: 0;
-  padding: 14px 0;
+  padding: 10px 0;
 }
 
 .stepHeader {
@@ -115,7 +115,7 @@
   align-items: flex-start;
   gap: 20px;
   text-align: left;
-  margin-top: 18px;
+  margin-top: 8px;
 }
 
 .pillActive,
@@ -270,6 +270,15 @@
 
   .headingCompact .headingTop {
     font-size: clamp(36px, 6vw, 46px);
+  }
+
+  .steps {
+    justify-content: flex-start;
+  }
+
+  .stepActive,
+  .step {
+    padding: 6px 0;
   }
 
   .headingCompact .headingBottom {
