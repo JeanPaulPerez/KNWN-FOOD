@@ -25,7 +25,7 @@
   font-size: clamp(50px, 5.5vw, 80px);
   line-height: 0.90;
   text-align: center;
-  margin-top: 50px;
+  margin-top: 10px;
 }
 
 /* Subtitle */
@@ -34,14 +34,13 @@
   font-size: 20px;
   color: #2E1B69;
   text-align: center;
-  margin-top: 30px;
+  margin-top: 10px;
 }
 
-/* Day selector container */
 .daySelectorWrap {
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 20px;
   position: relative;
   z-index: 10;
 }
@@ -51,7 +50,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 1380px;
+  max-width: 900px;
   margin: 0 auto;
   border-radius: 9999px;
   padding: 5px 30px;
@@ -75,8 +74,9 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 18px;
-  max-width: 1400px;
+  max-width: 1040px;
   margin: -50px auto 0;
+  /* Pulled up closer to day selector */
   grid-auto-rows: min-content;
   align-items: start;
 }
@@ -95,14 +95,22 @@
   aspect-ratio: 1.05 / 1;
 }
 
+/* Syncs Plate + Leaf position */
+.plateWrapper {
+  position: relative;
+  width: 125%;
+  height: 125%;
+  transform: translateX(-7%);
+}
+
 /* Plate shadow — adjusted to follow the larger plate image */
 .plateShadow {
   position: absolute;
-  bottom: 15%;
-  left: 0;
-  transform: translateX(-7%);
-  width: 100%;
-  opacity: 0.4;
+  bottom: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 65%;
+  opacity: 0.3;
   /* ← controla opacidad (0 = invisible, 1 = 100%) */
   z-index: 0;
   pointer-events: none;
@@ -112,30 +120,30 @@
 .vegIcon {
   position: absolute;
   top: 20%;
-  right: 38%;
-  width: 40px;
-  height: 40px;
+  right: 32%;
+  width: 6.5%;
+  height: auto;
   z-index: 20;
 }
 
 /* Card plate image */
 .cardImage {
   display: block;
-  width: 125%;
-  height: 125%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   object-position: top center;
   filter: none;
   transition: opacity 250ms ease;
   position: relative;
   z-index: 1;
-  transform: translateX(-7%);
 }
 
 /* Bottom row */
 .bottomRow {
   margin-top: -15px;
-  max-width: 1200px;
+  width: 100%;
+  max-width: 900px;
   margin-left: auto;
   margin-right: auto;
   display: flex;
@@ -161,7 +169,7 @@
 }
 
 .vegBadgeText {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 300;
 }
 
@@ -180,7 +188,7 @@
 }
 
 .tryNowImg {
-  height: 65px;
+  height: 52px;
   width: auto;
 }
 
@@ -200,13 +208,6 @@
 
   .card {
     aspect-ratio: 0.85 / 1;
-  }
-
-  .vegIcon {
-    top: 17.5%;
-    right: 10%;
-    width: 35px;
-    height: 35px;
   }
 }
 
@@ -243,13 +244,6 @@
 
   .card {
     aspect-ratio: 0.85 / 1;
-  }
-
-  .vegIcon {
-    top: 18%;
-    right: 11%;
-    width: 36px;
-    height: 36px;
   }
 
   .bottomRow {

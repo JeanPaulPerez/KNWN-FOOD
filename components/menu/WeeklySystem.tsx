@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { MENUS } from '../../data/menus';
 import { MenuItem, Weekday } from '../../types';
 import { getEtNow } from '../../utils/dateLogic';
@@ -130,16 +131,18 @@ export default function WeeklySystem({ onItemSelect }: Props) {
           >
             {items.map((item, idx) => (
               <div key={item.id} className={s.card}>
-                <img src="/assets/icons/plate-shadow.png" alt="" className={s.plateShadow} />
-                {item.customizationOptions?.hasVegetarianOption && (
-                  <img src="/assets/icons/hoja.png" alt="" className={s.vegIcon} />
-                )}
-                <img
-                  src={images[idx]}
-                  alt={item.name}
-                  className={s.cardImage}
-                  style={item.name === 'Chicken Lime' ? { transform: 'scale(1.02)', transformOrigin: 'center -60%' } : undefined}
-                />
+                <div className={s.plateWrapper}>
+                  <img src="/assets/icons/plate-shadow.png" alt="" className={s.plateShadow} />
+                  {item.customizationOptions?.hasVegetarianOption && (
+                    <img src="/assets/icons/hoja.png" alt="" className={s.vegIcon} />
+                  )}
+                  <img
+                    src={images[idx]}
+                    alt={item.name}
+                    className={s.cardImage}
+                    style={item.name === 'Chicken Lime' ? { transform: 'scale(1.02)', transformOrigin: 'center -60%' } : undefined}
+                  />
+                </div>
               </div>
             ))}
           </motion.div>
@@ -152,9 +155,9 @@ export default function WeeklySystem({ onItemSelect }: Props) {
             <span className={s.vegBadgeText}>{COPY.vegBadge}</span>
           </div>
 
-          <button className={s.tryNowBtn} onClick={() => handleTryNow()} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+          <Link to="/order" className={s.tryNowBtn} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-block' }}>
             <img src="/assets/icons/try-now.png" alt="TRY NOW" className={s.tryNowImg} />
-          </button>
+          </Link>
         </div>
 
       </div>{/* end .inner */}

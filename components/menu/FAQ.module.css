@@ -74,19 +74,19 @@
 }
 
 .heading {
-  font-family: "Instrument Serif", serif;
-  font-size: clamp(50px, 5vw, 80px);
+  font-family: var(--font-display, "Instrument Serif", serif);
+  font-size: clamp(40px, 5vw, 74px);
   font-weight: 600;
+  line-height: 0.90;
   color: #2D1B69;
 }
 
 .subheading {
   font-family: "Nothing You Could Do", cursive;
-  font-size: clamp(22px, 3vw, 45px);
-  letter-spacing: 0.07em;
-  font-weight: 600;
-  color: #DB5A29;
-  margin: -20px 0 0 clamp(150px, 20vw, 350px);
+  font-size: clamp(48px, 2vw, 50px);
+  font-weight: 400;
+  color: #db5a29;
+  margin: 15px 0 0 190px;
 }
 
 /* Two-column grid */
