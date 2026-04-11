@@ -4,8 +4,16 @@ import { ShoppingBag, X, ArrowRight, ArrowLeft, Trash2, Search, MapPin, Clock3 }
 import { useNavigate } from 'react-router-dom';
 import { MENUS } from '../data/menus';
 import { MenuItem, Weekday } from '../types';
-import { getEtNow, calculateActiveOrderDay, isWeekend, CUTOFF_HOUR } from '../utils/dateLogic';
+import { getEtNow, calculateActiveOrderDay, isWeekend, CUTOFF_HOUR, getDateStatus } from '../utils/dateLogic';
 import { clsx } from 'clsx';
+
+/** Drop `glow-red.png` / `glow-blue.png` into `public/images_KNWN/` to use brand glows; CSS fallbacks stay underneath */
+const ORDER_GLOW_RED = '/images_KNWN/Rectangle.png';
+const ORDER_GLOW_BLUE = '/images_KNWN/SombreadoAzul.png';
+
+function hideBrokenImg(e: React.SyntheticEvent<HTMLImageElement>) {
+  e.currentTarget.style.display = 'none';
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const MAX_MEALS = 5;
@@ -19,11 +27,17 @@ const DOW_TO_KEY: Record<number, Weekday> = {
  * Returns the next N orderable weekdays starting from the first available
  * delivery date (respects 10 AM ET cutoff and skips weekends).
  */
-function getAvailableDates(count = 10): Date[] {
-  const first = calculateActiveOrderDay();
+function getAvailableDates(count = 15): Date[] {
+  const activeDay = calculateActiveOrderDay();
   const dates: Date[] = [];
-  const cursor = new Date(first);
+  const cursor = new Date(activeDay);
   cursor.setHours(12, 0, 0, 0);
+
+  // shift to Monday of the week that contains `activeDay`
+  const day = cursor.getDay();
+  const diff = cursor.getDate() - day + (day === 0 ? -6 : 1);
+  cursor.setDate(diff);
+
   while (dates.length < count) {
     if (!isWeekend(cursor)) dates.push(new Date(cursor));
     cursor.setDate(cursor.getDate() + 1);
@@ -223,7 +237,7 @@ const CustomizationModal: React.FC<{
           <div className="relative h-64 bg-[#EEEAF8] flex items-center justify-center overflow-hidden">
             <button
               onClick={onClose}
-              className="absolute top-5 left-5 z-10 p-2.5 bg-[#2D1B69]/10 text-[#2D1B69] hover:bg-[#2D1B69]/20 rounded-full transition-colors"
+              className="absolute top-5 left-5 z-10 rounded-full bg-[#311c67]/10 p-2.5 text-[#311c67] transition-colors hover:bg-[#311c67]/20"
             >
               <X size={20} className="stroke-[3]" />
             </button>
@@ -232,42 +246,42 @@ const CustomizationModal: React.FC<{
 
           <div className="px-6 py-8 space-y-8">
             <div className="space-y-2">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#dddd12] text-[#2D1B69] rounded-md text-[10px] font-black uppercase tracking-widest">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#c9c800] text-[#311c67] rounded-md text-[10px] font-black uppercase tracking-widest">
                 • Scheduled Delivery • {date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: '2-digit' })}
               </span>
-              <h2 className="text-[2rem] font-serif text-[#2D1B69] leading-tight">{item.name}</h2>
-              <p className="text-[13px] text-[#2D1B69]/50 font-medium leading-relaxed">{item.description}</p>
+              <h2 className="text-[2rem] font-serif text-[#311c67] leading-tight">{item.name}</h2>
+              <p className="text-[13px] text-[#311c67]/50 font-medium leading-relaxed">{item.description}</p>
             </div>
 
-            {opts?.bases && opts.bases.length > 0 && (
+            {opts?.bases && opts.bases.length > 1 && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-bold text-[#2D1B69]">Choose your base</h4>
+                  <h4 className="text-sm font-bold text-[#311c67]">Choose your base</h4>
                   <span className="text-[9px] bg-[#FEF0C7] text-[#93370D] px-2 py-1 rounded-sm font-bold tracking-widest uppercase">Required • 1</span>
                 </div>
                 {opts.bases.map(b => (
-                  <label key={b} className="flex items-center gap-4 cursor-pointer group">
-                    <div className={clsx('w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all', base === b ? 'border-[#2D1B69]' : 'border-[#2D1B69]/20 group-hover:border-[#2D1B69]/50')}>
-                      {base === b && <div className="w-2.5 h-2.5 bg-[#2D1B69] rounded-full" />}
+                  <label key={b} className="flex items-center gap-4 cursor-pointer group" onClick={() => setBase(b)}>
+                    <div className={clsx('w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all', base === b ? 'border-[#311c67]' : 'border-[#311c67]/20 group-hover:border-[#311c67]/50')}>
+                      {base === b && <div className="w-2.5 h-2.5 bg-[#311c67] rounded-full" />}
                     </div>
-                    <span className={clsx('text-[13px] font-semibold', base === b ? 'text-[#2D1B69]' : 'text-[#2D1B69]/70')} onClick={() => setBase(b)}>{b}</span>
+                    <span className={clsx('text-[13px] font-semibold', base === b ? 'text-[#311c67]' : 'text-[#311c67]/70')}>{b}</span>
                   </label>
                 ))}
               </div>
             )}
 
-            {opts?.sauces && opts.sauces.length > 0 && (
+            {opts?.sauces && opts.sauces.length > 1 && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-bold text-[#2D1B69]">Choose your sauce</h4>
+                  <h4 className="text-sm font-bold text-[#311c67]">Choose your sauce</h4>
                   <span className="text-[9px] bg-[#FEF0C7] text-[#93370D] px-2 py-1 rounded-sm font-bold tracking-widest uppercase">Required • 1</span>
                 </div>
                 {opts.sauces.map(s => (
-                  <label key={s} className="flex items-center gap-4 cursor-pointer group">
-                    <div className={clsx('w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all', sauce === s ? 'border-[#2D1B69]' : 'border-[#2D1B69]/20 group-hover:border-[#2D1B69]/50')}>
-                      {sauce === s && <div className="w-2.5 h-2.5 bg-[#2D1B69] rounded-full" />}
+                  <label key={s} className="flex items-center gap-4 cursor-pointer group" onClick={() => setSauce(s)}>
+                    <div className={clsx('w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all', sauce === s ? 'border-[#311c67]' : 'border-[#311c67]/20 group-hover:border-[#311c67]/50')}>
+                      {sauce === s && <div className="w-2.5 h-2.5 bg-[#311c67] rounded-full" />}
                     </div>
-                    <span className={clsx('text-[13px] font-semibold', sauce === s ? 'text-[#2D1B69]' : 'text-[#2D1B69]/70')} onClick={() => setSauce(s)}>{s}</span>
+                    <span className={clsx('text-[13px] font-semibold', sauce === s ? 'text-[#311c67]' : 'text-[#311c67]/70')}>{s}</span>
                   </label>
                 ))}
               </div>
@@ -276,14 +290,14 @@ const CustomizationModal: React.FC<{
             {opts?.hasVegetarianOption && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-bold text-[#2D1B69]">Make it vegetarian?</h4>
-                  <span className="text-[9px] text-[#2D1B69]/40 font-bold tracking-widest uppercase">Optional</span>
+                  <h4 className="text-sm font-bold text-[#311c67]">Make it vegetarian?</h4>
+                  <span className="text-[9px] text-[#311c67]/40 font-bold tracking-widest uppercase">Optional</span>
                 </div>
                 <label className="flex items-center gap-4 cursor-pointer group" onClick={() => setIsVeg(v => !v)}>
-                  <div className={clsx('w-5 h-5 rounded-[4px] border-2 flex items-center justify-center transition-all', isVeg ? 'border-[#2D1B69] bg-[#2D1B69]' : 'border-[#2D1B69]/20 bg-white group-hover:border-[#2D1B69]/50')}>
+                  <div className={clsx('w-5 h-5 rounded-[4px] border-2 flex items-center justify-center transition-all', isVeg ? 'border-[#311c67] bg-[#311c67]' : 'border-[#311c67]/20 bg-white group-hover:border-[#311c67]/50')}>
                     {isVeg && <svg viewBox="0 0 14 14" fill="none" className="w-3 h-3 text-white stroke-current stroke-[3]"><path d="M2.5 7L5.5 10L11.5 4" /></svg>}
                   </div>
-                  <span className={clsx('text-[13px] font-semibold', isVeg ? 'text-[#2D1B69]' : 'text-[#2D1B69]/70')}>Replace protein with mushrooms</span>
+                  <span className={clsx('text-[13px] font-semibold', isVeg ? 'text-[#311c67]' : 'text-[#311c67]/70')}>Replace protein with mushrooms</span>
                 </label>
               </div>
             )}
@@ -291,15 +305,15 @@ const CustomizationModal: React.FC<{
             {opts?.dislikes && opts.dislikes.length > 0 && (
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-bold text-[#2D1B69]">Remove ingredients</h4>
-                  <span className="text-[9px] text-[#2D1B69]/40 font-bold tracking-widest uppercase">Optional</span>
+                  <h4 className="text-sm font-bold text-[#311c67]">Remove ingredients</h4>
+                  <span className="text-[9px] text-[#311c67]/40 font-bold tracking-widest uppercase">Optional</span>
                 </div>
                 {opts.dislikes.map(opt => (
                   <label key={opt} className="flex items-center gap-4 cursor-pointer group" onClick={() => toggleAvoid(opt)}>
-                    <div className={clsx('w-5 h-5 rounded-[4px] border-2 flex items-center justify-center transition-all', avoidList.includes(opt) ? 'border-[#2D1B69] bg-[#2D1B69]' : 'border-[#2D1B69]/20 bg-white group-hover:border-[#2D1B69]/50')}>
+                    <div className={clsx('w-5 h-5 rounded-[4px] border-2 flex items-center justify-center transition-all', avoidList.includes(opt) ? 'border-[#311c67] bg-[#311c67]' : 'border-[#311c67]/20 bg-white group-hover:border-[#311c67]/50')}>
                       {avoidList.includes(opt) && <svg viewBox="0 0 14 14" fill="none" className="w-3 h-3 text-white stroke-current stroke-[3]"><path d="M2.5 7L5.5 10L11.5 4" /></svg>}
                     </div>
-                    <span className={clsx('text-[13px] font-semibold', avoidList.includes(opt) ? 'text-[#2D1B69]' : 'text-[#2D1B69]/70')}>{opt}</span>
+                    <span className={clsx('text-[13px] font-semibold', avoidList.includes(opt) ? 'text-[#311c67]' : 'text-[#311c67]/70')}>{opt}</span>
                   </label>
                 ))}
               </div>
@@ -310,13 +324,13 @@ const CustomizationModal: React.FC<{
         {/* Sticky action bar */}
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-white border-t border-gray-100 flex items-center gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] z-20">
           <div className="flex items-center justify-between bg-gray-100 rounded-full px-4 py-3 w-28">
-            <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-[#2D1B69]/60 hover:text-[#2D1B69] transition-colors font-bold text-lg leading-none">−</button>
-            <span className="text-sm font-bold text-[#2D1B69]">{qty}</span>
-            <button onClick={() => setQty(q => q + 1)} className="text-[#2D1B69]/60 hover:text-[#2D1B69] transition-colors font-bold text-lg leading-none">+</button>
+            <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-[#311c67]/60 hover:text-[#311c67] transition-colors font-bold text-lg leading-none">−</button>
+            <span className="text-sm font-bold text-[#311c67]">{qty}</span>
+            <button onClick={() => setQty(q => q + 1)} className="text-[#311c67]/60 hover:text-[#311c67] transition-colors font-bold text-lg leading-none">+</button>
           </div>
           <button
             onClick={() => onConfirm({ base, sauce, isVegetarian: isVeg, avoid: avoidList.join(', '), quantity: qty })}
-            className="flex-1 bg-[#2D1B69] text-white py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:brightness-110 shadow-lg transition-all flex items-center justify-center gap-2"
+            className="flex-1 bg-[#311c67] text-white py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:brightness-110 shadow-lg transition-all flex items-center justify-center gap-2"
           >
             Add to My Week · ${(item.price * qty).toFixed(2)}
           </button>
@@ -331,9 +345,21 @@ export default function OrderPage({ cart }: { cart: any }) {
   const navigate = useNavigate();
   const initialStoredAddress = React.useMemo(() => readStoredAddress(), []);
   // Compute once per render — stable within a session
-  const availableDates = React.useMemo(() => getAvailableDates(10), []);
-  const [activeIdx, setActiveIdx] = useState(0);   // index into availableDates
-  const [windowStart, setWindowStart] = useState(0); // first visible pill index
+  const availableDates = React.useMemo(() => getAvailableDates(15), []);
+
+  // Set the default active index to the active order day
+  const defaultIdx = React.useMemo(() => {
+    const activeOrderDay = calculateActiveOrderDay();
+    const idx = availableDates.findIndex(d =>
+      d.getDate() === activeOrderDay.getDate() &&
+      d.getMonth() === activeOrderDay.getMonth() &&
+      d.getFullYear() === activeOrderDay.getFullYear()
+    );
+    return idx !== -1 ? idx : 0;
+  }, [availableDates]);
+
+  const [activeIdx, setActiveIdx] = useState(defaultIdx);
+  const [windowStart, setWindowStart] = useState(Math.floor(defaultIdx / WINDOW_SIZE) * WINDOW_SIZE);
   const [customizingItem, setCustomizingItem] = useState<{ item: MenuItem; date: Date } | null>(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [address, setAddress] = useState(initialStoredAddress?.formatted ?? '');
@@ -355,16 +381,18 @@ export default function OrderPage({ cart }: { cart: any }) {
 
   const handleArrow = () => {
     if (!canAdvance) return;
-    const newWindow = windowStart + 1;
+    const newWindow = windowStart + WINDOW_SIZE;
     setWindowStart(newWindow);
-    if (activeIdx < newWindow) setActiveIdx(newWindow);
+    // select first day of new week
+    setActiveIdx(newWindow);
   };
 
   const handleBack = () => {
     if (!canGoBack) return;
-    const newWindow = windowStart - 1;
+    const newWindow = windowStart - WINDOW_SIZE;
     setWindowStart(newWindow);
-    if (activeIdx >= newWindow + WINDOW_SIZE) setActiveIdx(newWindow + WINDOW_SIZE - 1);
+    // select first day of new week
+    setActiveIdx(newWindow);
   };
   const dayKey = getWeekdayKey(activeDate);
   const items = MENUS[dayKey]?.categories[0]?.items ?? [];
@@ -524,6 +552,8 @@ export default function OrderPage({ cart }: { cart: any }) {
   }
 
   const handleAddToWeek = (item: MenuItem) => {
+    const status = getDateStatus(activeDate);
+    if (status !== 'ACTIVE' && status !== 'PREVIEW') return;
     setCustomizingItem({ item, date: activeDate });
   };
 
@@ -537,305 +567,334 @@ export default function OrderPage({ cart }: { cart: any }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F3FF]">
-      <div className="border-y border-[#DCD5ED] bg-[#E7E1F0]">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-1 text-[#2B1C70] md:grid-cols-[1fr_360px]">
+    <div className="min-h-screen bg-[#EDE8F5]">
+      <div className="border-y border-[#D4C8E8] bg-[#E4DCF2]">
+        <div className="mx-auto grid max-w-[1400px] grid-cols-1 text-[#311c67] md:grid-cols-[1fr_360px]">
           <div className="flex items-center gap-3 px-6 py-3 text-[13px] font-medium md:px-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            <Clock3 size={14} className="shrink-0 text-[#2B1C70]/76" />
-            <span className="text-[#2B1C70]/88">
+            <Clock3 size={14} className="shrink-0 text-[#311c67]/76" />
+            <span className="text-[#311c67]/88">
               Place your order within <strong className="font-bold text-[#DB5A29]">{countdownLabel}</strong> for next-day lunch delivery
             </span>
           </div>
           <button
             onClick={() => setShowAddressModal(true)}
-            className="flex items-center gap-3 border-t border-[#DCD5ED] px-6 py-3 text-left text-[13px] font-medium text-[#2B1C70]/88 md:border-l md:border-t-0 md:px-8"
+            className="flex items-center gap-3 border-t border-[#D4C8E8] px-6 py-3 text-left text-[13px] font-medium text-[#311c67]/88 md:border-l md:border-t-0 md:px-8"
             style={{ fontFamily: 'Poppins, sans-serif' }}
           >
-            <MapPin size={14} className="shrink-0 text-[#2B1C70]/76" />
+            <MapPin size={14} className="shrink-0 text-[#311c67]/76" />
             <span>{address || 'Enter the delivery address'}</span>
           </button>
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1400px] px-6 py-10 md:px-8 md:py-11">
+      <div className="px-6 pb-24 pt-10 md:px-8 md:pb-32 md:pt-11">
+        <div className="mx-auto w-full min-w-0 max-w-[1400px]">
 
-        {/* ── Page header ──────────────────────────────────────────────────── */}
-        <div className="mb-9">
-          <h1
-            className="text-[#2B1C70] leading-[0.92]"
-            style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(60px, 6.5vw, 92px)' }}
-          >
-            This Week's Picks
-          </h1>
-          <p className="mt-4 max-w-[650px] text-[16px] leading-[1.55] text-[#2B1C70]/80 md:text-[17px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            All orders require at least 1-day advance notice. You're viewing meals available for tomorrow and beyond. We'll cook and deliver Monday through Friday.
-          </p>
-        </div>
-
-        {/* ── Day selector ─────────────────────────────────────────────────── */}
-        <div className="mb-10 flex items-center gap-5 overflow-x-auto pb-1">
-          {/* Back arrow */}
-          {canGoBack ? (
-            <button
-              onClick={handleBack}
-              className="mr-1 hidden h-[46px] w-[46px] shrink-0 items-center justify-center rounded-full bg-[#D4F84A] transition-all hover:brightness-95 md:flex"
+          {/* ── Page header ──────────────────────────────────────────────────── */}
+          <div className="mb-9">
+            <h1
+              className="text-[#311c67] leading-[0.92]"
+              style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(60px, 6.5vw, 92px)' }}
             >
-              <ArrowLeft size={20} className="text-[#2B1C70]" />
-            </button>
-          ) : (
-            <div className="hidden w-12 shrink-0 md:block" />
-          )}
-
-          {visibleDates.map((date, visibleI) => {
-            const absIdx = windowStart + visibleI;
-            const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
-            const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            return (
-              <button
-                key={absIdx}
-                onClick={() => setActiveIdx(absIdx)}
-                className={clsx(
-                  'flex h-[84px] w-[98px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
-                  activeIdx === absIdx
-                    ? 'border-[#2B1C70] bg-[#2B1C70] text-white shadow-[0_12px_24px_rgba(43,28,112,0.3)]'
-                    : 'border-[#DCD5ED] bg-[#FAF9FF] text-[#2B1C70]/80 hover:border-[#2B1C70]/40'
-                )}
-                style={{ fontFamily: 'Poppins, sans-serif' }}
-              >
-                <span className="text-[19px] font-semibold leading-none">{dayShort}</span>
-                <span className={clsx('mt-1.5 text-[14px] leading-none', activeIdx === absIdx ? 'text-white/80' : 'text-[#2B1C70]/60')}>
-                  {dateStr}
-                </span>
-              </button>
-            );
-          })}
-          <div className="ml-3 flex items-center shrink-0">
-            <button
-              onClick={handleArrow}
-              disabled={!canAdvance}
-              className={clsx(
-                'flex h-[42px] w-[86px] items-center justify-center rounded-full transition-all',
-                canAdvance
-                  ? 'bg-[#D4F84A] hover:brightness-95 shadow-sm'
-                  : 'bg-gray-100 cursor-not-allowed opacity-40'
-              )}
-            >
-              <ArrowRight size={28} strokeWidth={1.5} className="text-[#2B1C70]" />
-            </button>
+              This Week's Picks
+            </h1>
+            <p className="mt-4 max-w-[650px] text-[16px] leading-[1.55] text-[#311c67]/80 md:text-[17px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+              All orders require at least 1-day advance notice. You're viewing meals available for tomorrow and beyond. We'll cook and deliver Monday through Friday.
+            </p>
           </div>
-        </div>
 
-        {/* ── Date header ──────────────────────────────────────────────────── */}
-        <div className="mb-7 w-full md:mb-8">
-          <h2
-            className="text-[31px] font-semibold leading-[1] text-[#2B1C70] md:text-[36px]"
-            style={{ fontFamily: 'Poppins, sans-serif' }}
-          >
-            {activeDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-          </h2>
-          <p className="mt-1 text-[13px] font-medium text-[#2B1C70]/78 md:text-[14px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            Delivered by 10 am - 12 pm to your office.
-          </p>
-        </div>
+          {/* ── Day selector (contained to 1400px column) ─────────────────────── */}
+          <div className="mb-10 flex w-full min-w-0 max-w-full items-center justify-between overflow-x-auto pb-1 gap-2">
 
-        {/* ── Main grid: 2 meal cards + sidebar ────────────────────────────── */}
-        <div className="relative w-full">
-          {/* Gradient block behind the cards */}
-          <img
-            src="/assets/order/rectangle.png"
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none select-none absolute left-[42%] top-[14px] w-[62%] max-w-[760px] opacity-64 md:left-[40%] md:top-[8px] md:w-[50%] xl:left-[40%] xl:top-[6px] xl:w-[41%]"
-            style={{ zIndex: 0, transform: 'translateX(-56%)' }}
-          />
-          <div className="relative grid grid-cols-1 items-start gap-5 md:grid-cols-2 xl:grid-cols-[1fr_1fr_360px] xl:gap-8" style={{ zIndex: 1 }}>
-
-            {/* Meal cards */}
-            <AnimatePresence mode="wait">
-              {items.map((item) => (
-                <motion.div
-                  key={`${activeIdx}-${item.id}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="group relative z-10 flex cursor-pointer flex-col overflow-hidden rounded-[26px] border border-[#E8E1F5] bg-white shadow-[0_12px_28px_rgba(43,28,112,0.07)]"
-                  onClick={() => handleAddToWeek(item)}
+            {visibleDates.map((date, visibleI) => {
+              const absIdx = windowStart + visibleI;
+              const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
+              const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              return (
+                <button
+                  key={absIdx}
+                  onClick={() => setActiveIdx(absIdx)}
+                  className={clsx(
+                    'flex h-[105px] w-[126px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
+                    activeIdx === absIdx
+                      ? 'border-[#311c67] bg-[#311c67] text-white shadow-[0_12px_24px_rgba(49,28,103,0.28)]'
+                      : 'border-[#D1C9E0] bg-white text-[#311c67]/85 hover:border-[#311c67]/35'
+                  )}
+                  style={{ fontFamily: 'Poppins, sans-serif' }}
                 >
-                  <div className="relative h-[270px] flex-shrink-0 overflow-hidden bg-gradient-to-b from-[#F2F0F7] to-[#FAF9FD] md:h-[280px]">
-                    <img
-                      src={getFoodBgImage(item.name)}
-                      alt={item.name}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
-                    />
-                  </div>
-                  <div className="flex flex-1 flex-col p-6">
-                    <h3
-                      className="mb-2.5 text-[24px] font-bold leading-[1.08] text-[#2B1C70]"
-                      style={{ fontFamily: 'Poppins, sans-serif' }}
-                    >
-                      {item.name}
-                    </h3>
-                    <p
-                      className="mb-6 min-h-[46px] line-clamp-2 text-[15px] leading-[1.4] text-[#2B1C70]/70"
-                      style={{ fontFamily: 'Poppins, sans-serif' }}
-                    >
-                      {item.description}
-                    </p>
+                  <span className="text-[19px] font-semibold leading-none">{dayShort}</span>
+                  <span className={clsx('mt-1.5 text-[14px] leading-none', activeIdx === absIdx ? 'text-white/80' : 'text-[#311c67]/60')}>
+                    {dateStr}
+                  </span>
+                </button>
+              );
+            })}
+            <div className="flex items-center shrink-0 gap-3">
+              {canGoBack && (
+                <button
+                  onClick={handleBack}
+                  className="flex h-[52px] w-[64px] items-center justify-center rounded-full border border-[#D1C9E0] bg-white transition-all hover:brightness-95 shadow-sm"
+                >
+                  <ArrowLeft size={24} strokeWidth={2} className="text-[#311c67]" />
+                </button>
+              )}
+              <button
+                onClick={handleArrow}
+                disabled={!canAdvance}
+                className={clsx(
+                  'flex h-[52px] w-[100px] items-center justify-center rounded-full transition-all',
+                  canAdvance
+                    ? 'bg-[#c9c800] hover:brightness-95 shadow-sm'
+                    : 'bg-gray-100 cursor-not-allowed opacity-40'
+                )}
+              >
+                <ArrowRight size={30} strokeWidth={2.5} className="text-[#311c67]" />
+              </button>
+            </div>
+          </div>
 
-                    <div className="mb-6 w-full h-px bg-[#ECE7F4]" />
-
-                    {(item.calories || item.protein) && (
-                      <div className="mb-6 flex gap-9 text-[15px] font-medium text-[#8A7FB0]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                        {item.calories && (
-                          <span>{item.calories} cal</span>
-                        )}
-                        {item.protein && (
-                          <span>{item.protein}g protein</span>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="mb-6 w-full h-px bg-[#ECE7F4]" />
-
-                    <button
-                      onClick={() => handleAddToWeek(item)}
-                      className="mt-auto w-full rounded-full bg-[#2B1C70] py-4 text-[15px] font-semibold text-white transition-colors hover:bg-[#1E1549]"
-                      style={{ fontFamily: 'Poppins, sans-serif' }}
-                    >
-                      Add to My Week &nbsp;•&nbsp; ${item.price.toFixed(2)}
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-
-            {/* ── Sidebar ──────────────────────────────────────────────────────── */}
-            <div
-              className="relative z-10 rounded-[24px] border border-[#2B1C70]/10 bg-white p-0 shadow-[0_16px_34px_rgba(43,28,112,0.08)] md:col-span-2 xl:col-span-1 xl:sticky xl:top-28"
+          {/* ── Date header ──────────────────────────────────────────────────── */}
+          <div className="relative z-10 mb-7 w-full md:mb-8">
+            <h2
+              className="text-[41px] font-semibold leading-[1] text-[#311c67] md:text-[47px]"
               style={{ fontFamily: 'Poppins, sans-serif' }}
             >
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-[#DDD6EF] px-5 py-4">
-                <div className="flex items-center gap-2.5">
-                  <ShoppingBag size={16} className="text-[#2B1C70]" strokeWidth={1.8} />
-                  <span className="text-[14px] font-semibold text-[#2B1C70]">My Week Lunch</span>
-                </div>
-                <span className="min-w-[28px] rounded-full bg-[#D4F84A] px-2.5 py-0.5 text-center text-[11px] font-black text-[#2B1C70]">
-                  {cart.itemCount}
-                </span>
-              </div>
+              {activeDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            </h2>
+            <p className="mt-1.5 text-[20px] font-medium text-[#311c67]/78 md:text-[21px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+              Delivered by 10 am - 12 pm to your office.
+            </p>
+          </div>
 
-              {/* Progress */}
-              <div className="px-5 pt-4">
-                {remaining > 0 && (
-                  <p className="mb-2.5 text-[11px] font-medium text-[#2B1C70]/58">
-                    Add {remaining} more meal{remaining !== 1 ? 's' : ''} to save 10%
-                  </p>
-                )}
-                <div className="mb-5 h-[10px] w-full overflow-hidden rounded-full bg-gray-200">
-                  <div
-                    className="h-full rounded-full bg-[#db5a29] transition-all duration-500"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              </div>
+          {/* ── Main grid: 2 meal cards + sidebar ────────────────────────────── */}
+          <div className="relative w-full">
+            {/* Soft red / blue glows (CSS) + optional PNGs in /public/images_KNWN/ */}
+            <div className="pointer-events-none absolute inset-x-0 -bottom-20 top-[-40px] z-0 overflow-visible md:-bottom-40 md:-top-[60px]">
+              <img
+                src={ORDER_GLOW_RED}
+                alt=""
+                aria-hidden
+                onError={hideBrokenImg}
+                className="absolute -left-[15%] -top-[10%] w-[800px] max-w-none select-none opacity-35 md:-left-[10%] md:-top-[30%] md:w-[1000px]"
+              />
+              <img
+                src={ORDER_GLOW_BLUE}
+                alt=""
+                aria-hidden
+                onError={hideBrokenImg}
+                className="absolute -bottom-[20%] right-[-10%] w-[800px] max-w-none select-none opacity-35 md:-bottom-[50%] md:right-[-5%] md:w-[1200px]"
+              />
+            </div>
+            <div className="relative z-[1] grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3 xl:gap-8">
 
-              {/* Cart items */}
-              {cart.items.length === 0 ? (
-                <div className="space-y-2 py-10 text-center">
-                  <ShoppingBag size={32} className="text-[#2B1C70]/15 mx-auto" strokeWidth={1.5} />
-                  <p className="text-xs font-medium text-[#2B1C70]/35">Your week is empty.<br />Add a meal to get started!</p>
-                </div>
-              ) : (
-                <div className="max-h-[332px] space-y-4 overflow-y-auto px-5 pb-3 pr-4">
-                  {groupedItems.map(group => (
-                    <div key={group.date}>
-                      <p className="mb-2.5 text-[12px] font-semibold text-[#2B1C70]/78">{group.date}</p>
-                      {group.items.map((item: any) => (
-                        <div
-                          key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`}
-                          className="mb-2.5 flex items-start gap-3 rounded-[16px] border border-[#DCD5ED] bg-[#FBFAFE] p-3"
-                        >
-                          <img
-                            src={getFoodBgImage(item.name)}
-                            alt={item.name}
-                            className="h-14 w-14 flex-shrink-0 rounded-[14px] object-cover"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="truncate text-[13px] font-semibold leading-[1.1] text-[#2B1C70]">{item.name}</p>
-                            <p className="mt-0.5 text-[11px] font-medium text-[#2B1C70]/46">${item.price.toFixed(2)}</p>
-                            {item.customizations && (() => {
-                              const c = item.customizations;
-                              const choices: string[] = [];
-                              if (c.base) choices.push(c.base);
-                              if (c.protein) choices.push(c.protein);
-                              if (c.sauce) choices.push(c.sauce);
-                              if (c.swap) choices.push(`Swap: ${c.swap}`);
-                              const hasAny = c.isVegetarian || choices.length > 0 || c.avoid;
-                              if (!hasAny) return null;
-                              return (
-                                <div className="mt-0.5 space-y-0.5">
-                                  {(c.isVegetarian || choices.length > 0) && (
-                                    <div className="flex flex-wrap items-center gap-1">
-                                      {c.isVegetarian && (
-                                        <span className="text-[7px] font-bold bg-[#DCFCE7] text-[#16A34A] px-1.5 py-0.5 rounded-full">🌿 Veg</span>
-                                      )}
-                                      {choices.map((ch, i) => (
-                                        <span key={i} className="text-[7px] font-semibold bg-[#EDE9F7] text-[#5B5291] px-1.5 py-0.5 rounded-full">{ch}</span>
-                                      ))}
-                                    </div>
-                                  )}
-                                  {c.avoid && (
-                                    <p className="text-[7px] text-gray-400 leading-tight"><span className="text-red-400 font-bold">✕ </span>{c.avoid}</p>
-                                  )}
-                                </div>
-                              );
-                            })()}
-                          </div>
-                          <div className="flex items-center gap-1 pt-1 text-[#2B1C70]">
-                            <button
-                              onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, item.customizations)}
-                              className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[#CFC7E8] text-xs font-bold transition-colors hover:bg-[#F5F3FF]"
-                            >
-                              −
-                            </button>
-                            <span className="w-5 text-center text-xs font-bold">{item.quantity}</span>
-                            <button
-                              onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1, item.customizations)}
-                              className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[#CFC7E8] text-xs font-bold transition-colors hover:bg-[#F5F3FF]"
-                            >
-                              +
-                            </button>
-                          </div>
-                          <button
-                            onClick={() => cart.removeItem(item.id, item.serviceDate, item.customizations)}
-                            className="text-red-400 hover:text-red-600 transition-colors ml-1 flex-shrink-0"
+              {/* Meal cards */}
+              <AnimatePresence mode="wait">
+                {items.map((item) => (
+                  <motion.div
+                    key={`${activeIdx}-${item.id}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className={clsx("group relative z-10 flex flex-col h-full min-h-[560px] xl:min-h-[620px] overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_16px_40px_rgba(49,28,103,0.09)]",
+                      (getDateStatus(activeDate) === 'ACTIVE' || getDateStatus(activeDate) === 'PREVIEW')
+                        ? "cursor-pointer" : "opacity-80"
+                    )}
+                    onClick={() => handleAddToWeek(item)}
+                  >
+                    <div className="relative flex flex-shrink-0 w-full h-[260px] md:h-[280px] overflow-hidden bg-gray-50 border-b border-[#311c67]/5">
+                      <img
+                        src={getFoodBgImage(item.name)}
+                        alt={item.name}
+                        className={clsx("h-full w-full object-cover transition-transform duration-500",
+                          (getDateStatus(activeDate) === 'ACTIVE' || getDateStatus(activeDate) === 'PREVIEW') && "group-hover:scale-[1.04]"
+                        )}
+                      />
+                    </div>
+                    <div className="flex flex-1 flex-col px-6 pb-6 pt-4 md:px-7 md:pb-7">
+                      <h3
+                        className="mb-2 min-h-[64px] text-[26px] font-bold leading-[1.08] text-[#311c67] md:text-[28px]"
+                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                      >
+                        {item.name}
+                      </h3>
+                      <p
+                        className="mb-6 min-h-[44px] line-clamp-2 text-[16px] md:text-[17px] leading-[1.45] text-[#311c67]/75"
+                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                      >
+                        {item.description}
+                      </p>
+
+                      <div className="mt-auto">
+                        {(item.calories || item.protein) && (
+                          <div
+                            className="mb-6 flex flex-wrap items-center border-y border-gray-100 py-4 gap-0 text-[16px] md:text-[17px] font-medium text-[#6e6589]"
+                            style={{ fontFamily: 'Poppins, sans-serif' }}
                           >
-                            <Trash2 size={14} />
-                          </button>
+                            {item.calories && <span>{item.calories} cal</span>}
+                            {item.calories && item.protein && (
+                              <span className="mx-4 inline-block h-4 w-px shrink-0 bg-gray-100" aria-hidden />
+                            )}
+                            {item.protein && <span>{item.protein}g protein</span>}
+                          </div>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Prevent adding if closed/past
+                            const status = getDateStatus(activeDate);
+                            if (status !== 'ACTIVE' && status !== 'PREVIEW') return;
+                            handleAddToWeek(item);
+                          }}
+                          className={clsx("w-full rounded-full py-[15px] text-[15px] font-semibold transition-colors",
+                            (getDateStatus(activeDate) === 'ACTIVE' || getDateStatus(activeDate) === 'PREVIEW')
+                              ? "bg-[#311c67] text-white hover:bg-[#261452]"
+                              : "bg-[#EAE4F2] text-[#311c67]/40 cursor-not-allowed"
+                          )}
+                          style={{ fontFamily: 'Poppins, sans-serif' }}
+                          disabled={getDateStatus(activeDate) !== 'ACTIVE' && getDateStatus(activeDate) !== 'PREVIEW'}
+                        >
+                          {(getDateStatus(activeDate) === 'ACTIVE' || getDateStatus(activeDate) === 'PREVIEW')
+                            ? `Add to My Week  •  $${item.price.toFixed(2)}`
+                            : 'Ordering Closed'}
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {/* ── Sidebar ──────────────────────────────────────────────────────── */}
+              <div className="md:col-span-2 xl:col-span-1 xl:relative xl:h-full">
+                <div
+                  className="relative z-10 flex flex-col h-[480px] xl:h-full xl:absolute xl:inset-0 rounded-[24px] border border-[#311c67]/10 bg-white p-0 shadow-[0_20px_48px_rgba(49,28,103,0.1)]"
+                  style={{ fontFamily: 'Poppins, sans-serif' }}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between border-b border-[#DDD6EF] px-5 py-4">
+                    <div className="flex items-center gap-2.5">
+                      <ShoppingBag size={16} className="text-[#311c67]" strokeWidth={1.8} />
+                      <span className="text-[14px] font-semibold text-[#311c67]">My Week Lunch</span>
+                    </div>
+                    <span className="min-w-[28px] rounded-full bg-[#c9c800] px-2.5 py-0.5 text-center text-[11px] font-black text-[#311c67]">
+                      {cart.itemCount}
+                    </span>
+                  </div>
+
+                  {/* Progress */}
+                  <div className="px-5 pt-4">
+                    {remaining > 0 && (
+                      <p className="mb-2.5 text-[11px] font-medium text-[#311c67]/58">
+                        Add {remaining} more meal{remaining !== 1 ? 's' : ''} to save 10%
+                      </p>
+                    )}
+                    <div className="mb-5 h-[10px] w-full overflow-hidden rounded-full bg-gray-200">
+                      <div
+                        className="h-full rounded-full bg-[#db5a29] transition-all duration-500"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Cart items */}
+                  {cart.items.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center flex-1 space-y-2 py-10 text-center">
+                      <ShoppingBag size={32} className="text-[#311c67]/15 mx-auto" strokeWidth={1.5} />
+                      <p className="text-xs font-medium text-[#311c67]/35">Your week is empty.<br />Add a meal to get started!</p>
+                    </div>
+                  ) : (
+                    <div className="flex-1 space-y-4 overflow-y-auto px-5 pb-3 pr-4">
+                      {groupedItems.map(group => (
+                        <div key={group.date}>
+                          <p className="mb-2.5 text-[12px] font-semibold text-[#311c67]/78">{group.date}</p>
+                          {group.items.map((item: any) => (
+                            <div
+                              key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`}
+                              className="mb-2.5 flex items-start gap-3 rounded-[18px] border border-[#E4DCF2] bg-white p-3 shadow-[0_2px_12px_rgba(49,28,103,0.04)]"
+                            >
+                              <img
+                                src={getFoodBgImage(item.name)}
+                                alt={item.name}
+                                className="h-14 w-14 flex-shrink-0 rounded-full object-cover ring-2 ring-[#F0ECF8]"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="truncate text-[13px] font-semibold leading-[1.1] text-[#311c67]">{item.name}</p>
+                                <p className="mt-0.5 text-[11px] font-medium text-[#311c67]/46">${item.price.toFixed(2)}</p>
+                                {item.customizations && (() => {
+                                  const c = item.customizations;
+                                  const choices: string[] = [];
+                                  if (c.base) choices.push(c.base);
+                                  if (c.protein) choices.push(c.protein);
+                                  if (c.sauce) choices.push(c.sauce);
+                                  if (c.swap) choices.push(`Swap: ${c.swap}`);
+                                  const hasAny = c.isVegetarian || choices.length > 0 || c.avoid;
+                                  if (!hasAny) return null;
+                                  return (
+                                    <div className="mt-0.5 space-y-0.5">
+                                      {(c.isVegetarian || choices.length > 0) && (
+                                        <div className="flex flex-wrap items-center gap-1">
+                                          {c.isVegetarian && (
+                                            <span className="text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] px-2 py-1 rounded-full">🌿 Veg</span>
+                                          )}
+                                          {choices.map((ch, i) => (
+                                            <span key={i} className="text-[10px] font-semibold bg-[#EDE9F7] text-[#5B5291] px-2 py-1 rounded-full">{ch}</span>
+                                          ))}
+                                        </div>
+                                      )}
+                                      {c.avoid && (
+                                        <p className="text-[10px] pt-1 text-gray-400 leading-tight"><span className="text-red-400 font-bold">✕ </span>{c.avoid}</p>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
+                              </div>
+                              <div className="flex items-center gap-1 pt-1 text-[#311c67]">
+                                <button
+                                  onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, item.customizations)}
+                                  className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[#CFC7E8] text-xs font-bold transition-colors hover:bg-[#F5F3FF]"
+                                >
+                                  −
+                                </button>
+                                <span className="w-5 text-center text-xs font-bold">{item.quantity}</span>
+                                <button
+                                  onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1, item.customizations)}
+                                  className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[#CFC7E8] text-xs font-bold transition-colors hover:bg-[#F5F3FF]"
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <button
+                                onClick={() => cart.removeItem(item.id, item.serviceDate, item.customizations)}
+                                className="text-red-400 hover:text-red-600 transition-colors ml-1 flex-shrink-0"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          ))}
                         </div>
                       ))}
                     </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Footer */}
-              {cart.items.length > 0 && (
-                <div className="mt-2 border-t border-[#DDD6EF] px-5 pb-4 pt-3.5">
-                  {discount > 0 && (
-                    <p className="mb-2.5 text-right text-[10px] font-medium text-[#2B1C70]/42">You're saving 10%</p>
                   )}
-                  <button
-                    onClick={() => setShowAddressModal(true)}
-                    className="flex w-full items-center justify-between rounded-[999px] bg-[#D4F84A] px-5 py-3.5 text-[14px] font-black text-[#2B1C70] transition-all hover:brightness-95"
-                  >
-                    <span>Checkout</span>
-                    <span>${displayTotal.toFixed(2)}</span>
-                  </button>
+
+                  {/* Footer */}
+                  {cart.items.length > 0 && (
+                    <div className="mt-auto border-t border-[#DDD6EF] px-5 pb-4 pt-4">
+                      {discount > 0 && (
+                        <p className="mb-2.5 text-right text-[10px] font-medium text-[#311c67]/42">You're saving 10%</p>
+                      )}
+                      <button
+                        onClick={() => setShowAddressModal(true)}
+                        className="flex w-full items-center justify-between rounded-[999px] bg-[#c9c800] px-5 py-3.5 text-[14px] font-extrabold text-[#311c67] transition-all hover:brightness-[0.97] active:brightness-95"
+                      >
+                        <span className="tracking-tight">Checkout</span>
+                        <span className="tabular-nums text-[15px] font-black">${displayTotal.toFixed(2)}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
@@ -852,14 +911,14 @@ export default function OrderPage({ cart }: { cart: any }) {
             style={{ background: '#fff', borderRadius: '20px', boxShadow: '0 32px 80px rgba(0,0,0,0.2)', width: '100%', maxWidth: '440px', padding: '28px', fontFamily: 'Poppins, sans-serif' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#2B1C70' }}>Enter the delivery address</h2>
+              <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#311c67' }}>Enter the delivery address</h2>
               <button onClick={() => setShowAddressModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#9ca3af', display: 'flex', alignItems: 'center' }}>
                 <X size={20} />
               </button>
             </div>
 
             <div style={{ position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(43,28,112,0.35)', pointerEvents: 'none' }} />
+              <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(49,28,103,0.35)', pointerEvents: 'none' }} />
               <input
                 autoFocus
                 type="text"
@@ -885,13 +944,13 @@ export default function OrderPage({ cart }: { cart: any }) {
                   if (e.key === 'Escape') setShowAddressModal(false);
                 }}
                 placeholder="Search for an address"
-                style={{ width: '100%', boxSizing: 'border-box', paddingLeft: '42px', paddingRight: '16px', paddingTop: '13px', paddingBottom: '13px', borderRadius: '12px', border: '1.5px solid rgba(43,28,112,0.14)', background: '#F5F3FF', fontSize: '14px', color: '#2B1C70', outline: 'none', fontFamily: 'Poppins, sans-serif' }}
+                style={{ width: '100%', boxSizing: 'border-box', paddingLeft: '42px', paddingRight: '16px', paddingTop: '13px', paddingBottom: '13px', borderRadius: '12px', border: '1.5px solid rgba(49,28,103,0.14)', background: '#F3EFF9', fontSize: '14px', color: '#311c67', outline: 'none', fontFamily: 'Poppins, sans-serif' }}
               />
 
               {(suggestions.length > 0 || isSearching || placesError) && (
-                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, borderRadius: '14px', border: '1px solid rgba(43,28,112,0.1)', background: '#fff', boxShadow: '0 18px 40px rgba(43,28,112,0.14)', overflow: 'hidden', zIndex: 20 }}>
+                <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, borderRadius: '14px', border: '1px solid rgba(49,28,103,0.1)', background: '#fff', boxShadow: '0 18px 40px rgba(49,28,103,0.14)', overflow: 'hidden', zIndex: 20 }}>
                   {isSearching && (
-                    <div style={{ padding: '12px 14px', fontSize: '12px', color: 'rgba(43,28,112,0.6)' }}>
+                    <div style={{ padding: '12px 14px', fontSize: '12px', color: 'rgba(49,28,103,0.6)' }}>
                       Searching addresses...
                     </div>
                   )}
@@ -914,18 +973,18 @@ export default function OrderPage({ cart }: { cart: any }) {
                         gap: '10px',
                         padding: '12px 14px',
                         border: 'none',
-                        borderTop: index === 0 ? 'none' : '1px solid rgba(43,28,112,0.08)',
+                        borderTop: index === 0 ? 'none' : '1px solid rgba(49,28,103,0.08)',
                         background: activeSuggestionIndex === index ? '#F5F3FF' : '#fff',
                         cursor: 'pointer',
                         textAlign: 'left',
                         fontFamily: 'Poppins, sans-serif',
                       }}
                     >
-                      <MapPin size={15} color="#2B1C70" style={{ marginTop: '2px', flexShrink: 0 }} />
+                      <MapPin size={15} color="#311c67" style={{ marginTop: '2px', flexShrink: 0 }} />
                       <span style={{ minWidth: 0 }}>
-                        <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#2B1C70' }}>{suggestion.mainText}</span>
+                        <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#311c67' }}>{suggestion.mainText}</span>
                         {suggestion.secondaryText && (
-                          <span style={{ display: 'block', fontSize: '12px', color: 'rgba(43,28,112,0.58)', marginTop: '2px' }}>
+                          <span style={{ display: 'block', fontSize: '12px', color: 'rgba(49,28,103,0.58)', marginTop: '2px' }}>
                             {suggestion.secondaryText}
                           </span>
                         )}
@@ -941,16 +1000,16 @@ export default function OrderPage({ cart }: { cart: any }) {
                 onClick={handleContinueToCheckout}
                 style={{ marginTop: '10px', width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', background: '#F5F3FF', border: 'none', cursor: 'pointer', fontFamily: 'Poppins, sans-serif' }}
               >
-                <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(43,28,112,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <MapPin size={14} color="#2B1C70" />
+                <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(49,28,103,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <MapPin size={14} color="#311c67" />
                 </div>
-                <span style={{ fontSize: '13px', fontWeight: 500, color: '#2B1C70', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedAddress.formatted}</span>
+                <span style={{ fontSize: '13px', fontWeight: 500, color: '#311c67', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedAddress.formatted}</span>
               </button>
             )}
 
             <button
               onClick={handleContinueToCheckout}
-              style={{ marginTop: '14px', width: '100%', background: address.trim() ? '#D4F84A' : '#e5e7eb', color: '#2B1C70', padding: '14px', borderRadius: '12px', fontWeight: 700, fontSize: '14px', border: 'none', cursor: address.trim() ? 'pointer' : 'default', opacity: address.trim() ? 1 : 0.45, fontFamily: 'Poppins, sans-serif' }}
+              style={{ marginTop: '14px', width: '100%', background: address.trim() ? '#c9c800' : '#e5e7eb', color: '#311c67', padding: '14px', borderRadius: '12px', fontWeight: 700, fontSize: '14px', border: 'none', cursor: address.trim() ? 'pointer' : 'default', opacity: address.trim() ? 1 : 0.45, fontFamily: 'Poppins, sans-serif' }}
             >
               Continue to checkout
             </button>

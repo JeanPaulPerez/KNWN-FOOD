@@ -6,33 +6,21 @@ import s from './CustomerFavs.module.css';
 const FAVS = [
   {
     day: 'Monday',
-    name: 'Crispy Korean Chicken',
-    desc: 'Brown rice, crispy Korean chicken breast, glazed red cabbage, zucchini, carrot, red onion, gochujang sauce.',
-    img: '/assets/hero-bg/PLATOS SIN FONDO/Korean Crispy Chicken.png',
-  },
-  {
-    day: 'Tuesday',
-    name: 'Pesto Pasta',
-    desc: 'Al dente rigatoni, house-made basil pesto, sun-dried tomatoes, pine nuts, aged parmesan.',
-    img: '/assets/hero-bg/PLATOS SIN FONDO/Pesto Pasta.png',
-  },
-  {
-    day: 'Wednesday',
     name: 'Mediterranean Chicken',
-    desc: 'Herb-roasted chicken, quinoa, roasted peppers, kalamata olives, tzatziki, fresh lemon.',
+    desc: 'Grilled Mediterranean chicken over brown rice and quinoa with fresh greens, cucumber, tomato, and tahini-lemon dressing.',
     img: '/assets/hero-bg/PLATOS SIN FONDO/Mediterranean chicken.png',
   },
   {
-    day: 'Thursday',
-    name: 'Thai Beef Salad',
-    desc: 'Marinated beef, rice noodles, fresh herbs, cucumber, peanuts, lime-chili vinaigrette.',
-    img: '/assets/hero-bg/PLATOS SIN FONDO/Thai Beef Salad.png',
+    day: 'Tuesday',
+    name: 'Carne Asada',
+    desc: 'Mexican-marinated steak over brown rice with sautéed peppers and corn, black beans, fresh red onion, and house Chilanga sauce.',
+    img: '/assets/hero-bg/PLATOS SIN FONDO/Carne Asada.png',
   },
   {
-    day: 'Friday',
-    name: 'Chicken César Salad',
-    desc: 'Grilled chicken breast, romaine, shaved parmesan, house César dressing, sourdough croutons.',
-    img: '/assets/hero-bg/PLATOS SIN FONDO/Chicken Cesar Salad.png',
+    day: 'Wednesday',
+    name: 'Thai Beef Salad',
+    desc: 'Thai-marinated steak over quinoa with crisp greens, cucumber, radish, basil, mint, toasted peanuts, and Thai dressing.',
+    img: '/assets/hero-bg/PLATOS SIN FONDO/Thai Beef Salad.png',
   },
 ];
 
@@ -75,7 +63,10 @@ export default function CustomerFavs() {
               <span className={s.pricePill}>$12.90</span>
               <span className={s.deliveryText}>Delivery Included</span>
             </div>
-            <Link to="/menu" className={s.menuBtn}>See Full Menu</Link>
+            <Link to="/menu" className={s.menuBtnWrap}>
+              <img src="/assets/hero-bg/SEEMENU.png" alt="" className={s.menuBtnImg} />
+              <span className={s.menuBtnText}>SEE FULL MENU</span>
+            </Link>
           </div>
         </div>
 

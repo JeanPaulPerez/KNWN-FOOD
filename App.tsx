@@ -63,12 +63,12 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed top-0 right-0 h-full w-full max-w-sm bg-white z-[120] shadow-2xl flex flex-col"
+            className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[120] shadow-2xl flex flex-col"
           >
             {/* Header */}
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+            <div className="py-6 pl-6 pr-8 border-b border-gray-100 flex justify-between items-center">
               <div>
-                <h2 className="text-lg font-serif text-brand-primary">My Week Lunch</h2>
+                <h2 className="text-[26px] font-serif text-brand-primary">My Week Lunch</h2>
                 {cart.syncing && (
                   <span className="text-[8px] uppercase tracking-widest text-brand-orange font-black animate-pulse">Syncing...</span>
                 )}
@@ -79,21 +79,21 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
             </div>
 
             {/* Progress bar */}
-            <div className="px-6 py-3 border-b border-gray-100">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[9px] font-black uppercase tracking-widest text-brand-primary/40">Week Progress</span>
-                <span className="text-[9px] font-black text-brand-primary/40">{cart.itemCount}/{MAX_MEALS} meals</span>
+            <div className="py-3 pl-6 pr-8 border-b border-gray-100">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-[14px] font-black uppercase tracking-widest text-brand-primary/40">Week Progress</span>
+                <span className="text-[14px] font-black text-brand-primary/40">{cart.itemCount}/{MAX_MEALS} meals</span>
               </div>
-              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-brand-lime rounded-full transition-all duration-500"
+                  className="h-full bg-[#c9c800] rounded-full transition-all duration-500"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
 
             {/* Items */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar">
+            <div className="flex-1 overflow-y-auto py-5 pl-5 pr-8 space-y-4 no-scrollbar">
               {cart.items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-12">
                   <div className="w-16 h-16 bg-brand-bg rounded-full flex items-center justify-center">
@@ -101,7 +101,7 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
                   </div>
                   <p className="text-brand-primary/30 font-black uppercase tracking-[0.2em] text-[9px]">Your week is empty</p>
                   <Link
-                    to="/menu"
+                    to="/order"
                     onClick={onClose}
                     className="px-6 py-3 bg-brand-primary text-white rounded-full text-[10px] uppercase tracking-[0.2em] font-black hover:bg-brand-dark transition-colors"
                   >
@@ -110,16 +110,16 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
                 </div>
               ) : (
                 cart.items.map((item: any) => (
-                  <div key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`} className="flex gap-3 bg-brand-bg p-3 rounded-2xl border border-gray-100">
-                    <img src={getFoodBg(item.name)} className="w-14 h-14 object-cover rounded-xl flex-shrink-0" alt={item.name} />
+                  <div key={`${item.id}-${item.serviceDate}-${JSON.stringify(item.customizations)}`} className="flex gap-4 bg-brand-bg p-4 rounded-3xl border border-gray-100">
+                    <img src={getFoodBg(item.name)} className="w-20 h-20 object-cover rounded-2xl flex-shrink-0" alt={item.name} />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start gap-2">
-                        <h3 className="text-[12px] font-semibold leading-tight text-brand-primary truncate">{item.name}</h3>
-                        <span className="text-[11px] font-serif text-brand-primary flex-shrink-0">${item.price * item.quantity}</span>
+                        <h3 className="text-[18px] font-semibold leading-tight text-brand-primary truncate">{item.name}</h3>
+                        <span className="text-[15px] font-serif text-brand-primary flex-shrink-0">${(item.price * item.quantity).toFixed(1)}</span>
                       </div>
-                      <div className="flex items-center gap-1 mt-0.5 text-brand-primary/40">
-                        <Calendar size={9} />
-                        <span className="text-[8px] font-black uppercase tracking-widest">{item.serviceDate}</span>
+                      <div className="flex items-center gap-1.5 mt-1 text-brand-primary/40">
+                        <Calendar size={11} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">{item.serviceDate}</span>
                       </div>
                       {item.customizations && (() => {
                         const c = item.customizations;
@@ -135,31 +135,31 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
                             {(c.isVegetarian || choices.length > 0) && (
                               <div className="flex flex-wrap items-center gap-1">
                                 {c.isVegetarian && (
-                                  <span className="text-[7px] font-black tracking-wide bg-[#DCFCE7] text-[#16A34A] px-1.5 py-0.5 rounded-full">🌿 Vegetarian</span>
+                                  <span className="text-[9px] font-black tracking-wide bg-[#DCFCE7] text-[#16A34A] px-2.5 py-1 rounded-full">🌿 Vegetarian</span>
                                 )}
                                 {choices.map((ch, i) => (
-                                  <span key={i} className="text-[7px] font-semibold bg-brand-subtle text-brand-accent px-1.5 py-0.5 rounded-full">{ch}</span>
+                                  <span key={i} className="text-[9px] font-semibold bg-brand-subtle text-brand-accent px-2.5 py-1 rounded-full">{ch}</span>
                                 ))}
                               </div>
                             )}
                             {c.avoid && (
-                              <p className="text-[7px] text-brand-primary/40 leading-tight"><span className="text-red-400 font-black">✕ </span>{c.avoid}</p>
+                              <p className="text-[9px] text-brand-primary/40 leading-tight"><span className="text-red-400 font-black">✕ </span>{c.avoid}</p>
                             )}
                             {c.vegInstructions && (
-                              <p className="text-[7px] text-brand-primary/40 italic leading-tight">{c.vegInstructions}</p>
+                              <p className="text-[9px] text-brand-primary/40 italic leading-tight">{c.vegInstructions}</p>
                             )}
                           </div>
                         );
                       })()}
-                      <div className="flex items-center justify-between mt-2.5">
-                        <div className="flex items-center bg-white rounded-full border border-gray-100 p-0.5">
-                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, item.customizations)} className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-brand-bg transition-colors text-brand-primary text-xs font-bold">−</button>
-                          <span className="px-2 text-[9px] text-brand-primary font-black">{item.quantity}</span>
-                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1, item.customizations)} className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-brand-bg transition-colors text-brand-primary text-xs font-bold">+</button>
+                      <div className="flex items-center justify-between mt-3.5">
+                        <div className="flex items-center bg-white rounded-full border border-gray-100 p-1">
+                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, item.customizations)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-brand-bg transition-colors text-brand-primary text-sm font-bold">−</button>
+                          <span className="px-3 text-[13px] text-brand-primary font-black">{item.quantity}</span>
+                          <button onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1, item.customizations)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-brand-bg transition-colors text-brand-primary text-sm font-bold">+</button>
                         </div>
                         <button
                           onClick={() => cart.removeItem(item.id, item.serviceDate, item.customizations)}
-                          className="text-[8px] uppercase tracking-widest text-brand-primary/25 hover:text-red-400 transition-colors font-black"
+                          className="text-[10px] uppercase tracking-[0.15em] text-brand-primary/25 hover:text-red-400 transition-colors font-black"
                         >
                           Remove
                         </button>
@@ -172,17 +172,17 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
 
             {/* Footer */}
             {cart.items.length > 0 && (
-              <div className="p-5 border-t border-gray-100">
+              <div className="py-5 pl-5 pr-8 border-t border-gray-100">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary/40">Subtotal</span>
-                  <span className="text-2xl font-serif text-brand-primary">${cart.total}</span>
+                  <span className="text-[14px] font-black uppercase tracking-widest text-brand-primary/40">Subtotal</span>
+                  <span className="text-[24px] font-serif text-brand-primary">${cart.total}</span>
                 </div>
                 <button
                   onClick={onFinalize}
-                  className="w-full py-4 bg-brand-lime text-brand-primary rounded-2xl flex items-center justify-center gap-2 group hover:brightness-95 transition-all font-black text-[10px] uppercase tracking-[0.3em] shadow-lg shadow-brand-lime/30"
+                  className="w-full py-5 bg-[#c9c800] text-[#311c67] rounded-3xl flex items-center justify-center gap-2 group hover:brightness-95 transition-all font-black text-[11px] uppercase tracking-[0.25em] shadow-lg shadow-[#c9c800]/20"
                 >
                   Checkout
-                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
             )}
@@ -258,7 +258,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <footer className="bg-brand-primary text-white py-10 md:py-16 lg:py-24 px-5 md:px-10 lg:px-12 mt-auto">
+      <footer className="relative z-20 mt-auto bg-brand-primary px-5 py-10 text-white md:px-10 md:py-16 lg:px-12 lg:py-24">
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 md:gap-16">
           <div className="col-span-1 sm:col-span-2 space-y-5 md:space-y-8">
             <img

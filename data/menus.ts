@@ -116,8 +116,8 @@ export const MENUS: Record<Weekday, DayMenu> = {
             tags: ["Italian", "Comfort"],
             wooProductId: 1452,
             customizationOptions: {
-              bases: ["Traditional pasta (única)"],
-              sauces: ["Creamy pesto sauce (única)"],
+              bases: ["Traditional pasta"],
+              sauces: ["Creamy pesto sauce"],
               hasVegetarianOption: {
                 label: "Make it vegetarian?",
                 instructions: "replace protein with mushrooms"

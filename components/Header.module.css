@@ -5,11 +5,18 @@
   z-index: 100;
   background: #f4f1ff;
   height: 78px;
+  border-bottom: 1px solid rgba(49, 28, 103, 0.05);
+}
+
+.headerInner {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  height: 100%;
+  padding: 0 60px;
   display: flex;
   align-items: center;
-  padding: 0 60px;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(49, 28, 103, 0.05);
 }
 
 /* ─── Logo ───────────────────────────────────────────────────────────────── */
@@ -44,6 +51,22 @@
   display: flex;
   align-items: center;
   gap: 18px;
+}
+
+.orderBtn {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--white);
+  background: var(--purple);
+  border-radius: 999px;
+  padding: 12px 26px;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.orderBtn:hover {
+  opacity: 0.85;
 }
 
 .orderBtn {
@@ -125,9 +148,12 @@
 /* ── Laptop (769px – 1024px): tighten padding & gaps ─────────────────────── */
 @media (max-width: 1024px) {
   .header {
-    padding: 0 32px;
     height: 72px;
   }
+  .headerInner {
+    padding: 0 32px;
+  }
+
   .nav {
     gap: 28px;
   }
@@ -136,12 +162,16 @@
 /* ── Tablet & Mobile (≤ 768px): hamburger menu ───────────────────────────── */
 @media (max-width: 768px) {
   .header {
-    padding: 0 20px;
     height: 60px;
     /* make room for the drawer below */
     position: sticky;
-    flex-wrap: wrap;
+  }
+  .headerInner {
+    padding: 0 20px;
+    height: 100%;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
   }
 
   /* hide desktop nav + actions */

@@ -152,21 +152,29 @@ export default function FAQ() {
               ))}
 
               {/* Still have questions? */}
-              <div className={s.stillHave}>
-                <div className={s.stickerWrap}>
-                  <img
-                    src={COPY.stickerImage}
-                    alt=""
-                    aria-hidden
-                    className={s.stickerImg}
-                    onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                  />
-                  <span className={s.stickerText}>{COPY.stickerText}</span>
-                </div>
-                <div className={s.emailBlock}>
-                  <span>Email us at </span>
-                  <a href={`mailto:${COPY.email}`} className={s.emailLink}>{COPY.email}</a>
-                  <span className={s.emailSuffix}>{COPY.emailSuffix}</span>
+              <div className={s.stillHaveWrap}>
+                <img 
+                  src="/images_KNWN/Clip-path-group.jpg" 
+                  alt="" 
+                  className={s.stillHaveBlur} 
+                  aria-hidden="true" 
+                />
+                <div className={s.stillHave}>
+                  <div className={s.stickerWrap}>
+                    <img
+                      src={COPY.stickerImage}
+                      alt=""
+                      aria-hidden
+                      className={s.stickerImg}
+                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                    <span className={s.stickerText}>{COPY.stickerText}</span>
+                  </div>
+                  <div className={s.emailBlock}>
+                    <span>Email us at </span>
+                    <a href={`mailto:${COPY.email}`} className={s.emailLink}>{COPY.email}</a>
+                    <span className={s.emailSuffix}>{COPY.emailSuffix}</span>
+                  </div>
                 </div>
               </div>
             </div>

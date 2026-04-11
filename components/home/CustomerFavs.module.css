@@ -20,7 +20,7 @@
   position: absolute;
   top: 80px;
   left: 40px;
-  background: #d4f84a;
+  background: #c9c800;
   color: var(--purple);
   font-family: var(--font-ui);
   font-size: 16px;
@@ -145,6 +145,43 @@
   white-space: nowrap;
 }
 
+.menuBtnWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  margin-top: 28px;
+  transition: transform 0.15s;
+}
+
+.menuBtnWrap:hover {
+  transform: scale(1.03);
+}
+
+.menuBtnImg {
+  display: block;
+  /* Set width so the image is a reasonable button size */
+  width: 240px; 
+  height: auto;
+  object-fit: contain;
+}
+
+.menuBtnText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-ui);
+  font-size: 21px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  z-index: 2;
+  white-space: nowrap;
+}
+
 .deliveryText {
   font-family: var(--font-ui);
   font-size: 18px;
@@ -152,29 +189,11 @@
   color: var(--purple);
 }
 
-.menuBtn {
-  display: inline-block;
-  align-self: center;
-  background: var(--orange);
-  color: #ffffff;
-  font-family: var(--font-ui);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 16px 40px;
-  border-radius: 6px;
-  transition: opacity 0.15s;
-}
-
-.menuBtn:hover {
-  opacity: 0.88;
-}
 
 /* ─── Arrows ──────────────────────────────────────────────────────────────── */
 .arrowLeft {
   position: absolute;
-  left: -30px;
+  left: 20px;
   top: 50%;
   transform: translateY(-50%);
   width: 65px;
@@ -195,7 +214,7 @@
 
 .arrowRight {
   position: absolute;
-  right: 16px;
+  right: 20px;
   top: 50%;
   transform: translateY(-50%);
   width: 65px;

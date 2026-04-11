@@ -36,14 +36,14 @@
   overflow: hidden;
   z-index: 1;
   border-radius: 24px;
-  padding: clamp(32px, 4.5vw, 56px) clamp(24px, 5vw, 64px);
+  padding: clamp(32px, 4.5vw, 56px) clamp(24px, 5vw, 64px) 24px clamp(24px, 5vw, 64px);
   background: white;
   box-shadow: 0 8px 40px rgba(150, 130, 200, 0.15), 0 2px 12px rgba(150, 130, 200, 0.08);
 }
 
 @media (max-width: 640px) {
   .card {
-    padding: 32px 20px;
+    padding: 32px 20px 24px;
   }
 }
 
@@ -200,7 +200,28 @@
 }
 
 /* Still have questions sticker + email */
+.stillHaveWrap {
+  position: relative;
+  margin-top: 10px;
+  isolation: isolate;
+}
+
+.stillHaveBlur {
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  min-width: 400px;
+  max-width: 550px;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 1;
+}
+
 .stillHave {
+  position: relative;
+  z-index: 1;
   margin-top: 0px;
   display: flex;
   flex-direction: row;

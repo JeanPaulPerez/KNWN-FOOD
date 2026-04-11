@@ -14,7 +14,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Loader2, AlertCircle, Check, Lock,
+  Loader2, AlertCircle, Check, Lock, Calendar
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -28,6 +28,24 @@ import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { getActiveOrderInfo } from '../utils/dateLogic';
 import { clsx } from 'clsx';
 import { useUser } from '../store/useUser';
+
+function getFoodBg(name: string): string {
+  const key = name.toLowerCase().trim();
+  const FOOD_BG_MAP: Record<string, string> = {
+    'mediterranean chicken': '/assets/food-bg/mediterranean-chicken.webp',
+    'bibi bump rice':        '/assets/food-bg/bibi-bamp-rice.webp',
+    'carne asada':           '/assets/food-bg/carne-asada.webp',
+    'chicken lime':          '/assets/food-bg/chicken-lime.webp',
+    'chicken pesto pasta':   '/assets/food-bg/pesto-pasta.webp',
+    'thai beef salad':       '/assets/food-bg/thai-beef-salad.webp',
+    'milanesa':              '/assets/food-bg/milanesa.webp',
+    'harissa meatballs':     '/assets/food-bg/harissa-meatballs.webp',
+    'crispy korean chicken': '/assets/food-bg/korean-crispy-chicken.webp',
+    'chicken caesar salad':  '/assets/food-bg/chicken-cesar-salad.webp',
+  };
+  const match = Object.entries(FOOD_BG_MAP).find(([k]) => key.includes(k) || k.includes(key));
+  return match ? match[1] : '/assets/food-bg/carne-asada.webp';
+}
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string);
 
@@ -401,7 +419,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   const hasPayPalClientId = !!import.meta.env.VITE_PAYPAL_CLIENT_ID;
 
   return (
-    <div className="bg-[#F5F3FF] min-h-screen pt-28 md:pt-40 pb-20 md:pb-32 px-4 md:px-12 font-sans select-none">
+    <div className="bg-[#F5F3FF] min-h-screen pt-8 md:pt-10 pb-20 md:pb-32 px-4 md:px-12 font-sans select-none">
       <div className="max-w-6xl mx-auto">
         <form id="checkout-form" onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
 
@@ -585,21 +603,64 @@ function CheckoutForm({ cart }: { cart: any }) {
                 ).map(([day, items]: any, i) => (
                   <div key={i} className="space-y-4">
                     <h4 className="text-sm font-bold text-brand-primary">{day}</h4>
-                    {items.map((item: any) => (
-                      <div key={item.id} className="flex gap-4 items-center">
-                        <img src={item.image || '/assets/food-bg/thai-beef-salad.jpg'} className="w-16 h-16 rounded-full object-cover shadow-md border-2 border-white bg-gray-100" />
-                        <div className="flex-1">
-                          <h5 className="text-[12px] font-bold text-brand-primary">{item.name}</h5>
-                          <div className="flex items-center gap-2 mt-1 -ml-1">
-                            <span className="w-6 h-6 rounded-full flex items-center justify-center text-brand-primary/50 text-xs font-bold bg-transparent">−</span>
-                            <span className="text-xs font-bold border border-brand-primary/20 rounded-md px-3 py-0.5">{item.quantity}</span>
-                            <span className="w-6 h-6 rounded-full flex items-center justify-center text-brand-primary/50 text-xs font-bold">+</span>
-                            <span className="text-brand-orange text-xs ml-auto pr-2">🗑</span>
-                          </div>
-                        </div>
-                        <span className="font-bold text-brand-primary text-sm">${(item.price * item.quantity).toFixed(2)}</span>
+                    {items.map((item: any, idx: number) => {
+                      const c = item.customizations || {};
+                      const choices: string[] = [];
+                      if (c.base)    choices.push(c.base);
+                      if (c.protein) choices.push(c.protein);
+                      if (c.sauce)   choices.push(c.sauce);
+                      if (c.swap)    choices.push(`Swap: ${c.swap}`);
+
+                      return (
+                  <div key={`${item.id}-${item.serviceDate}-${JSON.stringify(c)}`} className="flex gap-4 bg-brand-bg p-4 rounded-3xl border border-gray-100">
+                    <img src={getFoodBg(item.name)} className="w-20 h-20 object-cover rounded-2xl flex-shrink-0" alt={item.name} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-2">
+                        <h3 className="text-[18px] font-semibold leading-tight text-brand-primary truncate">{item.name}</h3>
+                        <span className="text-[15px] font-serif text-brand-primary flex-shrink-0">${(item.price * item.quantity).toFixed(1)}</span>
                       </div>
-                    ))}
+                      <div className="flex items-center gap-1.5 mt-1 text-brand-primary/40">
+                        <Calendar size={11} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">{item.serviceDate.split(',')[0]}</span>
+                      </div>
+
+                      <div className="mt-1.5 space-y-1">
+                        {(c.isVegetarian || choices.length > 0) && (
+                          <div className="flex flex-wrap items-center gap-1">
+                            {c.isVegetarian && (
+                              <span className="text-[9px] font-black tracking-wide bg-[#DCFCE7] text-[#16A34A] px-2.5 py-1 rounded-full">🌿 Vegetarian</span>
+                            )}
+                            {choices.map((ch, i) => (
+                              <span key={i} className="text-[9px] font-semibold bg-brand-subtle text-brand-accent px-2.5 py-1 rounded-full">{ch}</span>
+                            ))}
+                          </div>
+                        )}
+                        {c.avoid && (
+                          <p className="text-[9px] text-brand-primary/40 leading-tight"><span className="text-red-400 font-black">✕ </span>{c.avoid}</p>
+                        )}
+                        {c.vegInstructions && (
+                          <p className="text-[9px] text-brand-primary/40 italic leading-tight">{c.vegInstructions}</p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between mt-3.5">
+                        <div className="flex items-center bg-white rounded-full border border-gray-100 p-1">
+                          <button type="button" onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, c)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-brand-bg transition-colors text-brand-primary text-sm font-bold">−</button>
+                          <span className="px-3 text-[13px] text-brand-primary font-black">{item.quantity}</span>
+                          <button type="button" onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1, c)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-brand-bg transition-colors text-brand-primary text-sm font-bold">+</button>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => cart.removeItem(item.id, item.serviceDate, c)}
+                          className="text-[10px] uppercase tracking-[0.15em] text-brand-primary/25 hover:text-red-400 transition-colors font-black"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                      );
+                    })}
                   </div>
                 ))}
               </div>
