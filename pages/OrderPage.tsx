@@ -514,6 +514,8 @@ export default function OrderPage({ cart }: { cart: any }) {
         const nextAddress = normalizePlaceDetails(place, suggestion.description);
 
         if (nextAddress.zip && !DELIVERY_ZIPS.has(nextAddress.zip)) {
+          setIsSearching(false);
+          setSuggestions([]);
           setZipError(`Sorry, we don't deliver to ZIP code ${nextAddress.zip}. We currently serve select Miami, FL zip codes: 33126, 33127, 33128, 33130, 33131, 33132, 33133, 33134, 33137.`);
           setSelectedAddress(null);
           return;
@@ -964,7 +966,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                 style={{ width: '100%', boxSizing: 'border-box', paddingLeft: '42px', paddingRight: '16px', paddingTop: '13px', paddingBottom: '13px', borderRadius: '12px', border: '1.5px solid rgba(49,28,103,0.14)', background: '#F3EFF9', fontSize: '14px', color: '#311c67', outline: 'none', fontFamily: 'Poppins, sans-serif' }}
               />
 
-              {(suggestions.length > 0 || isSearching || placesError) && (
+              {!zipError && (suggestions.length > 0 || isSearching || placesError) && (
                 <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, borderRadius: '14px', border: '1px solid rgba(49,28,103,0.1)', background: '#fff', boxShadow: '0 18px 40px rgba(49,28,103,0.14)', overflow: 'hidden', zIndex: 20 }}>
                   {isSearching && (
                     <div style={{ padding: '12px 14px', fontSize: '12px', color: 'rgba(49,28,103,0.6)' }}>
@@ -1013,9 +1015,16 @@ export default function OrderPage({ cart }: { cart: any }) {
             </div>
 
             {zipError && (
-              <div style={{ marginTop: '12px', padding: '12px 14px', borderRadius: '12px', background: '#FFF1EE', border: '1px solid #FDDDD7', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <span style={{ fontSize: '18px', lineHeight: 1, flexShrink: 0 }}>🚫</span>
-                <p style={{ margin: 0, fontSize: '12px', fontWeight: 600, color: '#B83B1B', lineHeight: 1.5, fontFamily: 'Poppins, sans-serif' }}>{zipError}</p>
+              <div style={{ marginTop: '14px', padding: '16px', borderRadius: '14px', background: '#FFF1EE', border: '1.5px solid #F5C0B0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '16px', lineHeight: 1 }}>🚫</span>
+                  <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#B83B1B', fontFamily: 'Poppins, sans-serif' }}>We don't deliver here yet</p>
+                </div>
+                <p style={{ margin: 0, fontSize: '12px', fontWeight: 500, color: '#B83B1B', lineHeight: 1.6, fontFamily: 'Poppins, sans-serif' }}>
+                  We currently only deliver to select <strong>Miami, FL</strong> zip codes:<br />
+                  33126 · 33127 · 33128 · 33130 · 33131 · 33132 · 33133 · 33134 · 33137
+                </p>
+                <p style={{ margin: '8px 0 0', fontSize: '11px', color: 'rgba(184,59,27,0.7)', fontFamily: 'Poppins, sans-serif' }}>Please search for an address within these zip codes.</p>
               </div>
             )}
 
