@@ -45,6 +45,7 @@ export default function CustomerFavs() {
           key={item.img}
           src={item.img}
           alt={item.name}
+          loading="lazy"
           className={s.foodImg}
         />
 
@@ -53,6 +54,7 @@ export default function CustomerFavs() {
           <img
             src="/assets/hero-bg/Bloque_amarillo.png"
             alt=""
+            loading="lazy"
             className={s.blob}
             aria-hidden="true"
           />
@@ -64,7 +66,7 @@ export default function CustomerFavs() {
               <span className={s.deliveryText}>Delivery Included</span>
             </div>
             <Link to="/menu" className={s.menuBtnWrap}>
-              <img src="/assets/hero-bg/SEEMENU.png" alt="" className={s.menuBtnImg} />
+              <img src="/assets/hero-bg/SEEMENU.png" alt="" loading="lazy" className={s.menuBtnImg} />
               <span className={s.menuBtnText}>SEE FULL MENU</span>
             </Link>
           </div>

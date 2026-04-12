@@ -37,7 +37,7 @@ export default function HowWeFixLunch() {
 
           {/* Left: tall photo */}
           <div className={s.photoWrap}>
-            <img src={COPY.photo} alt="Person opening a KNWN lunch box at their desk" className={s.photo} />
+            <img src={COPY.photo} alt="Person opening a KNWN lunch box at their desk" loading="lazy" className={s.photo} />
           </div>
 
           {/* Right: heading + cards + quote + CTA */}

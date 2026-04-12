@@ -21,7 +21,7 @@ export default function FollowUs() {
         <div className={s.grid}>
           {PHOTOS.map((src, i) => (
             <div key={i} className={s.cell}>
-              <img src={src} alt="" className={s.photo} />
+              <img src={src} alt="" loading="lazy" className={s.photo} />
             </div>
           ))}
         </div>

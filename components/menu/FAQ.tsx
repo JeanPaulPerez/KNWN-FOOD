@@ -153,11 +153,12 @@ export default function FAQ() {
 
               {/* Still have questions? */}
               <div className={s.stillHaveWrap}>
-                <img 
-                  src="/images_KNWN/Clip-path-group.jpg" 
-                  alt="" 
-                  className={s.stillHaveBlur} 
-                  aria-hidden="true" 
+                <img
+                  src="/images_KNWN/Clip-path-group.jpg"
+                  alt=""
+                  loading="lazy"
+                  className={s.stillHaveBlur}
+                  aria-hidden="true"
                 />
                 <div className={s.stillHave}>
                   <div className={s.stickerWrap}>
@@ -165,6 +166,7 @@ export default function FAQ() {
                       src={COPY.stickerImage}
                       alt=""
                       aria-hidden
+                      loading="lazy"
                       className={s.stickerImg}
                       onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />

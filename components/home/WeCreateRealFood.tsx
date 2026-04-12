@@ -9,6 +9,7 @@ export default function WeCreateRealFood() {
         src="/assets/we-create.webp"
         alt=""
         aria-hidden
+        loading="lazy"
         className={s.bg}
       />
       <div className={s.overlay} />

@@ -132,13 +132,14 @@ export default function WeeklySystem({ onItemSelect }: Props) {
             {items.map((item, idx) => (
               <div key={item.id} className={s.card}>
                 <div className={s.plateWrapper}>
-                  <img src="/assets/icons/plate-shadow.png" alt="" className={s.plateShadow} />
+                  <img src="/assets/icons/plate-shadow.png" alt="" loading="lazy" className={s.plateShadow} />
                   {item.customizationOptions?.hasVegetarianOption && (
-                    <img src="/assets/icons/hoja.png" alt="" className={s.vegIcon} />
+                    <img src="/assets/icons/hoja.png" alt="" loading="lazy" className={s.vegIcon} />
                   )}
                   <img
                     src={images[idx]}
                     alt={item.name}
+                    loading="lazy"
                     className={s.cardImage}
                     style={item.name === 'Chicken Lime' ? { transform: 'scale(1.02)', transformOrigin: 'center -60%' } : undefined}
                   />
@@ -151,12 +152,12 @@ export default function WeeklySystem({ onItemSelect }: Props) {
         {/* Bottom row — veg badge + TRY NOW */}
         <div className={s.bottomRow}>
           <div className={s.vegBadge}>
-            <img src="/assets/icons/hoja.png" alt="" className={s.vegBadgeIcon} />
+            <img src="/assets/icons/hoja.png" alt="" loading="lazy" className={s.vegBadgeIcon} />
             <span className={s.vegBadgeText}>{COPY.vegBadge}</span>
           </div>
 
           <Link to="/order" className={s.tryNowBtn} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-block' }}>
-            <img src="/assets/icons/try-now.png" alt="TRY NOW" className={s.tryNowImg} />
+            <img src="/assets/icons/try-now.png" alt="TRY NOW" loading="lazy" className={s.tryNowImg} />
           </Link>
         </div>
 

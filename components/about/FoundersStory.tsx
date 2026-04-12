@@ -44,8 +44,8 @@ export default function FoundersStory() {
 
           {/* Founders photo */}
           <div className={s.photoWrap}>
-            <img src="/assets/about/clip-path-group.jpg" alt="" aria-hidden className={s.blob} />
-            <img src="/assets/about/Daniel y Choco.webp" alt="Daniel and Christian, founders of KNWN" className={s.founderPhoto} />
+            <img src="/assets/about/clip-path-group.jpg" alt="" aria-hidden loading="lazy" className={s.blob} />
+            <img src="/assets/about/Daniel y Choco.webp" alt="Daniel and Christian, founders of KNWN" loading="lazy" className={s.founderPhoto} />
             <span className={s.dateStamp}>09.23.2011</span>
           </div>
 
@@ -60,6 +60,7 @@ export default function FoundersStory() {
               <img
                 src="/assets/about/WHAT ARE WE DOING FOR LUNCH.png"
                 alt="What are we doing for lunch?"
+                loading="lazy"
                 className={s.stickerImg}
               />
             </div>
@@ -72,7 +73,7 @@ export default function FoundersStory() {
             <div key={label} className={`${s.problemCard} ${cardClass}`} style={style}>
               <span className={s.problemLabel}>{label}</span>
               <div className={s.problemImgWrap}>
-                <img src={img} alt={alt} className={`${s.problemImg} ${imgClass}`} style={imgStyle} />
+                <img src={img} alt={alt} loading="lazy" className={`${s.problemImg} ${imgClass}`} style={imgStyle} />
               </div>
             </div>
           ))}

@@ -13,7 +13,7 @@ export default function KitchenHero() {
     <section className={s.section}>
       <div className={s.inner}>
         <div className={s.card}>
-          <img src={COPY.photo} alt="KNWN kitchen" className={s.photo} />
+          <img src={COPY.photo} alt="KNWN kitchen" loading="lazy" className={s.photo} />
           <div className={s.overlay} />
           <div className={s.content}>
             <p className={s.eyebrow}>{COPY.eyebrow}</p>

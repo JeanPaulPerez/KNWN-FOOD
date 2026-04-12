@@ -38,6 +38,7 @@ export default function OurPhilosophy() {
           <img
             src={COPY.image}
             alt={COPY.imageAlt}
+            loading="lazy"
             className="w-full h-full object-cover object-center"
           />
         </motion.div>

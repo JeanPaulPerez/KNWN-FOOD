@@ -74,6 +74,7 @@ export default function HowItWorks() {
               src={step.image}
               alt={step.id === activeStepId ? step.imageAlt : ''}
               aria-hidden={step.id === activeStepId ? undefined : true}
+              loading="lazy"
               className={`${s.photo} ${step.id === activeStepId ? s.photoActive : s.photoInactive}`}
               style={{ objectPosition: step.imagePosition || 'center' }}
             />

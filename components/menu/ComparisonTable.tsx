@@ -131,7 +131,7 @@ export default function ComparisonTable() {
 
         {/* Sticker */}
         <Link to="/order" className={s.stickerLinkDesktop}>
-          <img src={COPY.stickerImage} alt="Try now" className={s.stickerDesktop} />
+          <img src={COPY.stickerImage} alt="Try now" loading="lazy" className={s.stickerDesktop} />
         </Link>
         <Link to="/order" className={s.stickerLinkMobile}>
           <img src={COPY.stickerImage} alt="Try now" className={s.stickerMobile} />

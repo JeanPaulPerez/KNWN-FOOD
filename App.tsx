@@ -12,12 +12,12 @@ function ScrollToTop() {
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, X, ChevronRight, AlertTriangle, Calendar, ArrowRight } from 'lucide-react';
 import Home from './pages/Home';
-import MenuPage from './pages/MenuPage';
-import Checkout from './pages/Checkout';
-import ThankYou from './pages/ThankYou';
-import About from './pages/About';
-import OrderPage from './pages/OrderPage';
-import Account from './pages/Account';
+const MenuPage  = React.lazy(() => import('./pages/MenuPage'));
+const Checkout  = React.lazy(() => import('./pages/Checkout'));
+const ThankYou  = React.lazy(() => import('./pages/ThankYou'));
+const About     = React.lazy(() => import('./pages/About'));
+const OrderPage = React.lazy(() => import('./pages/OrderPage'));
+const Account   = React.lazy(() => import('./pages/Account'));
 import { useWooCart } from './store/useWooCart';
 import { useUser } from './store/useUser';
 import ProfileModal from './components/ProfileModal';
@@ -220,15 +220,17 @@ export default function App() {
       <Header cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} onOpenProfile={handleAccountAction} />
 
       <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/menu" element={<MenuPage cart={cart} />} />
-          <Route path="/order" element={<OrderPage cart={cart} />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/checkout" element={<Checkout cart={cart} />} />
-          <Route path="/thank-you" element={<ThankYou />} />
-          <Route path="/account" element={<Account />} />
-        </Routes>
+        <React.Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/menu" element={<MenuPage cart={cart} />} />
+            <Route path="/order" element={<OrderPage cart={cart} />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/checkout" element={<Checkout cart={cart} />} />
+            <Route path="/thank-you" element={<ThankYou />} />
+            <Route path="/account" element={<Account />} />
+          </Routes>
+        </React.Suspense>
       </main>
 
       <CartDrawer
@@ -264,6 +266,7 @@ export default function App() {
             <img
               src="https://knwnfood.com/wp-content/uploads/2025/09/Recurso-91x.webp"
               alt="KNWN Food"
+              loading="lazy"
               className="w-28 md:w-40 lg:w-48 brightness-0 invert opacity-80"
             />
             <p className="text-white/40 max-w-sm font-light leading-relaxed text-xs md:text-sm">
