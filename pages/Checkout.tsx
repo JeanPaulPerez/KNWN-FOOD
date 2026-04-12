@@ -53,6 +53,8 @@ const TAX_RATE = 0.063;
 const CHECKOUT_ADDRESS_STORAGE_KEY = 'knwn:selected-address';
 const DELIVERY_TIME_WINDOW = '10 AM - 12 PM';
 
+const DELIVERY_ZIPS = new Set(['33130','33131','33132','33133','33134','33126','33137','33127','33128']);
+
 type StoredCheckoutAddress = {
   formatted: string;
   street: string;
@@ -364,6 +366,12 @@ function CheckoutForm({ cart }: { cart: any }) {
     const state = form.get('state') as string;
     const zip   = form.get('zip') as string;
     const deliveryInstructions = (form.get('deliveryInstructions') as string) || '';
+
+    if (!DELIVERY_ZIPS.has(zip.trim())) {
+      setError(`We only deliver to select Miami, FL zip codes: 33126, 33127, 33128, 33130, 33131, 33132, 33133, 33134, 33137. Please update your ZIP code.`);
+      setLoading(false);
+      return;
+    }
 
     try {
       let paymentIntentId: string | null = null;

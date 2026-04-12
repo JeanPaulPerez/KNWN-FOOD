@@ -29,6 +29,15 @@
   white-space: nowrap;
 }
 
+/* ─── Input group (input row + result message) ────────────────────────────── */
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 380px;
+  width: 100%;
+}
+
 /* ─── Input row ───────────────────────────────────────────────────────────── */
 .inputWrap {
   display: flex;
@@ -37,8 +46,29 @@
   border-radius: 999px;
   padding: 12px 12px 12px 24px;
   gap: 10px;
-  max-width: 380px;
   width: 100%;
+}
+
+.resultValid {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: #d4f84a;
+  padding: 0 8px;
+}
+
+.resultInvalid {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffb3a0;
+  padding: 0 8px;
 }
 
 .pin {
@@ -149,8 +179,8 @@
     text-align: center;
   }
 
-  /* input takes left of second row */
-  .inputWrap {
+  /* input group takes left of second row */
+  .inputGroup {
     grid-column: 1;
     max-width: 100%;
   }
@@ -187,7 +217,7 @@
     text-align: center;
   }
 
-  .inputWrap {
+  .inputGroup {
     max-width: 100%;
   }
 
