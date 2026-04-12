@@ -27,7 +27,7 @@ export default function Hero() {
               <span className={s.badgeIcon}>
                 <MapPin size={18} strokeWidth={2} />
               </span>
-              <strong>Free</strong>&nbsp;Next Day Delivery
+              <strong>Free</strong> Next Day Delivery
             </span>
             <span className={s.badge}>
               <span className={s.badgeIcon}>

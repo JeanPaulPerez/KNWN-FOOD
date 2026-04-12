@@ -21,8 +21,8 @@ export default async function handler(req: any, res: any) {
 
   const { amountInCents, customerEmail } = req.body;
 
-  if (!amountInCents || typeof amountInCents !== 'number' || amountInCents <= 0) {
-    return res.status(400).json({ error: 'A valid amount greater than $0 is required' });
+  if (!amountInCents || typeof amountInCents !== 'number' || amountInCents <= 0 || amountInCents > 50000_00) {
+    return res.status(400).json({ error: 'A valid amount between $0 and $5,000 is required' });
   }
 
   const secretKey = process.env.STRIPE_SECRET_KEY;

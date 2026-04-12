@@ -200,34 +200,74 @@
   margin: 0;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1300px),
+(max-height: 800px) {
   .section {
-    padding: 40px 36px 56px;
+    padding: 38px 40px 48px;
   }
 
   .card {
-    grid-template-columns: minmax(0, 1.38fr) minmax(320px, 0.94fr);
-    min-height: 510px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(340px, 1fr);
+    min-height: 600px;
+  }
+
+  .photoWrap {
+    padding: 28px 0 28px 28px;
+  }
+
+  .photo {
+    inset: 28px 0 28px 28px;
+    width: calc(100% - 28px);
+    height: calc(100% - 56px);
   }
 
   .content {
-    padding: 36px 30px 28px 24px;
+    padding: 38px 30px 28px 28px;
+    gap: 24px;
   }
 
   .headingTop {
-    font-size: clamp(52px, 4.8vw, 66px);
+    font-size: clamp(50px, 4.8vw, 64px);
   }
 
   .headingBottom {
-    font-size: clamp(38px, 3vw, 50px);
+    font-size: clamp(38px, 3.2vw, 48px);
   }
 
   .headingCompact .headingTop {
-    font-size: clamp(38px, 3.4vw, 48px);
+    font-size: clamp(36px, 3.4vw, 46px);
   }
 
   .headingCompact .headingBottom {
-    font-size: clamp(29px, 2.5vw, 38px);
+    font-size: clamp(28px, 2.5vw, 36px);
+  }
+
+  .stepActive,
+  .step {
+    margin: 0px 0px 20px 0px;
+    padding: 8px 0;
+  }
+
+  .pillActive,
+  .pill {
+    min-height: 42px;
+    font-size: 16px;
+    padding: 0 18px;
+  }
+
+  .desc {
+    font-size: 17px;
+    line-height: 1.18;
+  }
+
+  .stepContent {
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  .exploreBtn {
+    min-height: 38px;
+    font-size: 13px;
   }
 }
 
@@ -284,53 +324,109 @@
 
 @media (max-width: 640px) {
   .section {
-    padding: 24px 14px 34px;
+    padding: 24px 16px 34px;
+    display: flex;
+    flex-direction: column;
+    background: #f4f1ff;
   }
 
   .card {
-    border-radius: 22px;
-  }
-
-  .photoWrap {
-    height: 300px;
-    padding: 14px 14px 0;
-  }
-
-  .photo {
-    inset: 14px 14px 0 14px;
-    width: calc(100% - 28px);
-    height: calc(100% - 14px);
+    display: contents;
   }
 
   .content {
-    padding: 22px 18px 26px;
-    gap: 18px;
+    display: contents;
   }
 
-  .headingTop {
-    font-size: clamp(40px, 10vw, 54px);
+  .heading {
+    order: 1;
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
   }
 
-  .headingBottom {
-    font-size: clamp(30px, 8vw, 42px);
+  .photoWrap {
+    order: 2;
+    height: 180px;
+    padding: 0;
+    margin-bottom: 20px;
   }
 
-  .headingCompact .headingTop {
-    font-size: clamp(32px, 9vw, 40px);
+  .photo {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 16px;
   }
 
-  .headingCompact .headingBottom {
-    font-size: clamp(24px, 7vw, 32px);
+  .steps {
+    order: 3;
+    gap: 16px;
+  }
+
+  .stepActive {
+    background: var(--purple);
+    border-radius: 20px;
+    padding: 20px 24px;
+    margin: 0;
+  }
+
+  .step {
+    background: #e6def8;
+    border-radius: 20px;
+    padding: 20px 24px;
+    margin: 0;
   }
 
   .pillActive,
   .pill {
-    min-height: 32px;
-    padding: 0 14px;
-    font-size: 13px;
+    background: transparent !important;
+    padding: 0;
+    min-height: auto;
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .pillActive {
+    color: #fff;
+  }
+
+  .pill {
+    color: #3f3187;
+  }
+
+  .stepContent {
+    margin-top: 12px;
+    padding: 0;
   }
 
   .desc {
-    font-size: 15px;
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .exploreBtn {
+    border-color: #fff;
+    color: #fff;
+    margin-top: 8px;
+    font-size: 14px;
+    padding: 8px 24px;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .headingTop {
+    font-size: clamp(38px, 10vw, 48px);
+  }
+
+  .headingBottom {
+    font-size: clamp(34px, 8vw, 42px);
   }
 }

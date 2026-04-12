@@ -9,7 +9,7 @@ import crypto from 'node:crypto';
 const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000;
 
 function verifyToken(token: string | undefined, email: string): boolean {
-  const secret = process.env.STRIPE_SECRET_KEY || process.env.WC_CONSUMER_SECRET || '';
+  const secret = process.env.AUTH_SESSION_SECRET || process.env.STRIPE_SECRET_KEY || process.env.WC_CONSUMER_SECRET || '';
   if (!token || !secret) return false;
   const [ts, sig] = token.split('.');
   if (!ts || !sig) return false;

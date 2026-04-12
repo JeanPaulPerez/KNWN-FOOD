@@ -237,6 +237,95 @@
    RESPONSIVE
 ════════════════════════════════════════════════════════════════════════════ */
 
+/* ── Small Desktop (1025px - 1300px) & short screens: tighten up everything ── */
+@media (max-width: 1300px), (max-height: 800px) {
+  .section {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .inner {
+    max-width: 1040px;
+    min-height: 540px;
+    padding: 60px 0 40px;
+    margin: 0 auto;
+  }
+
+  .dayBadge {
+    top: 60px;
+    left: 60px;
+    font-size: 15px;
+    padding: 8px 24px;
+  }
+
+  .foodImg {
+    width: 530px;
+    left: 10px;
+  }
+
+  .heading {
+    left: 560px;
+    width: 460px;
+    font-size: 60px;
+    top: 20px;
+  }
+
+  .blobWrap {
+    left: 440px;
+    width: 600px;
+    min-height: 480px;
+  }
+
+  .cardBody {
+    padding: 50px 60px 50px 110px;
+    min-height: 480px;
+    gap: 14px;
+  }
+
+  .dishName {
+    font-size: 32px;
+    margin-top: 70px;
+  }
+
+  .dishDesc {
+    font-size: 24px;
+    max-width: 480px;
+  }
+
+  .pricePill {
+    font-size: 16px;
+    padding: 6px 14px;
+  }
+
+  .deliveryText {
+    font-size: 16px;
+  }
+
+  .menuBtnWrap {
+    margin-top: 18px;
+  }
+
+  .menuBtnImg {
+    width: 210px;
+  }
+
+  .menuBtnText {
+    font-size: 18px;
+  }
+
+  .arrowLeft {
+    left: -20px;
+    width: 55px;
+    height: 55px;
+  }
+
+  .arrowRight {
+    right: -25px;
+    width: 55px;
+    height: 55px;
+  }
+}
+
 /* ── Laptop (769px – 1024px): scale pixel values proportionally ──────────── */
 @media (max-width: 1024px) {
   .inner {
@@ -273,143 +362,174 @@
   }
 }
 
-/* ── Tablet & Mobile (≤ 768px): abandon absolute layout, go flow ─────────── */
 @media (max-width: 768px) {
   .inner {
-    /* switch from position context to flex column */
     min-height: unset;
-    padding: 32px 20px 40px;
+    padding: 32px 0 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0;
-  }
-
-  /* reset all absolute-positioned children to flow */
-  .heading {
-    position: static;
-    width: 100%;
-    font-size: clamp(36px, 8vw, 48px);
-    text-align: center;
-    margin-bottom: 16px;
-  }
-
-  .dayBadge {
-    position: static;
-    align-self: center;
-    margin-bottom: 12px;
-  }
-
-  .foodImg {
-    position: static;
-    transform: none;
-    width: min(340px, 80vw);
-    margin-bottom: -24px;
-    /* slight overlap onto card */
-    z-index: 3;
-  }
-
-  .blobWrap {
-    position: static;
-    transform: none;
-    width: 100%;
-    background: #fff8e1;
-    /* fallback card colour matching blob yellow */
-    border-radius: 20px;
+    position: relative;
     overflow: hidden;
   }
 
-  /* hide the blob PNG — replaced by card background */
-  .blob {
-    display: none;
-  }
-
-  .cardBody {
-    padding: 28px 24px 32px;
-    align-items: center;
-    text-align: center;
-  }
-
-  .dishDesc {
-    max-width: 100%;
-  }
-
-  .deliveryRow {
-    justify-content: center;
-  }
-
-  .menuBtn {
-    align-self: center;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-  }
-
-  /* arrows: move below card as prev/next row */
-  .arrowLeft {
-    position: static;
-    transform: none;
-    width: 44px;
-    height: 44px;
-  }
-
-  .arrowRight {
-    position: static;
-    transform: none;
-    width: 44px;
-    height: 44px;
-  }
-
-  /* reorder children into readable flow */
   .heading {
-    order: 1;
+    position: relative;
+    width: 100%;
+    font-family: var(--font-display);
+    font-size: clamp(40px, 9vw, 56px);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 0px;
+    z-index: 6;
+    left: auto;
   }
 
   .dayBadge {
-    order: 2;
+    position: absolute;
+    top: 140px;
+    left: 10%;
+    z-index: 5;
+    background: #dddf00; /* Match bright yellow */
+    color: var(--purple);
+    font-size: 15px;
+    padding: 8px 18px;
+    border-radius: 999px;
   }
 
   .foodImg {
-    order: 3;
+    position: relative;
+    transform: none;
+    width: 85vw;
+    max-width: 420px;
+    left: 0;
+    z-index: 3;
   }
 
-  .blobWrap {
-    order: 4;
+  .arrowLeft,
+  .arrowRight {
+    position: absolute;
+    top: 260px; /* Approximate center of bowl */
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    z-index: 10;
+    margin: 0;
   }
 
   .arrowLeft {
-    order: 5;
-    margin-top: 20px;
-    margin-right: 12px;
+    left: 10px;
   }
 
   .arrowRight {
-    order: 5;
-    margin-top: 20px;
+    right: 10px;
   }
 
-  /* allow arrows to sit side-by-side on the same row */
-  .inner {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-}
-
-/* ── Mobile (≤ 480px) ────────────────────────────────────────────────────── */
-@media (max-width: 480px) {
-  .inner {
-    padding: 24px 16px 32px;
+  .blobWrap {
+    position: relative;
+    transform: none;
+    width: 100%;
+    min-height: auto;
+    left: 0;
+    margin-top: -160px; /* Pull the blob up behind the bowl */
+    z-index: 2;
   }
 
-  .heading {
-    font-size: clamp(30px, 9vw, 40px);
+  .blob {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    object-position: top center;
   }
 
-  .foodImg {
-    width: min(280px, 85vw);
+  .cardBody {
+    position: relative;
+    padding: 160px 20px 40px; /* Provide enough space for bowl overlap */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-sizing: border-box;
+    z-index: 4;
+    min-height: auto;
+    gap: 12px;
   }
 
   .dishName {
-    font-size: 17px;
+    margin-top: 0;
+    font-size: 24px;
+    line-height: 1.1;
+  }
+
+  .dishDesc {
+    max-width: 90%;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .deliveryRow {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 6px;
+  }
+
+  .pricePill {
+    font-size: 14px;
+    padding: 4px 12px;
+  }
+
+  .deliveryText {
+    font-size: 14px;
+  }
+
+  /* Make delivery row and menu button display inline if possible, or stacked closely */
+  .menuBtnWrap {
+    margin-top: 4px;
+    transform: scale(0.85); /* scale down the image button */
+  }
+}
+
+@media (max-width: 480px) {
+  .dayBadge {
+    top: 130px;
+    left: 5%;
+  }
+
+  .heading {
+    font-size: clamp(34px, 10vw, 42px);
+  }
+
+  .foodImg {
+    width: 90vw;
+  }
+
+  .arrowLeft,
+  .arrowRight {
+    top: 240px;
+  }
+  
+  .blobWrap {
+    margin-top: -120px;
+  }
+  
+  .cardBody {
+    padding: 130px 16px 30px;
+    gap: 8px;
+  }
+
+  .dishName {
+    font-size: 20px;
+  }
+
+  .dishDesc {
+    font-size: 14px;
+  }
+  
+  .menuBtnWrap {
+    transform: scale(0.7);
   }
 }

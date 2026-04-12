@@ -291,48 +291,63 @@
 
 @media (max-width: 640px) {
   .inner {
-    padding: 22px 16px 0;
+    padding: 24px 20px 0;
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  .left {
+    align-items: flex-start;
+    text-align: left;
+    gap: 12px;
+  }
+
+  .heading {
+    align-items: flex-start;
   }
 
   .tag {
     font-size: 11px;
+    letter-spacing: 0.05em;
   }
 
   .headingSerif {
-    font-size: clamp(42px, 11vw, 60px);
+    font-size: clamp(42px, 11vw, 56px);
     line-height: 0.95;
+    white-space: normal;
   }
 
   .headingBold {
-    margin-top: 6px;
-    font-size: clamp(40px, 10vw, 56px);
-    line-height: 0.94;
+    margin-top: 4px;
+    font-size: clamp(38px, 10vw, 48px);
+    line-height: 0.95;
+    white-space: normal;
   }
 
   .body {
-    font-size: 15px;
-    line-height: 1.18;
+    display: none;
   }
 
   .cta {
-    min-width: 190px;
-    padding: 14px 28px;
-    font-size: 16px;
+    display: none;
   }
 
   .badges {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
+    margin-top: 8px;
   }
 
   .badge {
-    justify-content: center;
-    font-size: 15px;
+    justify-content: flex-start;
+    font-size: 14px;
   }
 
   .collage {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1 / 0.8;
+    margin-top: 16px;
+    width: 100%;
   }
 
   .glowBlue {
@@ -352,26 +367,30 @@
   }
 
   .bowlTop {
-    top: -4px;
-    right: -10px;
-    width: min(72vw, 276px);
+    top: 30px;
+    left: -40px;
+    right: auto;
+    width: min(65vw, 260px);
   }
 
   .bowlBottom {
-    left: 2px;
-    bottom: -18px;
-    width: min(82vw, 330px);
+    bottom: -10px;
+    right: -40px;
+    left: auto;
+    width: min(70vw, 290px);
   }
 
   .stickerTop {
-    top: 32px;
-    left: 28px;
-    width: min(48vw, 176px);
+    top: 65px;
+    left: 20px;
+    width: min(45vw, 150px);
+    transform: rotate(-3deg);
   }
 
   .stickerBottom {
-    right: 2px;
-    bottom: 36px;
-    width: min(56vw, 214px);
+    bottom: 30px;
+    right: 20px;
+    width: min(50vw, 170px);
+    transform: rotate(3deg);
   }
 }

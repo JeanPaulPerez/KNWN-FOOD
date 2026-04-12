@@ -9,7 +9,7 @@ import crypto from 'node:crypto';
 const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000;
 
 function verifyToken(token: string | undefined, email: string): boolean {
-  const secret = process.env.STRIPE_SECRET_KEY || process.env.WC_CONSUMER_SECRET || '';
+  const secret = process.env.AUTH_SESSION_SECRET || process.env.STRIPE_SECRET_KEY || process.env.WC_CONSUMER_SECRET || '';
   if (!token || !secret) return false;
   const [ts, sig] = token.split('.');
   if (!ts || !sig) return false;
@@ -66,12 +66,13 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { orderId, email: bodyEmail, wcCustomerId: bodyCustomerId } = req.body || {};
+  const { orderId: rawOrderId, email: bodyEmail, wcCustomerId: bodyCustomerId } = req.body || {};
+  const orderId = parseInt(String(rawOrderId), 10);
   const email = bodyEmail || '';
   const wcCustomerId = bodyCustomerId ? Number(bodyCustomerId) : null;
   const token = (req.headers?.authorization as string | undefined)?.replace('Bearer ', '');
 
-  if (!orderId || !email || !verifyToken(token, email)) {
+  if (!orderId || isNaN(orderId) || orderId <= 0 || !email || !verifyToken(token, email)) {
     return res.status(401).json({ error: 'Authentication required' });
   }
 

@@ -215,21 +215,51 @@
   /* color set inline */
 }
 
-/* Sticker */
-.stickerDesktop {
-  pointer-events: none;
+/* Sticker Link Wrappers */
+.stickerLinkDesktop {
   position: absolute;
   bottom: 1.15rem;
   right: -2rem;
   display: none;
-  width: 220px;
-  transform: rotate(-4deg);
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s ease;
+}
+
+.stickerLinkDesktop:hover {
+  transform: scale(1.05);
 }
 
 @media (min-width: 768px) {
-  .stickerDesktop {
+  .stickerLinkDesktop {
     display: block;
   }
+}
+
+.stickerLinkMobile {
+  display: block;
+  margin: 16px auto 0;
+  width: max-content;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 10;
+}
+
+.stickerLinkMobile:hover {
+  transform: scale(1.05);
+}
+
+@media (min-width: 768px) {
+  .stickerLinkMobile {
+    display: none;
+  }
+}
+
+/* Sticker Images */
+.stickerDesktop {
+  display: block;
+  width: 220px;
+  transform: rotate(-4deg);
 }
 
 @media (min-width: 1024px) {
@@ -240,13 +270,6 @@
 
 .stickerMobile {
   display: block;
-  margin: 16px auto 0;
   width: 210px;
   transform: rotate(-4deg);
-}
-
-@media (min-width: 768px) {
-  .stickerMobile {
-    display: none;
-  }
 }

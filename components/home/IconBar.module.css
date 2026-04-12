@@ -7,7 +7,7 @@
 .inner {
   max-width: 1600px;
   margin: 0 auto;
-  padding: 34px 52px 42px;
+  padding: 34px 52px 72px; /* Increased bottom padding */
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 26px;
@@ -69,7 +69,7 @@
 /* ── Laptop (769px – 1024px) ─────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .inner {
-    padding: 28px 28px 34px;
+    padding: 28px 28px 56px;
     gap: 18px;
   }
 
@@ -99,7 +99,7 @@
 @media (max-width: 768px) {
   .inner {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 28px 20px 32px;
+    padding: 28px 20px 52px;
     gap: 22px 18px;
   }
 
@@ -132,7 +132,7 @@
 @media (max-width: 480px) {
   .inner {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 22px 14px 24px;
+    padding: 22px 14px 44px;
     gap: 18px 14px;
   }
 

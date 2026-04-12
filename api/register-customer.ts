@@ -88,7 +88,7 @@ export default async function handler(req: any, res: any) {
       return res.status(502).json({ error: data.message || 'Failed to create account' });
     }
 
-    const secret = process.env.STRIPE_SECRET_KEY || wcCs!;
+    const secret = process.env.AUTH_SESSION_SECRET || process.env.STRIPE_SECRET_KEY || wcCs!;
     return res.json({
       wcCustomerId: data.id,
       name:   `${data.first_name || firstName}`.trim(),

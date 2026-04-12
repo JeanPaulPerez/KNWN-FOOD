@@ -97,7 +97,7 @@ export default function HowItWorks() {
                       className={step.id === activeStepId ? s.pillActive : s.pill}
                       aria-pressed={step.id === activeStepId}
                     >
-                      Step {step.id} &bull; {step.title}
+                      Step {step.id} <span style={{ visibility: 'hidden' }}>&bull;</span> {step.title}
                     </button>
                   </div>
 

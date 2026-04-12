@@ -130,7 +130,7 @@ export default async function handler(req: any, res: any) {
       return res.status(404).json({ error: 'No customer account found for this email' });
     }
     const c = customers[0];
-    const secret = process.env.STRIPE_SECRET_KEY || wcCs!;
+    const secret = process.env.AUTH_SESSION_SECRET || process.env.STRIPE_SECRET_KEY || wcCs!;
     return res.json({
       wcCustomerId: c.id,
       name:   `${c.first_name} ${c.last_name}`.trim(),

@@ -367,6 +367,17 @@ function CheckoutForm({ cart }: { cart: any }) {
     const zip   = form.get('zip') as string;
     const deliveryInstructions = (form.get('deliveryInstructions') as string) || '';
 
+    if (!email.trim()) {
+      setError('Please enter your email address.');
+      setLoading(false);
+      return;
+    }
+    if (!phone.trim()) {
+      setError('Please enter your phone number.');
+      setLoading(false);
+      return;
+    }
+
     if (!DELIVERY_ZIPS.has(zip.trim())) {
       setError(`We only deliver to select Miami, FL zip codes: 33126, 33127, 33128, 33130, 33131, 33132, 33133, 33134, 33137. Please update your ZIP code.`);
       setLoading(false);
@@ -753,7 +764,7 @@ function CheckoutForm({ cart }: { cart: any }) {
                 <h3 className="text-2xl font-bold text-brand-primary mb-6">Order Total</h3>
                 <div className="flex justify-between text-brand-primary/70"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
                 <div className="flex justify-between text-brand-primary/70"><span>Discounts</span><span>-${discountAmount.toFixed(2)}</span></div>
-                <div className="flex justify-between text-brand-primary/70"><span>Shipping</span><span className="uppercase text-brand-primary">FREE</span></div>
+                <div className="flex justify-between text-brand-primary/70"><span>Delivery</span><span className="uppercase text-brand-primary">FREE</span></div>
                 <div className="flex justify-between text-brand-primary/70 pb-4 border-b border-brand-primary/10"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
                 <div className="flex justify-between text-xl font-black text-brand-primary pt-2"><span>Total</span><span>${finalTotal.toFixed(2)}</span></div>
               </div>
