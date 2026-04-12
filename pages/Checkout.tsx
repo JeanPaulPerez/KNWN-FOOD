@@ -121,12 +121,6 @@ function CheckoutForm({ cart }: { cart: any }) {
   const [repeatOrder, setRepeatOrder] = useState(true);
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
-  // ── Billing address state (city/state/zip controlled; street uncontrolled) ─
-  const [addrCity,  setAddrCity]  = useState(deliveryAddress?.city  || 'Miami');
-  const [addrState, setAddrState] = useState(deliveryAddress?.state || 'Florida');
-  const [addrZip,   setAddrZip]   = useState(deliveryAddress?.zip   || '');
-  const streetInputRef = useRef<HTMLInputElement>(null);
-
   // Coupon state
   const [couponInput,   setCouponInput]   = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
@@ -138,63 +132,6 @@ function CheckoutForm({ cart }: { cart: any }) {
   useEffect(() => {
     if (cart.items.length === 0) navigate('/order');
   }, [cart.items.length, navigate]);
-
-  // ── Google Places Autocomplete on the street field ────────────────────────
-  useEffect(() => {
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
-    if (!apiKey) return;
-
-    const initAC = () => {
-      const input = streetInputRef.current;
-      if (!input || !(window as any).google?.maps?.places) return;
-      const ac = new (window as any).google.maps.places.Autocomplete(input, {
-        types: ['address'],
-        componentRestrictions: { country: 'us' },
-        fields: ['address_components'],
-      });
-      ac.addListener('place_changed', () => {
-        const place = ac.getPlace();
-        if (!place?.address_components) return;
-        let streetNum = '', route = '', city = '', state = '', zip = '';
-        for (const c of place.address_components) {
-          if (c.types.includes('street_number'))               streetNum = c.long_name;
-          if (c.types.includes('route'))                       route     = c.long_name;
-          if (c.types.includes('locality'))                    city      = c.long_name;
-          if (c.types.includes('administrative_area_level_1')) state     = c.long_name;
-          if (c.types.includes('postal_code'))                 zip       = c.long_name;
-        }
-        // Update street via DOM (uncontrolled) to avoid React/Places conflict
-        const street = [streetNum, route].filter(Boolean).join(' ');
-        if (streetInputRef.current && street) streetInputRef.current.value = street;
-        if (city)  setAddrCity(city);
-        if (state) setAddrState(state);
-        if (zip)   setAddrZip(zip);
-        if (zip && !DELIVERY_ZIPS.has(zip.trim())) {
-          setError(`We don't deliver to ZIP ${zip}. We cover: ${[...DELIVERY_ZIPS].join(', ')}.`);
-        } else if (zip) {
-          setError('');
-        }
-      });
-    };
-
-    if ((window as any).google?.maps?.places) { initAC(); return; }
-
-    const SCRIPT_ID = 'gmaps-places';
-    if (document.getElementById(SCRIPT_ID)) {
-      const iv = setInterval(() => {
-        if ((window as any).google?.maps?.places) { clearInterval(iv); initAC(); }
-      }, 150);
-      return () => clearInterval(iv);
-    }
-
-    const s = document.createElement('script');
-    s.id   = SCRIPT_ID;
-    s.src  = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=Function.prototype`;
-    s.async = true;
-    s.defer = true;
-    s.onload = initAC;
-    document.head.appendChild(s);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Totals ────────────────────────────────────────────────────────────────
   const subtotal       = cart.total;
@@ -631,15 +568,7 @@ function CheckoutForm({ cart }: { cart: any }) {
               </div>
 
               <div className="relative">
-                <input
-                  required
-                  ref={streetInputRef}
-                  name="street"
-                  type="text"
-                  defaultValue={deliveryAddress?.street || ''}
-                  placeholder="Start typing your address…"
-                  className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/30"
-                />
+                <input required name="street" type="text" defaultValue={deliveryAddress?.street || '6778 West Flagler Street'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                 <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Address</label>
               </div>
 
@@ -649,17 +578,17 @@ function CheckoutForm({ cart }: { cart: any }) {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="relative">
-                  <input required name="city" type="text" value={addrCity} onChange={e => setAddrCity(e.target.value)} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <input required name="city" type="text" defaultValue={deliveryAddress?.city || 'Miami'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">City</label>
                 </div>
                 <div className="relative col-span-1">
-                  <select name="state" value={addrState} onChange={e => setAddrState(e.target.value)} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 appearance-none font-medium text-brand-primary focus:border-brand-primary outline-none">
-                    <option value="Florida">Florida</option>
+                  <select name="state" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 appearance-none font-medium text-brand-primary focus:border-brand-primary outline-none">
+                    <option>{deliveryAddress?.state || 'Florida'}</option>
                   </select>
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">State</label>
                 </div>
                 <div className="relative">
-                  <input required name="zip" type="text" value={addrZip} onChange={e => setAddrZip(e.target.value)} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <input required name="zip" type="text" defaultValue={deliveryAddress?.zip || '33144'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">ZIP Code</label>
                 </div>
               </div>
