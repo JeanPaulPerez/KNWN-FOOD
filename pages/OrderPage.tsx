@@ -18,6 +18,7 @@ function hideBrokenImg(e: React.SyntheticEvent<HTMLImageElement>) {
 // ─── Constants ────────────────────────────────────────────────────────────────
 const MAX_MEALS = 5;
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const DELIVERY_ZIPS = new Set(['33130','33131','33132','33133','33134','33126','33137','33127','33128']);
 const CHECKOUT_ADDRESS_STORAGE_KEY = 'knwn:selected-address';
 const DOW_TO_KEY: Record<number, Weekday> = {
   1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday',
@@ -367,6 +368,7 @@ export default function OrderPage({ cart }: { cart: any }) {
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [placesReady, setPlacesReady] = useState(false);
   const [placesError, setPlacesError] = useState('');
+  const [zipError, setZipError] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const autocompleteServiceRef = React.useRef<any>(null);
@@ -481,6 +483,7 @@ export default function OrderPage({ cart }: { cart: any }) {
 
   const handleAddressChange = (nextValue: string) => {
     setAddress(nextValue);
+    setZipError('');
     if (selectedAddress?.formatted !== nextValue) {
       setSelectedAddress(null);
     }
@@ -509,6 +512,14 @@ export default function OrderPage({ cart }: { cart: any }) {
         }
 
         const nextAddress = normalizePlaceDetails(place, suggestion.description);
+
+        if (nextAddress.zip && !DELIVERY_ZIPS.has(nextAddress.zip)) {
+          setZipError(`Sorry, we don't deliver to ZIP code ${nextAddress.zip}. We currently serve select Miami, FL zip codes: 33126, 33127, 33128, 33130, 33131, 33132, 33133, 33134, 33137.`);
+          setSelectedAddress(null);
+          return;
+        }
+
+        setZipError('');
         setSelectedAddress(nextAddress);
         setAddress(nextAddress.formatted);
         persistAddress(nextAddress);
@@ -537,6 +548,12 @@ export default function OrderPage({ cart }: { cart: any }) {
           placeId: '',
         };
 
+    if (finalAddress.zip && !DELIVERY_ZIPS.has(finalAddress.zip)) {
+      setZipError(`Sorry, we don't deliver to ZIP code ${finalAddress.zip}. We serve select Miami, FL zip codes: 33126, 33127, 33128, 33130, 33131, 33132, 33133, 33134, 33137.`);
+      return;
+    }
+
+    setZipError('');
     setSelectedAddress(finalAddress);
     persistAddress(finalAddress);
     setShowAddressModal(false);
@@ -995,7 +1012,14 @@ export default function OrderPage({ cart }: { cart: any }) {
               )}
             </div>
 
-            {selectedAddress?.formatted && (
+            {zipError && (
+              <div style={{ marginTop: '12px', padding: '12px 14px', borderRadius: '12px', background: '#FFF1EE', border: '1px solid #FDDDD7', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                <span style={{ fontSize: '18px', lineHeight: 1, flexShrink: 0 }}>🚫</span>
+                <p style={{ margin: 0, fontSize: '12px', fontWeight: 600, color: '#B83B1B', lineHeight: 1.5, fontFamily: 'Poppins, sans-serif' }}>{zipError}</p>
+              </div>
+            )}
+
+            {!zipError && selectedAddress?.formatted && (
               <button
                 onClick={handleContinueToCheckout}
                 style={{ marginTop: '10px', width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', background: '#F5F3FF', border: 'none', cursor: 'pointer', fontFamily: 'Poppins, sans-serif' }}
