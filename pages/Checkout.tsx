@@ -121,11 +121,10 @@ function CheckoutForm({ cart }: { cart: any }) {
   const [repeatOrder, setRepeatOrder] = useState(true);
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
-  // ── Billing address controlled state (needed for Places autocomplete) ─────
-  const [addrStreet, setAddrStreet] = useState(deliveryAddress?.street || '');
-  const [addrCity,   setAddrCity]   = useState(deliveryAddress?.city   || 'Miami');
-  const [addrState,  setAddrState]  = useState(deliveryAddress?.state  || 'Florida');
-  const [addrZip,    setAddrZip]    = useState(deliveryAddress?.zip    || '');
+  // ── Billing address state (city/state/zip controlled; street uncontrolled) ─
+  const [addrCity,  setAddrCity]  = useState(deliveryAddress?.city  || 'Miami');
+  const [addrState, setAddrState] = useState(deliveryAddress?.state || 'Florida');
+  const [addrZip,   setAddrZip]   = useState(deliveryAddress?.zip   || '');
   const streetInputRef = useRef<HTMLInputElement>(null);
 
   // Coupon state
@@ -164,7 +163,9 @@ function CheckoutForm({ cart }: { cart: any }) {
           if (c.types.includes('administrative_area_level_1')) state     = c.long_name;
           if (c.types.includes('postal_code'))                 zip       = c.long_name;
         }
-        setAddrStreet([streetNum, route].filter(Boolean).join(' '));
+        // Update street via DOM (uncontrolled) to avoid React/Places conflict
+        const street = [streetNum, route].filter(Boolean).join(' ');
+        if (streetInputRef.current && street) streetInputRef.current.value = street;
         if (city)  setAddrCity(city);
         if (state) setAddrState(state);
         if (zip)   setAddrZip(zip);
@@ -635,9 +636,7 @@ function CheckoutForm({ cart }: { cart: any }) {
                   ref={streetInputRef}
                   name="street"
                   type="text"
-                  autoComplete="off"
-                  value={addrStreet}
-                  onChange={e => setAddrStreet(e.target.value)}
+                  defaultValue={deliveryAddress?.street || ''}
                   placeholder="Start typing your address…"
                   className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/30"
                 />
