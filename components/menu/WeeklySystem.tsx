@@ -12,7 +12,7 @@ const COPY = {
   subtitle: 'Choose between two fresh options every day.',
   vegBadge: 'Vegetarian Options Available',
   tryNowCta: 'TRY NOW',
-  defaultDay: 1, // 0 = Monday … 4 = Friday
+  defaultDay: 0, // 0 = Monday … 4 = Friday
 } as const;
 
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as const;

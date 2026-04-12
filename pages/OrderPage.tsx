@@ -18,7 +18,7 @@ function hideBrokenImg(e: React.SyntheticEvent<HTMLImageElement>) {
 // ─── Constants ────────────────────────────────────────────────────────────────
 const MAX_MEALS = 5;
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-const DELIVERY_ZIPS = new Set(['33130','33131','33132','33133','33134','33126','33137','33127','33128']);
+const DELIVERY_ZIPS = new Set(['33130', '33131', '33132', '33133', '33134', '33126', '33137', '33127', '33128']);
 const CHECKOUT_ADDRESS_STORAGE_KEY = 'knwn:selected-address';
 const DOW_TO_KEY: Record<number, Weekday> = {
   1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday',
@@ -161,7 +161,7 @@ function getWeekdayKey(date: Date): Weekday {
 /** Maps meal names to real food-bg photos (with background, great for cards) */
 const FOOD_BG: Record<string, string> = {
   'mediterranean chicken': '/assets/food-bg/mediterranean-chicken.webp',
-  'bibi bump rice': '/assets/food-bg/bibi-bamp-rice.webp',
+  'bibi bamp rice': '/assets/food-bg/bibi-bamp-rice.webp',
   'carne asada': '/assets/food-bg/carne-asada.webp',
   'chicken lime': '/assets/food-bg/chicken-lime.webp',
   'chicken pesto pasta': '/assets/food-bg/pesto-pasta.webp',
@@ -225,23 +225,29 @@ const CustomizationModal: React.FC<{
     setAvoidList(prev => prev.includes(opt) ? prev.filter(o => o !== opt) : [...prev, opt]);
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm">
+    <div 
+      className="fixed inset-0 z-[500] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <motion.div
         initial={{ opacity: 0, y: '100%' }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
         className="relative bg-white w-full md:max-w-[480px] rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[92dvh] md:max-h-[85vh]"
+        onClick={(e) => e.stopPropagation()}
       >
+        {/* Floating Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-5 left-5 z-[60] rounded-full bg-white/70 backdrop-blur-md shadow-sm p-2.5 text-[#311c67] transition-all hover:bg-white/90"
+        >
+          <X size={20} className="stroke-[3]" />
+        </button>
+
         <div className="overflow-y-auto flex-1 no-scrollbar pb-24">
           {/* Image header */}
           <div className="relative h-64 bg-[#EEEAF8] flex items-center justify-center overflow-hidden">
-            <button
-              onClick={onClose}
-              className="absolute top-5 left-5 z-10 rounded-full bg-[#311c67]/10 p-2.5 text-[#311c67] transition-colors hover:bg-[#311c67]/20"
-            >
-              <X size={20} className="stroke-[3]" />
-            </button>
             <img src={item.image} className="w-full h-full object-cover mix-blend-multiply" alt={item.name} />
           </div>
 
@@ -400,10 +406,18 @@ export default function OrderPage({ cart }: { cart: any }) {
   const items = MENUS[dayKey]?.categories[0]?.items ?? [];
   const countdownLabel = getCountdownLabel();
 
-  const remaining = Math.max(0, MAX_MEALS - cart.itemCount);
-  const progress = Math.min((cart.itemCount / MAX_MEALS) * 100, 100);
-  const discount = cart.itemCount >= MAX_MEALS ? cart.total * 0.1 : 0;
+  const discountRate = cart.itemCount >= 5 ? 0.15 : cart.itemCount >= 3 ? 0.10 : 0;
+  const discount = cart.total * discountRate;
   const displayTotal = cart.total - discount;
+
+  // Progress toward next discount tier
+  const nextTier = cart.itemCount < 3 ? 3 : cart.itemCount < 5 ? 5 : 5;
+  const remaining = Math.max(0, nextTier - cart.itemCount);
+  const progress = cart.itemCount >= 5
+    ? 100
+    : cart.itemCount >= 3
+      ? 50 + ((cart.itemCount - 3) / 2) * 50
+      : (cart.itemCount / 3) * 50;
 
   React.useEffect(() => {
     if (!showAddressModal) return;
@@ -632,9 +646,14 @@ export default function OrderPage({ cart }: { cart: any }) {
               return (
                 <button
                   key={absIdx}
-                  onClick={() => setActiveIdx(absIdx)}
+                  onClick={() => {
+                    setActiveIdx(absIdx);
+                    setTimeout(() => {
+                      document.getElementById('meal-cards')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 50);
+                  }}
                   className={clsx(
-                    'flex h-[105px] w-[126px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
+                    'flex h-[82px] w-[145px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
                     activeIdx === absIdx
                       ? 'border-[#311c67] bg-[#311c67] text-white shadow-[0_12px_24px_rgba(49,28,103,0.28)]'
                       : 'border-[#D1C9E0] bg-white text-[#311c67]/85 hover:border-[#311c67]/35'
@@ -686,7 +705,7 @@ export default function OrderPage({ cart }: { cart: any }) {
           </div>
 
           {/* ── Main grid: 2 meal cards + sidebar ────────────────────────────── */}
-          <div className="relative w-full">
+          <div id="meal-cards" className="relative w-full">
             {/* Soft red / blue glows (CSS) + optional PNGs in /public/images_KNWN/ */}
             <div className="pointer-events-none absolute inset-x-0 -bottom-20 top-[-40px] z-0 overflow-visible md:-bottom-40 md:-top-[60px]">
               <img
@@ -721,11 +740,12 @@ export default function OrderPage({ cart }: { cart: any }) {
                     )}
                     onClick={() => handleAddToWeek(item)}
                   >
-                    <div className="relative flex flex-shrink-0 w-full h-[260px] md:h-[280px] overflow-hidden bg-gray-50 border-b border-[#311c67]/5">
+                    <div className="relative flex flex-shrink-0 w-full h-[260px] md:h-[280px] items-center justify-center overflow-hidden bg-[#FDFDFD] border-b border-[#311c67]/5">
                       <img
                         src={getFoodBgImage(item.name)}
                         alt={item.name}
-                        className={clsx("h-full w-full object-cover transition-transform duration-500",
+                        style={{ objectPosition: 'center center' }}
+                        className={clsx("absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500",
                           (getDateStatus(activeDate) === 'ACTIVE' || getDateStatus(activeDate) === 'PREVIEW') && "group-hover:scale-[1.04]"
                         )}
                       />
@@ -804,9 +824,11 @@ export default function OrderPage({ cart }: { cart: any }) {
 
                   {/* Progress */}
                   <div className="px-5 pt-4">
-                    {remaining > 0 && (
+                    {cart.itemCount < 5 && (
                       <p className="mb-2.5 text-[11px] font-medium text-[#311c67]/58">
-                        Add {remaining} more meal{remaining !== 1 ? 's' : ''} to save 10%
+                        {cart.itemCount < 3
+                          ? `Add ${remaining} more meal${remaining !== 1 ? 's' : ''} to save 10%`
+                          : `Add ${remaining} more meal${remaining !== 1 ? 's' : ''} to save 15%`}
                       </p>
                     )}
                     <div className="mb-5 h-[10px] w-full overflow-hidden rounded-full bg-gray-200">
@@ -901,7 +923,9 @@ export default function OrderPage({ cart }: { cart: any }) {
                   {cart.items.length > 0 && (
                     <div className="mt-auto border-t border-[#DDD6EF] px-5 pb-4 pt-4">
                       {discount > 0 && (
-                        <p className="mb-2.5 text-right text-[10px] font-medium text-[#311c67]/42">You're saving 10%</p>
+                        <p className="mb-2.5 text-right text-[10px] font-medium text-[#311c67]/42">
+                          You're saving {discountRate === 0.15 ? '15%' : '10%'} — ${discount.toFixed(2)} off
+                        </p>
                       )}
                       <button
                         onClick={() => setShowAddressModal(true)}

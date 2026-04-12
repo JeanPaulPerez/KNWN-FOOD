@@ -6,13 +6,13 @@ import { Link } from 'react-router-dom';
 const COPY = {
   eyebrow: 'Our Philosophy',
   heading: {
-    line1: "Busy people don't eat like shit by choice.",
-    line2: 'They eat like shit by default.',
+    line1: "Busy people don't eat like sh*t by choice",
+    line2: 'They eat like sh*t by default',
   },
   bullets: [
-    'Restaurants are overpriced.',
-    'Delivery apps = a pile of fees.',
-    "Meal prep isn't fresh.",
+    'Restaurants are overpriced',
+    'Delivery apps = a pile of fees',
+    "Meal prep isn't fresh",
   ],
   tagline: 'One less daily decision. Real food, handled.',
   cta: 'About Us',
@@ -58,25 +58,27 @@ export default function OurPhilosophy() {
           </h2>
 
           <ul
-            className="space-y-2 text-[22px] text-[#2D1B69] leading-relaxed list-disc list-inside"
-            style={{ fontFamily: 'Poppins, sans-serif', fontWeight: '500', paddingLeft: '2rem' }}
+            className="space-y-[6px] md:space-y-2 text-[17px] md:text-[22px] md:text-[#2D1B69] md:bg-transparent md:p-0 md:rounded-none bg-[#2B1A5A] text-white px-8 py-6 rounded-[16px] leading-relaxed list-disc list-outside ml-4 md:ml-8"
+            style={{ fontFamily: 'Poppins, sans-serif', fontWeight: '500' }}
           >
-            {COPY.bullets.map((b) => <li key={b}>{b}</li>)}
+            {COPY.bullets.map((b) => <li key={b} className="pl-1">{b}</li>)}
           </ul>
 
-          <p
-            className="font-bold text-[#2D1B69] text-[20px] leading-snug"
-            style={{ fontFamily: 'Poppins, sans-serif' }}
-          >
-            {COPY.tagline}
-          </p>
+          <div className="flex flex-row items-center justify-between mt-2 gap-2">
+            <p
+              className="font-medium text-[#2D1B69] md:font-bold md:text-[20px] text-[16px] leading-tight"
+              style={{ fontFamily: 'Poppins, sans-serif' }}
+            >
+              One less daily decision<br/>Real food, handled
+            </p>
 
-          <Link
-            to={COPY.ctaLink}
-            className="self-start px-10 py-4 min-h-[52px] flex items-center bg-[#2D1B69] text-white rounded-full font-semibold text-[16px] hover:opacity-90 transition-opacity mt-2"
-          >
-            {COPY.cta}
-          </Link>
+            <Link
+              to={COPY.ctaLink}
+              className="px-6 py-3 md:px-10 md:py-4 min-h-[44px] md:min-h-[52px] flex items-center bg-[#2D1B69] text-white rounded-full font-semibold text-[14px] md:text-[16px] hover:opacity-90 transition-opacity whitespace-nowrap"
+            >
+              {COPY.cta}
+            </Link>
+          </div>
         </div>
 
       </div>

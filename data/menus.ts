@@ -29,7 +29,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
           },
           {
             id: "m-bb-bump",
-            name: "BIBI Bump Rice",
+            name: "BIBI BAMP RICE",
             description: "Brown rice, Korean-marinated beef, sautéed mushrooms, carrots, zucchini, and a bold gochujang sauce.",
             price: 15.90,
             calories: 650,

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // ─── COPY — edit text here ────────────────────────────────────────────────────
 const COPY = {
@@ -23,6 +24,7 @@ const COMPARISON_ROWS = [
 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
 export default function FindRealLunch() {
+  const navigate = useNavigate();
   return (
     <section style={{ background: '#f4f1ff' }} className="py-10 px-5 md:px-6">
       <div
@@ -109,61 +111,71 @@ export default function FindRealLunch() {
             </div>
 
             {/* Mobile */}
-            <div className="space-y-3 md:hidden">
-              {COMPARISON_ROWS.map((row) => (
-                <div
-                  key={row.label}
-                  className="overflow-hidden rounded-[24px] border-2 shadow-[0_10px_26px_rgba(69,27,10,0.12)]"
-                  style={{ borderColor: '#D75E2B', background: row.highlighted ? '#34206E' : '#FFFFFF' }}
-                >
-                  <div
-                    className="px-5 py-4 text-[18px] font-bold leading-tight"
-                    style={{ color: row.highlighted ? '#FFFFFF' : '#34206E', fontFamily: 'Poppins, sans-serif' }}
-                  >
-                    {row.label}
-                  </div>
-                  <div className="grid grid-cols-2" style={{ borderTop: '2px solid #D75E2B' }}>
-                    {COMPARISON_COLUMNS.map((col, i) => (
-                      <div
-                        key={`${row.label}-${col.compact}`}
-                        className="flex min-h-[78px] flex-col items-center justify-center gap-2 px-3 py-3 text-center"
-                        style={{
-                          borderRight: i % 2 === 0 ? '2px solid #D75E2B' : 'none',
-                          borderBottom: i < 2 ? '2px solid #D75E2B' : 'none',
-                        }}
-                      >
-                        <span
-                          className="text-[12px] font-semibold leading-tight"
-                          style={{ color: row.highlighted ? 'rgba(255,255,255,0.78)' : '#5C4B92', fontFamily: 'Poppins, sans-serif' }}
-                        >
-                          {col.compact}
-                        </span>
-                        {row.checks[i] ? (
-                          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
-                            stroke={row.highlighted ? '#FFFFFF' : '#D75E2B'}
-                            strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        ) : (
-                          <span
-                            className="text-[11px] font-medium"
-                            style={{ color: row.highlighted ? 'rgba(255,255,255,0.28)' : 'rgba(52,32,110,0.24)', fontFamily: 'Poppins, sans-serif' }}
-                          >
-                            --
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+            <div className="md:hidden mt-8 overflow-hidden rounded-[16px] shadow-[0_8px_20px_rgba(43,28,112,0.06)] border border-[#D75E2B]">
+              <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr] bg-white text-center">
+                
+                {/* Header Row */}
+                <div className="flex items-center justify-center bg-[#34206E] text-white font-bold text-[13px] p-2 leading-tight">
+                  Feature
                 </div>
-              ))}
+                <div className="flex items-center justify-center p-2 border-l border-[#D75E2B]">
+                  <span className="font-black text-[#34206E] text-[18px] tracking-tight">K<span className="text-[14px]">N</span>W<span className="text-[14px]">N</span></span>
+                </div>
+                <div className="flex items-center justify-center p-2 border-l text-[#34206E] font-bold text-[10px] leading-[1.1] border-[#D75E2B]">
+                  Meal Prep Service
+                </div>
+                <div className="flex items-center justify-center p-2 border-l text-[#34206E] font-bold text-[10px] leading-[1.1] border-[#D75E2B]">
+                  Restaurant &<br/>Delivery<br/>Apps
+                </div>
+
+                {/* Feature Rows */}
+                {COMPARISON_COLUMNS.map((col, rowIndex) => (
+                  <React.Fragment key={col.compact}>
+                    {/* Row Label */}
+                    <div className="flex items-center justify-start bg-[#E89977] text-white font-bold text-[12px] p-3 border-t border-[#D75E2B]">
+                      {col.compact}
+                    </div>
+                    {/* KNWN Check */}
+                    <div className="flex items-center justify-center bg-[#F9F9F9] border-l border-t border-[#D75E2B]">
+                      {COMPARISON_ROWS[0].checks[rowIndex] && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B1A5A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                    {/* Meal Prep Check */}
+                    <div className="flex items-center justify-center bg-white border-l border-t border-[#D75E2B]">
+                      {COMPARISON_ROWS[1].checks[rowIndex] && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B1A5A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                    {/* Apps Check */}
+                    <div className="flex items-center justify-center bg-white border-l border-t border-[#D75E2B]">
+                      {COMPARISON_ROWS[2].checks[rowIndex] && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B1A5A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                  </React.Fragment>
+                ))}
+
+              </div>
             </div>
 
             {/* Sticker */}
-            <img src={COPY.stickerImage} alt="Try now"
-              className="pointer-events-none absolute bottom-[1.15rem] right-[-2rem] hidden w-[220px] rotate-[-4deg] md:block lg:w-[255px]" />
-            <img src={COPY.stickerImage} alt="Try now"
-              className="mx-auto mt-4 w-[210px] rotate-[-4deg] md:hidden" />
+            <button onClick={() => navigate('/order')} aria-label="Try now — go to order"
+              className="absolute bottom-[1.15rem] right-[-2rem] hidden md:block cursor-pointer bg-transparent border-none p-0 transition-transform duration-200 hover:scale-105 z-10">
+              <img src={COPY.stickerImage} alt="Try now"
+                className="w-[220px] rotate-[-4deg] lg:w-[255px]" />
+            </button>
+            <button onClick={() => navigate('/order')} aria-label="Try now — go to order"
+              className="mx-auto mt-4 block cursor-pointer bg-transparent border-none p-0 md:hidden transition-transform duration-200 hover:scale-105 z-10">
+              <img src={COPY.stickerImage} alt="Try now"
+                className="w-[210px] rotate-[-4deg]" />
+            </button>
           </div>
 
         </div>

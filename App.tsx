@@ -25,7 +25,7 @@ import Header from './components/Header';
 
 const FOOD_BG_MAP: Record<string, string> = {
   'mediterranean chicken': '/assets/food-bg/mediterranean-chicken.webp',
-  'bibi bump rice':        '/assets/food-bg/bibi-bamp-rice.webp',
+  'bibi bamp rice':        '/assets/food-bg/bibi-bamp-rice.webp',
   'carne asada':           '/assets/food-bg/carne-asada.webp',
   'chicken lime':          '/assets/food-bg/chicken-lime.webp',
   'chicken pesto pasta':   '/assets/food-bg/pesto-pasta.webp',
@@ -275,7 +275,6 @@ export default function App() {
             <ul className="text-white/80 text-[10px] md:text-xs font-black uppercase tracking-widest">
               <li><Link to="/menu" className="flex items-center min-h-[44px] hover:text-white transition-colors">Menu</Link></li>
               <li><Link to="/about" className="flex items-center min-h-[44px] hover:text-white transition-colors">Story</Link></li>
-              <li><Link to="/about" className="flex items-center min-h-[44px] hover:text-white transition-colors">Values</Link></li>
             </ul>
           </div>
           <div>

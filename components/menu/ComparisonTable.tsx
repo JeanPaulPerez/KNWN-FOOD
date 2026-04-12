@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import s from './ComparisonTable.module.css';
 
 // ─── COPY — edit text & table data here ───────────────────────────────────────
@@ -129,8 +130,12 @@ export default function ComparisonTable() {
         </div>
 
         {/* Sticker */}
-        <img src={COPY.stickerImage} alt="Try now" className={s.stickerDesktop} />
-        <img src={COPY.stickerImage} alt="Try now" className={s.stickerMobile} />
+        <Link to="/order" className={s.stickerLinkDesktop}>
+          <img src={COPY.stickerImage} alt="Try now" className={s.stickerDesktop} />
+        </Link>
+        <Link to="/order" className={s.stickerLinkMobile}>
+          <img src={COPY.stickerImage} alt="Try now" className={s.stickerMobile} />
+        </Link>
       </div>
 
       </div>

@@ -55,7 +55,6 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
 
         {/* Desktop nav */}
         <nav className={s.nav}>
-          <Link to="/" className={s.navLink}>Home</Link>
           <Link to="/menu" className={s.navLink}>Menu</Link>
           <a href="#" onClick={(e) => handleHowItWorksClick(e)} className={s.navLink}>How it Works</a>
           <Link to="/about" className={s.navLink}>About Us</Link>
@@ -100,7 +99,6 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
         {/* Mobile drawer */}
         {open && (
           <div className={s.drawer}>
-            <Link to="/" className={s.drawerLink} onClick={() => setOpen(false)}>Home</Link>
             <Link to="/menu" className={s.drawerLink} onClick={() => setOpen(false)}>Menu</Link>
             <a href="#" className={s.drawerLink} onClick={(e) => handleHowItWorksClick(e, () => setOpen(false))}>How it Works</a>
             <Link to="/about" className={s.drawerLink} onClick={() => setOpen(false)}>About Us</Link>

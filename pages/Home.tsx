@@ -7,7 +7,6 @@ import ZipCode from '../components/ZipCode';
 import FindRealLunch from '../components/home/FindRealLunch';
 import OurPhilosophy from '../components/home/OurPhilosophy';
 import WeCreateRealFood from '../components/home/WeCreateRealFood';
-import FollowUs from '../components/home/FollowUs';
 
 /* ══════════════════════════════════════════════════════════════════════════════
    HOME PAGE
@@ -19,11 +18,11 @@ export default function Home() {
       {/* ── 1 · HERO ─────────────────────────────────────────────────────────── */}
       <Hero />
 
-      {/* ── 2 · HOW IT WORKS ──────────────────────────────────────────────────── */}
-      <HowItWorks />
-
-      {/* ── 3 · ICON BAR ──────────────────────────────────────────────────────── */}
+      {/* ── 2 · ICON BAR ──────────────────────────────────────────────────────── */}
       <IconBar />
+
+      {/* ── 3 · HOW IT WORKS ──────────────────────────────────────────────────── */}
+      <HowItWorks />
 
       {/* ── 4 · CUSTOMER FAVS ─────────────────────────────────────────────────── */}
       <CustomerFavs />
@@ -41,7 +40,6 @@ export default function Home() {
       <WeCreateRealFood />
 
       {/* ── 8 · FOLLOW US @KNWNFOOD ───────────────────────────────────────────── */}
-      <FollowUs />
 
     </div>
   );

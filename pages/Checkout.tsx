@@ -33,7 +33,7 @@ function getFoodBg(name: string): string {
   const key = name.toLowerCase().trim();
   const FOOD_BG_MAP: Record<string, string> = {
     'mediterranean chicken': '/assets/food-bg/mediterranean-chicken.webp',
-    'bibi bump rice':        '/assets/food-bg/bibi-bamp-rice.webp',
+    'bibi bamp rice':        '/assets/food-bg/bibi-bamp-rice.webp',
     'carne asada':           '/assets/food-bg/carne-asada.webp',
     'chicken lime':          '/assets/food-bg/chicken-lime.webp',
     'chicken pesto pasta':   '/assets/food-bg/pesto-pasta.webp',

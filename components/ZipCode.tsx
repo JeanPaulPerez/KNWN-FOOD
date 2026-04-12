@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, ArrowRight, CheckCircle, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import s from './ZipCode.module.css';
 
 const DELIVERY_ZIPS = new Set(['33130','33131','33132','33133','33134','33126','33137','33127','33128']);
@@ -7,11 +8,16 @@ const DELIVERY_ZIPS = new Set(['33130','33131','33132','33133','33134','33126','
 export default function ZipCode() {
   const [value, setValue] = useState('');
   const [result, setResult] = useState<'valid' | 'invalid' | null>(null);
+  const navigate = useNavigate();
 
   const handleCheck = () => {
     const zip = value.trim();
     if (!zip) return;
-    setResult(DELIVERY_ZIPS.has(zip) ? 'valid' : 'invalid');
+    if (DELIVERY_ZIPS.has(zip)) {
+      navigate('/order');
+    } else {
+      setResult('invalid');
+    }
   };
 
   return (
