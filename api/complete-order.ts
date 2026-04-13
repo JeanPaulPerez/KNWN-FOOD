@@ -1,4 +1,4 @@
-import { DELIVERY_WINDOW_LABEL } from '../lib/orderLifecycle';
+const DELIVERY_WINDOW_LABEL = '10:00 AM - 12:00 PM';
 
 /**
  * api/complete-order.ts
