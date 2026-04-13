@@ -14,7 +14,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Loader2, AlertCircle, Check, Lock, Calendar
+  Loader2, AlertCircle, Check, Lock, Calendar, ChevronDown
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -594,12 +594,19 @@ function CheckoutForm({ cart }: { cart: any }) {
               </div>
 
               <div className="relative">
-                <textarea
+                <select
                   name="deliveryInstructions"
-                  rows={3}
-                  placeholder={`Delivery instructions (optional). Default window: ${DELIVERY_TIME_WINDOW}`}
-                  className="w-full border border-brand-primary/20 rounded-xl px-4 py-4 font-medium text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/40 resize-none"
-                />
+                  className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 appearance-none font-medium text-brand-primary focus:border-brand-primary outline-none cursor-pointer bg-white"
+                >
+                  <option value="">Select an option (optional)</option>
+                  <option value="There is a secure drop off location">There is a secure drop off location</option>
+                  <option value="Delivery person is given access to the office">Delivery person is given access to the office</option>
+                  <option value="I must be called to reception to receive in person">I must be called to reception to receive in person</option>
+                </select>
+                <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase pointer-events-none">
+                  Delivery instructions (Default window: {DELIVERY_TIME_WINDOW})
+                </label>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-primary/40 pointer-events-none" size={18} />
               </div>
             </div>
 

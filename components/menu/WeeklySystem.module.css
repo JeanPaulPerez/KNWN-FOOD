@@ -132,11 +132,12 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  object-position: top center;
+  object-position: center;
   filter: none;
-  transition: opacity 250ms ease;
+  transition: opacity 250ms ease, transform 250ms ease;
   position: relative;
   z-index: 1;
+  transform: scale(1.1);
 }
 
 /* Bottom row */

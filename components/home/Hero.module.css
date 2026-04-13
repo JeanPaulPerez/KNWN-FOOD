@@ -117,7 +117,7 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   font-family: var(--font-ui);
   font-size: 18px;
   font-weight: 500;

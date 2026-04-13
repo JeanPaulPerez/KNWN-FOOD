@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 // ─── COPY — edit text here ────────────────────────────────────────────────────
@@ -28,20 +27,14 @@ export default function OurPhilosophy() {
       <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
 
         {/* LEFT — photo */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="rounded-[2rem] overflow-hidden h-[480px] md:h-[600px] lg:h-full lg:min-h-[580px]"
-        >
+        <div className="rounded-[2rem] overflow-hidden h-[480px] md:h-[600px] lg:h-full lg:min-h-[580px]">
           <img
             src={COPY.image}
             alt={COPY.imageAlt}
             loading="lazy"
             className="w-full h-full object-cover object-center"
           />
-        </motion.div>
+        </div>
 
         {/* RIGHT — text */}
         <div className="flex flex-col justify-center gap-5 md:gap-6 px-0 py-4">

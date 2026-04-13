@@ -141,7 +141,15 @@ export default function WeeklySystem({ onItemSelect }: Props) {
                     alt={item.name}
                     loading="lazy"
                     className={s.cardImage}
-                    style={item.name === 'Chicken Lime' ? { transform: 'scale(1.02)', transformOrigin: 'center -60%' } : undefined}
+                    style={{
+                      transform: 
+                        item.name === 'Chicken Pesto Pasta' ? 'scale(1.24)' :
+                        item.name === 'Chicken Lime' ? 'scale(1.14)' :
+                        item.name === 'Milanesa' ? 'scale(1.16)' :
+                        item.name === 'Carne Asada' ? 'scale(1.14)' :
+                        item.name === 'Mediterranean Chicken' ? 'scale(1.14)' :
+                        'scale(1.1)'
+                    }}
                   />
                 </div>
               </div>

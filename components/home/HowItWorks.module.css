@@ -164,12 +164,13 @@
 
 .desc {
   margin: 0;
-  max-width: 300px;
+  width: 100%;
   font-family: var(--font-ui);
   font-size: 19px;
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: #4a3d8a;
+  text-align: justify;
 }
 
 .exploreBtn {

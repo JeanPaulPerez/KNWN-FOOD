@@ -11,8 +11,8 @@ export default function Hero() {
           <p className={s.tag}>No subscription required</p>
 
           <h1 className={s.heading}>
-            <span className={s.headingSerif}>Made this morning.</span>
-            <span className={s.headingBold}>Delivered by lunch.</span>
+            <span className={s.headingSerif}>Made this morning</span>
+            <span className={s.headingBold}>Delivered by lunch</span>
           </h1>
 
           <p className={s.body}>
