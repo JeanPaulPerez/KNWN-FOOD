@@ -26,9 +26,9 @@ const COMPARISON_ROWS = [
 export default function FindRealLunch() {
   const navigate = useNavigate();
   return (
-    <section style={{ background: '#f4f1ff' }} className="py-10 px-5 md:px-6">
+    <section className="bg-[#F5F3FF] py-10 px-5 md:px-14">
       <div
-        style={{ background: '#DB5A29', borderRadius: '24px', maxWidth: '1400px' }}
+        style={{ background: '#DB5A29', borderRadius: '24px', maxWidth: '1280px' }}
         className="mx-auto py-10 px-5 md:px-12"
       >
         <div className="mx-auto max-w-7xl">

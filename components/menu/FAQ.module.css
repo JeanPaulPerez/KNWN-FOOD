@@ -30,13 +30,13 @@
 
 /* White card container */
 .card {
-  max-width: 1400px;
+  max-width: 1280px;
   margin: 0 auto;
   position: relative;
   overflow: hidden;
   z-index: 1;
   border-radius: 24px;
-  padding: clamp(32px, 4.5vw, 56px) clamp(24px, 5vw, 64px) 24px clamp(24px, 5vw, 64px);
+  padding: clamp(24px, 4vw, 44px) clamp(20px, 4vw, 56px) 20px clamp(20px, 4vw, 56px);
   background: white;
   box-shadow: 0 8px 40px rgba(150, 130, 200, 0.15), 0 2px 12px rgba(150, 130, 200, 0.08);
 }
@@ -70,12 +70,12 @@
 /* Heading block */
 .headingBlock {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
 }
 
 .heading {
   font-family: var(--font-display, "Instrument Serif", serif);
-  font-size: clamp(40px, 5vw, 74px);
+  font-size: clamp(34px, 4.5vw, 64px);
   font-weight: 600;
   line-height: 0.90;
   color: #2D1B69;
@@ -83,10 +83,10 @@
 
 .subheading {
   font-family: "Nothing You Could Do", cursive;
-  font-size: clamp(48px, 2vw, 50px);
+  font-size: clamp(40px, 1.8vw, 44px);
   font-weight: 400;
   color: #db5a29;
-  margin: 15px 0 0 190px;
+  margin: 12px 0 0 160px;
 }
 
 /* Two-column grid */
@@ -96,10 +96,10 @@
   gap: 16px;
 }
 
-@media (min-width: 768px) {
+  @media (min-width: 768px) {
   .grid {
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 18px;
   }
 }
 
@@ -135,7 +135,7 @@
 
 .faqQuestion {
   font-family: Poppins, sans-serif;
-  font-size: clamp(16px, 1.5vw, 22px);
+  font-size: clamp(13px, 1.4vw, 18px);
   line-height: 1.4;
 }
 
@@ -150,9 +150,9 @@
 }
 
 .faqAnswer {
-  padding: 0 clamp(14px, 1.5vw, 20px) clamp(14px, 1.5vw, 20px);
+  padding: 0 clamp(14px, 1.5vw, 20px) clamp(10px, 1.2vw, 16px);
   font-family: Poppins, sans-serif;
-  font-size: clamp(15px, 1.4vw, 20px);
+  font-size: clamp(12px, 1.3vw, 16px);
   line-height: 1.6;
   overflow: hidden;
 }
@@ -179,7 +179,7 @@
 
 .rightBtnText {
   font-family: Poppins, sans-serif;
-  font-size: clamp(16px, 1.5vw, 22px);
+  font-size: clamp(13px, 1.4vw, 18px);
   color: #2D1B69;
   font-weight: 400;
   line-height: 1.4;
@@ -235,8 +235,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: clamp(120px, 12vw, 150px);
-  height: clamp(120px, 12vw, 150px);
+  width: clamp(100px, 10vw, 130px);
+  height: clamp(100px, 10vw, 130px);
   transform: rotate(-10deg);
 }
 
@@ -261,7 +261,7 @@
   z-index: 10;
   text-align: center;
   font-family: Poppins, sans-serif;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.35;
   white-space: pre-line;
@@ -271,7 +271,7 @@
 .emailBlock {
   font-family: Poppins, sans-serif;
   color: #2D1B69;
-  font-size: clamp(16px, 1.4vw, 20px);
+  font-size: clamp(13px, 1.3vw, 16px);
   line-height: 1.4;
 }
 

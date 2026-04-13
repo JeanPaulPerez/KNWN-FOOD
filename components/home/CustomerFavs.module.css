@@ -9,7 +9,7 @@
 /* ─── Inner container ─────────────────────────────────────────────────────── */
 .inner {
   position: relative;
-  max-width: 1400px;
+  max-width: 1280px;
   margin: 0 auto;
   min-height: 680px;
   padding: 100px 0 60px;

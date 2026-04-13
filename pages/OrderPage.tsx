@@ -602,7 +602,7 @@ export default function OrderPage({ cart }: { cart: any }) {
   return (
     <div className="min-h-screen bg-[#EDE8F5]">
       <div className="border-y border-[#D4C8E8] bg-[#E4DCF2]">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-1 text-[#311c67] md:grid-cols-[1fr_360px]">
+        <div className="mx-auto grid max-w-[1280px] grid-cols-1 text-[#311c67] md:grid-cols-[1fr_360px]">
           <div className="flex items-center gap-3 px-6 py-3 text-[13px] font-medium md:px-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
             <Clock3 size={14} className="shrink-0 text-[#311c67]/76" />
             <span className="text-[#311c67]/88">
@@ -621,7 +621,7 @@ export default function OrderPage({ cart }: { cart: any }) {
       </div>
 
       <div className="px-6 pb-24 pt-10 md:px-8 md:pb-32 md:pt-11">
-        <div className="mx-auto w-full min-w-0 max-w-[1400px]">
+        <div className="mx-auto w-full min-w-0 max-w-[1280px]">
 
           {/* ── Page header ──────────────────────────────────────────────────── */}
           <div className="mb-9">
@@ -636,7 +636,7 @@ export default function OrderPage({ cart }: { cart: any }) {
             </p>
           </div>
 
-          {/* ── Day selector (contained to 1400px column) ─────────────────────── */}
+          {/* ── Day selector (contained to 1280px column) ─────────────────────── */}
           <div className="mb-10 flex w-full min-w-0 max-w-full items-center justify-between overflow-x-auto pb-1 gap-2">
 
             {visibleDates.map((date, visibleI) => {

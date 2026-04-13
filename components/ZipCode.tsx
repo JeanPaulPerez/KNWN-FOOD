@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, ArrowRight, CheckCircle, XCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import s from './ZipCode.module.css';
 
 const DELIVERY_ZIPS = new Set(['33130','33131','33132','33133','33134','33126','33137','33127','33128']);
@@ -14,7 +14,7 @@ export default function ZipCode() {
     const zip = value.trim();
     if (!zip) return;
     if (DELIVERY_ZIPS.has(zip)) {
-      navigate('/order');
+      setResult('valid');
     } else {
       setResult('invalid');
     }
@@ -48,10 +48,11 @@ export default function ZipCode() {
           </div>
 
           {result === 'valid' && (
-            <p className={s.resultValid}>
-              <CheckCircle size={14} strokeWidth={2.5} />
-              Great news! We deliver to {value}.
-            </p>
+            <div className={s.resultValidOuter}>
+              <div className={s.resultValidTitle}>
+                You are within our delivery area! <Link to="/order" className={s.menuLink}>View our Menu.</Link>
+              </div>
+            </div>
           )}
           {result === 'invalid' && (
             <p className={s.resultInvalid}>

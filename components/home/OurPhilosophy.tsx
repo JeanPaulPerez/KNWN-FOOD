@@ -23,8 +23,8 @@ const COPY = {
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
 export default function OurPhilosophy() {
   return (
-    <section className="bg-[#F5F3FF] py-14 md:py-20 px-5 md:px-8 lg:px-12">
-      <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
+    <section className="bg-[#F5F3FF] py-14 md:py-20 px-5 md:px-14">
+      <div className="max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
 
         {/* LEFT — photo */}
         <div className="rounded-[2rem] overflow-hidden h-[480px] md:h-[600px] lg:h-full lg:min-h-[580px]">
