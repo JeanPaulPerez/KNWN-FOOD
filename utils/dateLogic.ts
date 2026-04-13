@@ -1,7 +1,7 @@
 
 import { Weekday } from '../types';
 
-export const CUTOFF_HOUR = 10; // 10:00 AM ET
+export const CUTOFF_HOUR = 22; // 10:00 PM ET
 const TIMEZONE = 'America/New_York';
 
 export type DateStatus = 'PAST' | 'TODAY_CLOSED' | 'WEEKEND' | 'ACTIVE' | 'PREVIEW';
@@ -43,19 +43,23 @@ export function findNextServiceDay(fromDate: Date, includeStart: boolean = false
 
 /**
  * Business Rule:
- * 1. If today is a weekday and before 10 AM ET -> Today is the ACTIVE order day.
- * 2. If today is a weekend or after 10 AM ET -> The next available weekday is the ACTIVE order day.
+ * - Always show the NEXT business day's menu (never today).
+ * - After 10 PM ET, tomorrow's menu closes — skip one more business day.
+ *
+ * Examples (ET):
+ *   Monday  9 PM  → Tuesday
+ *   Monday 10 PM  → Wednesday
+ *   Friday 10 PM  → Tuesday  (skips Mon)
  */
 export function calculateActiveOrderDay(): Date {
   const now = getEtNow();
-  const isCurrentlyWeekday = !isWeekend(now);
-  
-  if (isCurrentlyWeekday && now.getHours() < CUTOFF_HOUR) {
-    const today = new Date(now);
-    return today;
+  // Base: next business day from now (always at least tomorrow)
+  let base = findNextServiceDay(now);
+  // After 10 PM the next-day window closes — advance one more business day
+  if (now.getHours() >= CUTOFF_HOUR) {
+    base = findNextServiceDay(base);
   }
-  
-  return findNextServiceDay(now);
+  return base;
 }
 
 /**
