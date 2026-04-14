@@ -325,6 +325,11 @@ function CheckoutForm({ cart }: { cart: any }) {
     const zip   = form.get('zip') as string;
     const deliveryInstructions = (form.get('deliveryInstructions') as string) || '';
 
+    if (!deliveryInstructions) {
+      setError('Please select a delivery instruction.');
+      setLoading(false);
+      return;
+    }
     if (!email.trim()) {
       setError('Please enter your email address.');
       setLoading(false);
@@ -524,9 +529,11 @@ function CheckoutForm({ cart }: { cart: any }) {
               <div className="relative">
                 <select
                   name="deliveryInstructions"
+                  required
+                  defaultValue=""
                   className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 appearance-none font-medium text-brand-primary focus:border-brand-primary outline-none cursor-pointer bg-white"
                 >
-                  <option value="">Select an option (optional)</option>
+                  <option value="" disabled>Select an option</option>
                   <option value="There is a secure drop off location">There is a secure drop off location</option>
                   <option value="Delivery person is given access to the office">Delivery person is given access to the office</option>
                   <option value="I must be called to reception to receive in person">I must be called to reception to receive in person</option>
