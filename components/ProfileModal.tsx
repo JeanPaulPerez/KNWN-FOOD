@@ -9,7 +9,7 @@ interface ProfileModalProps {
   onClose: () => void;
 }
 
-type AuthMode = 'login' | 'register';
+type AuthMode = 'login' | 'register' | 'reset';
 
 async function parseApiResponse<T = any>(response: Response): Promise<T> {
   const raw = await response.text();
@@ -37,6 +37,12 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     password: '',
     confirmPassword: '',
   });
+  const [resetData, setResetData] = useState({
+    email: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -51,6 +57,8 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       password: '',
       confirmPassword: '',
     });
+    setResetData({ email: '', newPassword: '', confirmPassword: '' });
+    setResetSuccess(false);
   }, [isOpen]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -109,6 +117,33 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       register(data);
       onClose();
       navigate('/account');
+    } catch {
+      setError('Connection error. Try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (resetData.newPassword !== resetData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/update-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetData.email, newPassword: resetData.newPassword }),
+      });
+      const data = await parseApiResponse<any>(res);
+      if (!res.ok) {
+        setError(data.error || 'Failed to update password');
+        return;
+      }
+      setResetSuccess(true);
     } catch {
       setError('Connection error. Try again.');
     } finally {
@@ -195,30 +230,80 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           </div>
         ) : (
           <div className="px-8 pb-8 pt-6">
-            <div className="mb-5 flex gap-2 rounded-full bg-brand-primary/5 p-1">
+            <div className="mb-5 flex gap-1 rounded-full bg-brand-primary/5 p-1">
               <button
                 type="button"
-                onClick={() => {
-                  setMode('login');
-                  setError('');
-                }}
-                className={`flex-1 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.2em] ${mode === 'login' ? 'bg-brand-primary text-white' : 'text-brand-primary/55'}`}
+                onClick={() => { setMode('login'); setError(''); setResetSuccess(false); }}
+                className={`flex-1 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.15em] ${mode === 'login' ? 'bg-brand-primary text-white' : 'text-brand-primary/55'}`}
               >
                 Sign in
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setMode('register');
-                  setError('');
-                }}
-                className={`flex-1 rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.2em] ${mode === 'register' ? 'bg-brand-primary text-white' : 'text-brand-primary/55'}`}
+                onClick={() => { setMode('register'); setError(''); setResetSuccess(false); }}
+                className={`flex-1 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.15em] ${mode === 'register' ? 'bg-brand-primary text-white' : 'text-brand-primary/55'}`}
               >
                 Register
               </button>
+              <button
+                type="button"
+                onClick={() => { setMode('reset'); setError(''); setResetSuccess(false); }}
+                className={`flex-1 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.15em] ${mode === 'reset' ? 'bg-brand-primary text-white' : 'text-brand-primary/55'}`}
+              >
+                Reset
+              </button>
             </div>
 
-            {mode === 'login' ? (
+            {mode === 'reset' ? (
+              resetSuccess ? (
+                <div className="text-center py-6 space-y-3">
+                  <p className="text-brand-primary font-semibold text-sm">Password updated!</p>
+                  <p className="text-brand-primary/50 text-xs">You can now sign in with your new password.</p>
+                  <button
+                    type="button"
+                    onClick={() => { setMode('login'); setResetSuccess(false); }}
+                    className="w-full py-4 mt-2 bg-brand-lime text-brand-primary rounded-2xl text-[9px] font-black uppercase tracking-[0.3em]"
+                  >
+                    Go to Sign In
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleReset} className="space-y-3">
+                  <input
+                    required
+                    type="email"
+                    placeholder="Email Address"
+                    value={resetData.email}
+                    onChange={(event) => { setResetData((current) => ({ ...current, email: event.target.value })); setError(''); }}
+                    className="w-full bg-brand-primary/5 border border-transparent rounded-xl px-5 py-4 text-sm text-brand-primary font-medium focus:bg-white focus:border-brand-primary focus:outline-none transition-all placeholder:text-brand-primary/25"
+                  />
+                  <input
+                    required
+                    type="password"
+                    placeholder="New Password"
+                    value={resetData.newPassword}
+                    onChange={(event) => { setResetData((current) => ({ ...current, newPassword: event.target.value })); setError(''); }}
+                    className="w-full bg-brand-primary/5 border border-transparent rounded-xl px-5 py-4 text-sm text-brand-primary font-medium focus:bg-white focus:border-brand-primary focus:outline-none transition-all placeholder:text-brand-primary/25"
+                  />
+                  <input
+                    required
+                    type="password"
+                    placeholder="Confirm New Password"
+                    value={resetData.confirmPassword}
+                    onChange={(event) => { setResetData((current) => ({ ...current, confirmPassword: event.target.value })); setError(''); }}
+                    className="w-full bg-brand-primary/5 border border-transparent rounded-xl px-5 py-4 text-sm text-brand-primary font-medium focus:bg-white focus:border-brand-primary focus:outline-none transition-all placeholder:text-brand-primary/25"
+                  />
+                  {error && <p className="text-[11px] text-red-500 font-medium px-1">{error}</p>}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-4 mt-1 bg-brand-lime text-brand-primary rounded-2xl text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 disabled:opacity-60"
+                  >
+                    {loading ? <><Loader2 size={13} className="animate-spin" /> Updating...</> : 'Update Password'}
+                  </button>
+                </form>
+              )
+            ) : mode === 'login' ? (
               <form onSubmit={handleLogin} className="space-y-3">
                 <input
                   type="email"
