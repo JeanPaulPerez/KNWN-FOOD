@@ -141,21 +141,8 @@ function buildItemMeta(item: any, customerInfo: any): { key: string; value: stri
   if (item.serviceDate) {
     // 'Delivery date' → read by the PHP export (parse_delivery_date expects MM-DD-YY with dashes)
     meta.push({ key: 'Delivery date',     value: formatServiceDateForExport(item.serviceDate) });
-    // Some WordPress export snippets key off this label directly, so keep it machine-readable.
+    // Required by the WordPress PHP export snippet (hardcoded key)
     meta.push({ key: 'Fecha de Servicio', value: formatServiceDateForExport(item.serviceDate) });
-    meta.push({ key: 'Fecha de Servicio Display', value: item.serviceDate });
-    meta.push({ key: 'Service Date ISO',  value: formatServiceDateIso(item.serviceDate) });
-  }
-  if (customerInfo.deliveryTimeWindow || DELIVERY_WINDOW_LABEL) {
-    meta.push({ key: 'Delivery time', value: customerInfo.deliveryTimeWindow || DELIVERY_WINDOW_LABEL });
-    meta.push({ key: 'Delivery Time', value: customerInfo.deliveryTimeWindow || DELIVERY_WINDOW_LABEL });
-    meta.push({ key: 'delivery_time', value: customerInfo.deliveryTimeWindow || DELIVERY_WINDOW_LABEL });
-  }
-  if (customerInfo.address2) {
-    meta.push({ key: 'Address line 2', value: customerInfo.address2 });
-  }
-  if (customerInfo.deliveryInstructions) {
-    meta.push({ key: 'Delivery instructions', value: customerInfo.deliveryInstructions });
   }
   return meta;
 }
