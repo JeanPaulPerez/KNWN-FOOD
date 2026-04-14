@@ -133,7 +133,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/update-password', {
+      const res = await fetch('/api/save-customer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: resetData.email, newPassword: resetData.newPassword }),
