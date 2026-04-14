@@ -643,10 +643,15 @@ export default function OrderPage({ cart }: { cart: any }) {
               const absIdx = windowStart + visibleI;
               const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
               const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              const status = getDateStatus(date);
+              const isPast = status === 'PAST' || status === 'TODAY_CLOSED';
+
               return (
                 <button
                   key={absIdx}
+                  disabled={isPast}
                   onClick={() => {
+                    if (isPast) return;
                     setActiveIdx(absIdx);
                     setTimeout(() => {
                       document.getElementById('meal-cards')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -655,13 +660,17 @@ export default function OrderPage({ cart }: { cart: any }) {
                   className={clsx(
                     'flex h-[82px] w-[145px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
                     activeIdx === absIdx
-                      ? 'border-[#311c67] bg-[#311c67] text-white shadow-[0_12px_24px_rgba(49,28,103,0.28)]'
-                      : 'border-[#D1C9E0] bg-white text-[#311c67]/85 hover:border-[#311c67]/35'
+                      ? 'border-[#311c67] bg-[#311c67] text-white'
+                      : isPast
+                        ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'border-[#D1C9E0] bg-white text-[#311c67]/85 hover:border-[#311c67]/35'
                   )}
                   style={{ fontFamily: 'Poppins, sans-serif' }}
                 >
                   <span className="text-[19px] font-semibold leading-none">{dayShort}</span>
-                  <span className={clsx('mt-1.5 text-[14px] leading-none', activeIdx === absIdx ? 'text-white/80' : 'text-[#311c67]/60')}>
+                  <span className={clsx('mt-1.5 text-[14px] leading-none', 
+                    activeIdx === absIdx ? 'text-white/80' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/60'
+                  )}>
                     {dateStr}
                   </span>
                 </button>
