@@ -24,7 +24,6 @@ import {
   useStripe,
   useElements,
 } from '@stripe/react-stripe-js';
-import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { getActiveOrderInfo } from '../utils/dateLogic';
 import { clsx } from 'clsx';
 import { useUser } from '../store/useUser';
@@ -296,47 +295,6 @@ function CheckoutForm({ cart }: { cart: any }) {
     return () => { pr.off('paymentmethod', onPaymentMethod); };
   }, [stripe]); // runs only when stripe loads
 
-  // ── PayPal — create order ────────────────────────────────────────────────
-  const handlePayPalCreateOrder = useCallback(async () => {
-    const res = await fetch('/api/paypal-create-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amountInCents: Math.round(finalTotalRef.current * 100) }),
-    });
-    if (!res.ok) throw new Error((await res.json()).error || 'PayPal order creation failed');
-    const data = await res.json();
-    return data.id as string;
-  }, []);
-
-  // ── PayPal — on approve ──────────────────────────────────────────────────
-  const handlePayPalApprove = useCallback(async (data: { orderID: string }) => {
-    setLoading(true); setError('');
-    try {
-      const res = await fetch('/api/paypal-capture-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderID: data.orderID }),
-      });
-      if (!res.ok) throw new Error((await res.json()).error || 'PayPal capture failed');
-      const capture = await res.json();
-      const addr    = deliveryAddressRef.current;
-      await completeOrderRef.current({
-        name:            capture.payer?.name  || '',
-        email:           capture.payer?.email || '',
-        phone:           capture.payer?.phone || '',
-        street:          addr?.street || '',
-        city:            addr?.city   || '',
-        state:           addr?.state  || '',
-        zip:             addr?.zip    || '',
-        paymentIntentId: capture.transactionId || null,
-        paymentProvider: 'paypal',
-      });
-    } catch (err: any) {
-      setError(err.message || 'PayPal payment failed');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   // ── Coupon ────────────────────────────────────────────────────────────────
   const handleApplyCoupon = async () => {
@@ -435,7 +393,6 @@ function CheckoutForm({ cart }: { cart: any }) {
 
   if (cart.items.length === 0) return null;
 
-  const hasPayPalClientId = !!import.meta.env.VITE_PAYPAL_CLIENT_ID;
 
   return (
     <div className="bg-[#F5F3FF] min-h-screen pt-8 md:pt-10 pb-20 md:pb-32 px-4 md:px-12 font-sans select-none">
@@ -448,10 +405,10 @@ function CheckoutForm({ cart }: { cart: any }) {
             {/* Express Checkout */}
             <div className="text-center mb-8">
               <span className="text-brand-primary font-bold text-sm block mb-4">Express Payment</span>
-              <div className="flex items-stretch gap-3 w-full">
+              <div className="w-full">
 
                 {/* Apple Pay / Google Pay */}
-                <div className="flex-1 min-h-[52px]">
+                <div className="w-full min-h-[52px]">
                   {paymentRequest ? (
                     <PaymentRequestButtonElement
                       options={{
@@ -465,35 +422,6 @@ function CheckoutForm({ cart }: { cart: any }) {
                     <div className="w-full h-[52px] bg-black/5 text-brand-primary/30 rounded-[0.5rem] flex flex-col items-center justify-center gap-0.5 border border-black/5">
                       <span className="text-[11px] font-bold">Apple / Google Pay</span>
                       <span className="text-[9px] font-medium">Not available on this device</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Stripe Link — integrated in PaymentElement below */}
-                <button
-                  type="button"
-                  className="flex-1 bg-[#00D632] text-[#00691B] rounded-[0.5rem] py-3.5 flex justify-center items-center hover:brightness-110 shadow-sm transition-all font-bold text-lg"
-                  onClick={() => document.getElementById('payment-element-wrap')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  <span className="bg-white/90 px-3 py-0.5 rounded-full inline-flex items-center">
-                    <span className="leading-none transform -translate-y-px">link</span>
-                  </span>
-                </button>
-
-                {/* PayPal */}
-                <div className="flex-1 min-h-[52px]">
-                  {hasPayPalClientId ? (
-                    <PayPalButtons
-                      style={{ layout: 'horizontal', color: 'gold', shape: 'rect', height: 52, tagline: false }}
-                      fundingSource="paypal"
-                      createOrder={handlePayPalCreateOrder}
-                      onApprove={handlePayPalApprove as any}
-                      onError={(err: any) => setError('PayPal error: ' + String(err))}
-                      disabled={loading}
-                    />
-                  ) : (
-                    <div className="w-full h-[52px] bg-[#FFC439]/30 text-[#003087]/30 rounded-[0.5rem] flex items-center justify-center font-black text-lg italic border border-[#FFC439]/20">
-                      PayPal
                     </div>
                   )}
                 </div>
@@ -814,29 +742,17 @@ export default function Checkout({ cart }: { cart: any }) {
   // Compute an approximate initial amount for Elements (subtotal + tax, no tip yet)
   const initialAmountCents = Math.max(100, Math.round(cart.total * (1 + TAX_RATE) * 100));
 
-  const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID || '';
-
   return (
-    <PayPalScriptProvider
+    <Elements
+      stripe={stripePromise}
       options={{
-        clientId: paypalClientId || 'test',
-        currency: 'USD',
-        intent:   'capture',
-        ...(paypalClientId ? {} : { 'data-sdk-integration-source': 'integrationbuilder_sc' }),
+        mode:       'payment',
+        amount:     initialAmountCents,
+        currency:   'usd',
+        appearance: STRIPE_APPEARANCE,
       }}
-      deferLoading={!paypalClientId}
     >
-      <Elements
-        stripe={stripePromise}
-        options={{
-          mode:       'payment',
-          amount:     initialAmountCents,
-          currency:   'usd',
-          appearance: STRIPE_APPEARANCE,
-        }}
-      >
-        <CheckoutForm cart={cart} />
-      </Elements>
-    </PayPalScriptProvider>
+      <CheckoutForm cart={cart} />
+    </Elements>
   );
 }
