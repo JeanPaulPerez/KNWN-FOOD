@@ -102,11 +102,6 @@ export default function ThankYou() {
             </div>
           </div>
 
-          <div className="pt-6 md:pt-8 border-t border-brand-primary/5">
-            <p className="text-[10px] md:text-[11px] text-brand-primary/40 font-medium leading-relaxed italic">
-              Our culinary core initiates preparation between 04:00 and 11:30. A digital update will manifest as your meal transits.
-            </p>
-          </div>
         </div>
 
         {/* Navigation */}
