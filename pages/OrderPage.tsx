@@ -673,7 +673,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                   disabled={isPast}
                   onClick={() => { if (!isPast) setActiveIdx(absIdx); }}
                   className={clsx(
-                    'flex h-[68px] w-[72px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
+                    'flex h-[80px] w-[92px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
                     isPast
                       ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
                       : isActive
@@ -682,8 +682,8 @@ export default function OrderPage({ cart }: { cart: any }) {
                   )}
                   style={{ fontFamily: 'Poppins, sans-serif' }}
                 >
-                  <span className="text-[13px] font-semibold leading-none">{dayShort}</span>
-                  <span className={clsx('mt-1 text-[11px] leading-none', isActive ? 'text-white/75' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/55')}>
+                  <span className="text-[15px] font-semibold leading-none">{dayShort}</span>
+                  <span className={clsx('mt-1.5 text-[12px] leading-none', isActive ? 'text-white/75' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/55')}>
                     {dateStr}
                   </span>
                 </button>
@@ -793,7 +793,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                 className="absolute -bottom-[20%] right-[-10%] w-[800px] max-w-none select-none opacity-35 md:-bottom-[50%] md:right-[-5%] md:w-[1200px]"
               />
             </div>
-            <div className="relative z-[1] flex gap-4 overflow-x-auto pb-6 no-scrollbar snap-x snap-mandatory scroll-smooth md:grid md:grid-cols-2 md:items-stretch md:gap-5 md:overflow-visible md:snap-none md:pb-0 xl:grid-cols-3 xl:gap-8">
+            <div className="relative z-[1] flex gap-4 overflow-x-auto pb-6 no-scrollbar snap-x snap-mandatory scroll-smooth px-5 md:px-0 md:grid md:grid-cols-2 md:items-stretch md:gap-5 md:overflow-visible md:snap-none md:pb-0 xl:grid-cols-3 xl:gap-8">
 
               {/* Meal cards */}
               <AnimatePresence mode="wait">
@@ -804,7 +804,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className={clsx("group relative z-10 flex flex-col h-full w-[85vw] shrink-0 snap-center min-h-[500px] overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_16px_40px_rgba(49,28,103,0.09)] md:w-full md:min-h-[560px] xl:min-h-[620px]",
+                    className={clsx("group relative z-10 flex flex-col h-full w-[calc(100vw-64px)] shrink-0 snap-center min-h-[500px] overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_16px_40px_rgba(49,28,103,0.09)] md:w-full md:min-h-[560px] xl:min-h-[620px]",
                       (getDateStatus(activeDate) === 'ACTIVE' || getDateStatus(activeDate) === 'PREVIEW')
                         ? "cursor-pointer" : "opacity-80"
                     )}
