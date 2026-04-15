@@ -18,6 +18,12 @@ export default function ThankYou() {
     return <Navigate to="/" replace />;
   }
 
+  const serviceDays: string[] = payload.serviceDays?.length
+    ? payload.serviceDays
+    : payload.serviceDay
+    ? [payload.serviceDay]
+    : [];
+
   return (
     <div className="bg-brand-subtle min-h-screen flex items-center justify-center px-4 md:px-6 py-24 md:py-32">
       <motion.div
@@ -60,8 +66,14 @@ export default function ThankYou() {
                 <Calendar size={24} strokeWidth={1.5} />
               </div>
               <div className="space-y-0.5 md:space-y-1">
-                <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black text-brand-primary/30">Service Date</p>
-                <p className="text-sm md:text-base font-serif text-brand-primary leading-tight">{payload.serviceDay}</p>
+                <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black text-brand-primary/30">
+                  {serviceDays.length > 1 ? 'Service Dates' : 'Service Date'}
+                </p>
+                {serviceDays.length > 0 ? serviceDays.map((d, i) => (
+                  <p key={i} className="text-sm md:text-base font-serif text-brand-primary leading-tight">{d}</p>
+                )) : (
+                  <p className="text-sm md:text-base font-serif text-brand-primary leading-tight">—</p>
+                )}
               </div>
             </div>
             <div className="flex gap-4 md:gap-6">
@@ -105,19 +117,23 @@ export default function ThankYou() {
         </div>
 
         {/* Navigation */}
-        <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
+        <div className="flex flex-col items-center gap-6">
           <Link
             to="/"
             className="px-8 md:px-12 py-5 md:py-6 bg-brand-primary text-white rounded-xl md:rounded-[1.5rem] uppercase tracking-[0.4em] text-[9px] md:text-[10px] font-black hover:scale-[1.05] transition-all shadow-2xl shadow-brand-primary/30 active:scale-[0.98] text-center"
           >
             Return Home
           </Link>
-          <Link
-            to="/about"
-            className="px-8 md:px-12 py-5 md:py-6 border border-brand-primary/10 text-brand-primary rounded-xl md:rounded-[1.5rem] uppercase tracking-[0.4em] text-[9px] md:text-[10px] font-black hover:bg-white transition-all active:scale-[0.98] text-center"
-          >
-            The Narrative
-          </Link>
+          <p className="text-xs md:text-sm text-brand-primary/50 font-medium max-w-sm text-center leading-relaxed">
+            If you'd like to cancel your order, please{' '}
+            <Link
+              to="/account"
+              className="text-brand-primary font-black underline underline-offset-2 hover:text-brand-accent transition-colors"
+            >
+              register or log in to your account
+            </Link>
+            {' '}to manage your orders.
+          </p>
         </div>
       </motion.div>
     </div>

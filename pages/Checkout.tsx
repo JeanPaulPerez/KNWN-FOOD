@@ -218,12 +218,12 @@ function CheckoutForm({ cart }: { cart: any }) {
     });
     if (!orderRes.ok) throw new Error((await orderRes.json()).error);
     const data       = await orderRes.json();
-    const serviceDay = itemsSnap[0]?.serviceDate ?? '';
+    const serviceDays = [...new Set(itemsSnap.map((i: any) => i.serviceDate as string))].filter(Boolean);
     cart.clearCart();
     navigate('/thank-you', {
       state: {
         orders:  data.orders,
-        payload: { ...params, serviceDay, items: itemsSnap, total },
+        payload: { ...params, serviceDays, serviceDay: serviceDays[0] ?? '', items: itemsSnap, total },
       },
     });
   }, [cart, navigate]);
