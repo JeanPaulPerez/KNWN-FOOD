@@ -622,27 +622,9 @@ export default function OrderPage({ cart }: { cart: any }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDE8F5]">
-      <div className="border-y border-[#D4C8E8] bg-[#E4DCF2]">
-        {/* Desktop: clock countdown + address */}
-        <div className="hidden md:grid mx-auto max-w-[1280px] text-[#311c67] md:grid-cols-[1fr_360px]">
-          <div className="flex items-center gap-3 px-8 py-3 text-[13px] font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            <Clock3 size={14} className="shrink-0 text-[#311c67]/76" />
-            <span className="text-[#311c67]/88">
-              Place your order within <strong className="font-bold text-[#DB5A29]">{countdownLabel}</strong> for next-day lunch delivery
-            </span>
-          </div>
-          <button
-            onClick={() => setShowAddressModal(true)}
-            className="flex items-center gap-3 border-l border-[#D4C8E8] px-8 py-3 text-left text-[13px] font-medium text-[#311c67]/88"
-            style={{ fontFamily: 'Poppins, sans-serif' }}
-          >
-            <MapPin size={14} className="shrink-0 text-[#311c67]/76" />
-            <span>{address || 'Enter the delivery address'}</span>
-          </button>
-        </div>
-        {/* Mobile: address only */}
-        <div className="md:hidden flex items-center gap-3 px-6 py-3 text-[13px] font-medium text-[#311c67]/80" style={{ fontFamily: 'Poppins, sans-serif' }}>
+    <div className="min-h-screen bg-[#F0ECF8]">
+      <div className="border-b border-[#D4C8E8] bg-[#E4DCF2] md:border-y">
+        <div className="mx-auto flex max-w-[1280px] items-center gap-3 px-6 py-3 text-[13px] font-medium text-[#311c67]/80 md:px-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
           <MapPin size={14} className="shrink-0 text-[#311c67]/60" />
           <button onClick={() => setShowAddressModal(true)} className="text-left">
             {address || 'Enter the delivery address'}
@@ -657,23 +639,21 @@ export default function OrderPage({ cart }: { cart: any }) {
           <div className="mb-6 md:mb-9">
             <h1
               className="text-[#311c67] leading-[0.92]"
-              style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(60px, 6.5vw, 92px)' }}
+              style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(52px, 7vw, 92px)' }}
             >
               This Week's Picks
             </h1>
-            <p className="hidden md:block mt-4 max-w-[650px] text-[16px] leading-[1.55] text-[#311c67]/80 md:text-[17px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              All orders require at least 1-day advance notice. You're viewing meals available for tomorrow and beyond. We'll cook and deliver Monday through Friday.
-            </p>
           </div>
 
-          {/* ── Day selector: Mobile (overflow scroll, all dates) ── */}
-          <div ref={pillContainerRef} className="md:hidden mb-8 flex w-full items-center gap-3 overflow-x-auto pb-2 no-scrollbar">
+          {/* ── Day selector ─────────────────────── */}
+          <div ref={pillContainerRef} className="mb-8 flex w-full items-center gap-4 md:gap-3 overflow-x-auto pb-2 md:pb-4 no-scrollbar">
             {availableDates.map((date, absIdx) => {
               const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
               const datePart = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
               const status = getDateStatus(date);
               const isPast = status === 'PAST' || status === 'TODAY_CLOSED';
               const isActive = activeIdx === absIdx;
+
               return (
                 <button
                   key={absIdx}
@@ -682,6 +662,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                   onClick={() => setActiveIdx(absIdx)}
                   className={clsx(
                     'flex h-[88px] w-[29.5%] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
+                    'md:h-[74px] md:w-[130px]',
                     isPast
                       ? 'border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed opacity-50'
                       : isActive
@@ -690,96 +671,36 @@ export default function OrderPage({ cart }: { cart: any }) {
                   )}
                   style={{ fontFamily: 'Poppins, sans-serif' }}
                 >
-                  <span className="text-[17px] font-semibold leading-none">{dayShort}</span>
-                  <span className={clsx('mt-1.5 text-[12px] font-medium leading-none', isActive ? 'text-white/70' : 'text-[#311c67]/50')}>{datePart}</span>
+                  <span className="text-[17px] md:text-[17px] font-semibold leading-none">{dayShort}</span>
+                  <span className={clsx('mt-1.5 text-[12px] md:text-[12px] font-medium leading-none', isActive ? 'text-white/70' : 'text-[#311c67]/50')}>
+                    {datePart}
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          {/* ── Day selector: Desktop (windowed, with nav arrows) ── */}
-          <div className="hidden md:flex mb-10 w-full min-w-0 max-w-full items-center justify-between overflow-x-auto pb-1 gap-2">
-            {visibleDates.map((date, visibleI) => {
-              const absIdx = windowStart + visibleI;
-              const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
-              const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-              const status = getDateStatus(date);
-              const isPast = status === 'PAST' || status === 'TODAY_CLOSED';
-              return (
-                <button
-                  key={absIdx}
-                  disabled={isPast}
-                  onClick={() => {
-                    if (isPast) return;
-                    setActiveIdx(absIdx);
-                    setTimeout(() => {
-                      document.getElementById('active-day-header')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 50);
-                  }}
-                  className={clsx(
-                    'flex h-[82px] w-[145px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
-                    isPast
-                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
-                      : activeIdx === absIdx
-                        ? 'border-[#311c67] bg-[#311c67] text-white'
-                        : 'border-[#D1C9E0] bg-white text-[#311c67]/85 hover:border-[#311c67]/35'
-                  )}
-                  style={{ fontFamily: 'Poppins, sans-serif' }}
-                >
-                  <span className="text-[19px] font-semibold leading-none">{dayShort}</span>
-                  <span className={clsx('mt-1.5 text-[14px] leading-none',
-                    activeIdx === absIdx ? 'text-white/80' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/60'
-                  )}>{dateStr}</span>
-                </button>
-              );
-            })}
-            <div className="flex items-center shrink-0 gap-3">
-              {canGoBack && (
-                <button onClick={handleBack} className="flex h-[52px] w-[64px] items-center justify-center rounded-full border border-[#D1C9E0] bg-white transition-all hover:brightness-95 shadow-sm">
-                  <ArrowLeft size={24} strokeWidth={2} className="text-[#311c67]" />
-                </button>
-              )}
-              <button
-                onClick={handleArrow}
-                disabled={!canAdvance}
-                className={clsx('flex h-[52px] w-[100px] items-center justify-center rounded-full transition-all',
-                  canAdvance ? 'bg-[#c9c800] hover:brightness-95 shadow-sm' : 'bg-gray-100 cursor-not-allowed opacity-40'
-                )}
-              >
-                <ArrowRight size={30} strokeWidth={2.5} className="text-[#311c67]" />
-              </button>
-            </div>
-          </div>
-
-          {/* ── Date header ──────────────────────────────────────────────────── */}
-          <div id="active-day-header" className="relative z-10 mb-7 w-full md:mb-8 scroll-mt-10">
-            <h2
-              className="text-[34px] font-semibold leading-[1] text-[#311c67] md:text-[47px]"
-              style={{ fontFamily: 'Poppins, sans-serif' }}
-            >
+          {/* ── Active Date Info ── */}
+          <div className="mb-6">
+            <h2 className="text-[34px] font-bold text-[#311c67] md:text-[42px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
               {activeDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             </h2>
-            <p className="mt-1.5 text-[17px] font-medium text-[#311c67]/78 md:text-[21px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            <p className="mt-1 text-[17px] font-medium text-[#311c67]/60" style={{ fontFamily: 'Poppins, sans-serif' }}>
               Delivered by 10 am - 12 pm to your office.
             </p>
           </div>
 
-          {/* ── Countdown Banner (mobile only — desktop is in the top bar) ── */}
-          <div className="md:hidden mb-8 flex items-center gap-3 rounded-xl bg-[#E4DCF2] px-5 py-4 text-[14px] font-medium text-[#311c67]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+          {/* ── Countdown Banner ── */}
+          <div className="mb-8 flex items-center gap-3 rounded-xl bg-[#F0ECF8] px-5 py-4 text-[14px] font-medium text-[#311c67]" style={{ fontFamily: 'Poppins, sans-serif' }}>
             <Clock3 size={18} className="shrink-0" />
             <span>
               Place your order within <strong className="font-bold text-[#DB5A29]">{countdownLabel}</strong> for next-day lunch delivery.
             </span>
           </div>
 
+
+
           <div id="meal-cards" className="relative w-full">
-            {/* Glow images */}
-            <div className="pointer-events-none absolute inset-x-0 -bottom-20 top-[-40px] z-0 overflow-visible md:-bottom-40 md:-top-[60px]">
-              <img src={ORDER_GLOW_RED} alt="" aria-hidden onError={hideBrokenImg}
-                className="absolute -left-[15%] -top-[10%] w-[800px] max-w-none select-none opacity-35 md:-left-[10%] md:-top-[30%] md:w-[1000px]" />
-              <img src={ORDER_GLOW_BLUE} alt="" aria-hidden onError={hideBrokenImg}
-                className="absolute -bottom-[20%] right-[-10%] w-[800px] max-w-none select-none opacity-35 md:-bottom-[50%] md:right-[-5%] md:w-[1200px]" />
-            </div>
             <div className="relative z-[1] flex gap-4 overflow-x-auto pb-8 no-scrollbar snap-x snap-mandatory scroll-smooth md:grid md:grid-cols-2 md:overflow-visible md:snap-none xl:grid-cols-3 xl:gap-8">
 
               {/* Meal cards */}
