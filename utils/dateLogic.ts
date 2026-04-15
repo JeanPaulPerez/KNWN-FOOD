@@ -72,13 +72,9 @@ export function getDateStatus(target: Date): DateStatus {
   const activeKey = toDateKey(calculateActiveOrderDay());
 
   if (targetKey === activeKey) return 'ACTIVE';
-  if (targetKey === todayKey && targetKey !== activeKey) return 'TODAY_CLOSED';
-  
-  const t = new Date(target); t.setHours(0,0,0,0);
-  const n = new Date(now); n.setHours(0,0,0,0);
-  
-  if (t < n) return 'PAST';
-  if (isWeekend(target)) return 'WEEKEND';
+  if (targetKey < todayKey)   return 'PAST';      // strictly before today (ET) → always past
+  if (targetKey === todayKey) return 'TODAY_CLOSED'; // today but not the active day
+  if (isWeekend(target))      return 'WEEKEND';
   
   return 'PREVIEW';
 }

@@ -362,7 +362,13 @@ export default function OrderPage({ cart }: { cart: any }) {
       d.getMonth() === activeOrderDay.getMonth() &&
       d.getFullYear() === activeOrderDay.getFullYear()
     );
-    return idx !== -1 ? idx : 0;
+    if (idx !== -1) return idx;
+    // Fallback: first non-past date (never land on a past date)
+    const firstValid = availableDates.findIndex(d => {
+      const s = getDateStatus(d);
+      return s !== 'PAST' && s !== 'TODAY_CLOSED' && s !== 'WEEKEND';
+    });
+    return firstValid !== -1 ? firstValid : 0;
   }, [availableDates]);
 
   const [activeIdx, setActiveIdx] = useState(defaultIdx);
@@ -399,8 +405,13 @@ export default function OrderPage({ cart }: { cart: any }) {
     if (!canGoBack) return;
     const newWindow = windowStart - WINDOW_SIZE;
     setWindowStart(newWindow);
-    // select first day of new week
-    setActiveIdx(newWindow);
+    // Select first orderable date in the new window (skip past/closed days)
+    const windowDates = availableDates.slice(newWindow, newWindow + WINDOW_SIZE);
+    const firstOrderable = windowDates.findIndex(d => {
+      const s = getDateStatus(d);
+      return s !== 'PAST' && s !== 'TODAY_CLOSED' && s !== 'WEEKEND';
+    });
+    setActiveIdx(newWindow + (firstOrderable !== -1 ? firstOrderable : 0));
   };
   const dayKey = getWeekdayKey(activeDate);
   const items = MENUS[dayKey]?.categories[0]?.items ?? [];
@@ -654,15 +665,15 @@ export default function OrderPage({ cart }: { cart: any }) {
                     if (isPast) return;
                     setActiveIdx(absIdx);
                     setTimeout(() => {
-                      document.getElementById('meal-cards')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      document.getElementById('active-day-header')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }, 50);
                   }}
                   className={clsx(
                     'flex h-[82px] w-[145px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
-                    activeIdx === absIdx
-                      ? 'border-[#311c67] bg-[#311c67] text-white'
-                      : isPast
-                        ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                    isPast
+                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
+                      : activeIdx === absIdx
+                        ? 'border-[#311c67] bg-[#311c67] text-white'
                         : 'border-[#D1C9E0] bg-white text-[#311c67]/85 hover:border-[#311c67]/35'
                   )}
                   style={{ fontFamily: 'Poppins, sans-serif' }}
@@ -701,7 +712,7 @@ export default function OrderPage({ cart }: { cart: any }) {
           </div>
 
           {/* ── Date header ──────────────────────────────────────────────────── */}
-          <div className="relative z-10 mb-7 w-full md:mb-8">
+          <div id="active-day-header" className="relative z-10 mb-7 w-full md:mb-8 scroll-mt-10">
             <h2
               className="text-[41px] font-semibold leading-[1] text-[#311c67] md:text-[47px]"
               style={{ fontFamily: 'Poppins, sans-serif' }}
