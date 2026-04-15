@@ -122,9 +122,9 @@ function roundCurrency(amount: number) {
 }
 
 // ─── Helper: build customization meta_data for a single item ──────────────────
-// KEY RULE: The WP Code Snippet export reads 'Fecha de Servicio' from line item meta
-// for both the "Delivery Date" admin column AND the delivery date range filter.
-// DO NOT change that key — it is hardcoded in the WordPress PHP export snippet.
+// Only keys shown here appear in WooCommerce order emails (line item meta).
+// 'Fecha de Servicio' is stored in order-level meta_data (not here) so the
+// PHP export snippet can still read it without it appearing in the email.
 function buildItemMeta(item: any, customerInfo: any): { key: string; value: string }[] {
   const meta: { key: string; value: string }[] = [];
   const c = item.customizations;
@@ -139,10 +139,8 @@ function buildItemMeta(item: any, customerInfo: any): { key: string; value: stri
     if (c.swap)             meta.push({ key: 'Other',                     value: c.swap });
   }
   if (item.serviceDate) {
-    // 'Delivery date' → read by the PHP export (parse_delivery_date expects MM-DD-YY with dashes)
-    meta.push({ key: 'Delivery date',     value: formatServiceDateForExport(item.serviceDate) });
-    // Required by the WordPress PHP export snippet (hardcoded key)
-    meta.push({ key: 'Fecha de Servicio', value: formatServiceDateForExport(item.serviceDate) });
+    // 'Delivery date' is the only date field shown in the email
+    meta.push({ key: 'Delivery date', value: formatServiceDateForExport(item.serviceDate) });
   }
   return meta;
 }
