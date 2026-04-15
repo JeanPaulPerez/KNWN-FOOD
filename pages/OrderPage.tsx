@@ -386,6 +386,17 @@ export default function OrderPage({ cart }: { cart: any }) {
   const autocompleteServiceRef = React.useRef<any>(null);
   const placesServiceRef = React.useRef<any>(null);
   const sessionTokenRef = React.useRef<any>(null);
+  const pillContainerRef = React.useRef<HTMLDivElement>(null);
+  const activePillRef = React.useRef<HTMLButtonElement>(null);
+
+  // Mobile: auto-scroll pill container to center active date
+  React.useEffect(() => {
+    const container = pillContainerRef.current;
+    const pill = activePillRef.current;
+    if (!container || !pill) return;
+    const scrollTo = pill.offsetLeft - container.clientWidth / 2 + pill.offsetWidth / 2;
+    container.scrollLeft = Math.max(0, scrollTo);
+  }, [activeIdx]);
 
   const activeDate = availableDates[activeIdx];
   const visibleDates = availableDates.slice(windowStart, windowStart + WINDOW_SIZE);
@@ -635,20 +646,53 @@ export default function OrderPage({ cart }: { cart: any }) {
         <div className="mx-auto w-full min-w-0 max-w-[1280px]">
 
           {/* ── Page header ──────────────────────────────────────────────────── */}
-          <div className="mb-9">
+          <div className="mb-6 md:mb-9">
             <h1
               className="text-[#311c67] leading-[0.92]"
-              style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(60px, 6.5vw, 92px)' }}
+              style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(52px, 6.5vw, 92px)' }}
             >
               This Week's Picks
             </h1>
-            <p className="mt-4 max-w-[650px] text-[16px] leading-[1.55] text-[#311c67]/80 md:text-[17px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            <p className="hidden md:block mt-4 max-w-[650px] text-[16px] leading-[1.55] text-[#311c67]/80 md:text-[17px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
               All orders require at least 1-day advance notice. You're viewing meals available for tomorrow and beyond. We'll cook and deliver Monday through Friday.
             </p>
           </div>
 
-          {/* ── Day selector (contained to 1280px column) ─────────────────────── */}
-          <div className="mb-10 flex w-full min-w-0 max-w-full items-center justify-between overflow-x-auto pb-1 gap-2">
+          {/* ── Day selector MOBILE (all dates, compact, scroll) ───────────────── */}
+          <div ref={pillContainerRef} className="md:hidden mb-6 flex w-full gap-2 overflow-x-auto pb-2 no-scrollbar">
+            {availableDates.map((date, absIdx) => {
+              const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
+              const dateStr  = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              const status   = getDateStatus(date);
+              const isPast   = status === 'PAST' || status === 'TODAY_CLOSED';
+              const isActive = activeIdx === absIdx;
+              return (
+                <button
+                  key={absIdx}
+                  ref={isActive ? activePillRef : undefined}
+                  disabled={isPast}
+                  onClick={() => { if (!isPast) setActiveIdx(absIdx); }}
+                  className={clsx(
+                    'flex h-[68px] w-[72px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
+                    isPast
+                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
+                      : isActive
+                        ? 'border-[#311c67] bg-[#311c67] text-white'
+                        : 'border-[#D1C9E0] bg-white text-[#311c67]/85'
+                  )}
+                  style={{ fontFamily: 'Poppins, sans-serif' }}
+                >
+                  <span className="text-[13px] font-semibold leading-none">{dayShort}</span>
+                  <span className={clsx('mt-1 text-[11px] leading-none', isActive ? 'text-white/75' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/55')}>
+                    {dateStr}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ── Day selector DESKTOP (windowed, with nav arrows) ───────────────── */}
+          <div className="hidden md:flex mb-10 w-full min-w-0 max-w-full items-center justify-between overflow-x-auto pb-1 gap-2">
 
             {visibleDates.map((date, visibleI) => {
               const absIdx = windowStart + visibleI;
@@ -712,16 +756,22 @@ export default function OrderPage({ cart }: { cart: any }) {
           </div>
 
           {/* ── Date header ──────────────────────────────────────────────────── */}
-          <div id="active-day-header" className="relative z-10 mb-7 w-full md:mb-8 scroll-mt-10">
+          <div id="active-day-header" className="relative z-10 mb-5 w-full md:mb-7 scroll-mt-10">
             <h2
-              className="text-[41px] font-semibold leading-[1] text-[#311c67] md:text-[47px]"
+              className="text-[32px] font-semibold leading-[1] text-[#311c67] md:text-[41px] md:leading-[1]"
               style={{ fontFamily: 'Poppins, sans-serif' }}
             >
               {activeDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             </h2>
-            <p className="mt-1.5 text-[20px] font-medium text-[#311c67]/78 md:text-[21px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            <p className="mt-1.5 text-[15px] font-medium text-[#311c67]/78 md:text-[20px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
               Delivered by 10 am - 12 pm to your office.
             </p>
+          </div>
+
+          {/* ── Countdown (mobile only — desktop has it in the top bar) ────────── */}
+          <div className="md:hidden mb-6 flex items-center gap-2 rounded-xl bg-[#EDE8F5] px-4 py-3 text-[13px] font-medium text-[#311c67]/80" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            <Clock3 size={14} className="shrink-0 text-[#311c67]/60" />
+            <span>Place your order within <strong className="font-bold text-[#DB5A29]">{countdownLabel}</strong> for next-day lunch delivery.</span>
           </div>
 
           {/* ── Main grid: 2 meal cards + sidebar ────────────────────────────── */}
@@ -743,7 +793,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                 className="absolute -bottom-[20%] right-[-10%] w-[800px] max-w-none select-none opacity-35 md:-bottom-[50%] md:right-[-5%] md:w-[1200px]"
               />
             </div>
-            <div className="relative z-[1] grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3 xl:gap-8">
+            <div className="relative z-[1] flex gap-4 overflow-x-auto pb-6 no-scrollbar snap-x snap-mandatory scroll-smooth md:grid md:grid-cols-2 md:items-stretch md:gap-5 md:overflow-visible md:snap-none md:pb-0 xl:grid-cols-3 xl:gap-8">
 
               {/* Meal cards */}
               <AnimatePresence mode="wait">
@@ -754,7 +804,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className={clsx("group relative z-10 flex flex-col h-full min-h-[560px] xl:min-h-[620px] overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_16px_40px_rgba(49,28,103,0.09)]",
+                    className={clsx("group relative z-10 flex flex-col h-full w-[85vw] shrink-0 snap-center min-h-[500px] overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_16px_40px_rgba(49,28,103,0.09)] md:w-full md:min-h-[560px] xl:min-h-[620px]",
                       (getDateStatus(activeDate) === 'ACTIVE' || getDateStatus(activeDate) === 'PREVIEW')
                         ? "cursor-pointer" : "opacity-80"
                     )}
