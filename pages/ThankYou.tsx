@@ -18,11 +18,14 @@ export default function ThankYou() {
     return <Navigate to="/" replace />;
   }
 
-  const serviceDays: string[] = payload.serviceDays?.length
-    ? payload.serviceDays
-    : payload.serviceDay
-    ? [payload.serviceDay]
-    : [];
+  const serviceDays: string[] = (() => {
+    if (payload.serviceDays?.length) return payload.serviceDays as string[];
+    if (payload.items?.length) {
+      const dates = [...new Set((payload.items as any[]).map((i) => i.serviceDate as string))].filter(Boolean);
+      if (dates.length) return dates;
+    }
+    return payload.serviceDay ? [payload.serviceDay as string] : [];
+  })();
 
   return (
     <div className="bg-brand-subtle min-h-screen flex items-center justify-center px-4 md:px-6 py-24 md:py-32">
