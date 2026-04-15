@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X } from 'lucide-react';
+import { clsx } from 'clsx';
 import s from './FAQ.module.css';
 
 // ─── COPY — edit questions & answers here ─────────────────────────────────────
@@ -54,34 +55,19 @@ const FAQ_RIGHT = [
 // ─── FAQ Item (left column accordion) ────────────────────────────────────────
 const FAQItem: React.FC<{ q: string; a: string; isOpen: boolean; onToggle: () => void; dark?: boolean }> = ({ q, a, isOpen, onToggle, dark }) => (
   <div
-    className={s.faqItem}
+    className={clsx(s.faqItem, isOpen && dark ? s.faqItemOpen : isOpen ? s.faqItemActive : s.faqItemDefault)}
     onClick={onToggle}
-    style={
-      isOpen && dark
-        ? { background: '#2D1B69', borderRadius: '16px' }
-        : isOpen
-          ? { background: 'rgba(45,27,105,0.05)', border: '1.5px solid #2D1B69', borderRadius: '16px' }
-          : { border: '1.5px solid #2D1B69', borderRadius: '9999px', background: '#fff' }
-    }
   >
     <div className={s.faqItemHeader}>
-      <span
-        className={s.faqQuestion}
-        style={{
-          fontFamily: 'Poppins, sans-serif',
-          fontWeight: isOpen ? 700 : 400,
-          color:      isOpen && dark ? '#FFFFFF' : '#2D1B69',
-        }}
-      >
+      <span className={clsx(s.faqQuestion, isOpen && dark ? s.faqQuestionOpen : '')}>
         {q}
       </span>
       <div
-        className={s.faqIcon}
-        style={{ border: isOpen && dark ? '1.5px solid rgba(255,255,255,0.5)' : '1.5px solid #2D1B69' }}
+        className={clsx(s.faqIcon, isOpen && dark ? s.faqIconOpen : '')}
       >
         {isOpen
-          ? <X size={12} color={dark ? '#FFFFFF' : '#2D1B69'} strokeWidth={2.5} />
-          : <Plus size={12} color="#2D1B69" strokeWidth={2} />}
+          ? <X size={12} strokeWidth={2.5} />
+          : <Plus size={12} strokeWidth={2} />}
       </div>
     </div>
     <AnimatePresence>
@@ -93,10 +79,7 @@ const FAQItem: React.FC<{ q: string; a: string; isOpen: boolean; onToggle: () =>
           transition={{ duration: 0.2 }}
           className="overflow-hidden"
         >
-          <p
-            className={s.faqAnswer}
-            style={{ color: dark ? '#ffffff' : 'rgba(45,27,105,0.6)' }}
-          >
+          <p className={clsx(s.faqAnswer, dark ? s.faqAnswerDark : '')}>
             {a}
           </p>
         </motion.div>

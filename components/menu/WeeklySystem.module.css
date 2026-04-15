@@ -137,7 +137,116 @@
   transition: opacity 250ms ease, transform 250ms ease;
   position: relative;
   z-index: 1;
-  transform: scale(1.1);
+}
+
+/* ── Carousel (Mobile Only Settings) ── */
+.carouselContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  margin: 20px auto 0;
+}
+
+.singleCardWrapper {
+  flex: 1;
+  max-width: 500px;
+  display: flex;
+  justify-content: center;
+}
+
+.navBtn {
+  position: absolute;
+  top: 50%;
+  z-index: 50;
+  background: #2D1B69;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: transform 0.2s;
+}
+
+.navBtn:active {
+  transform: translateY(-50%) scale(0.9);
+}
+
+.prevBtn { left: -10px; }
+.nextBtn { right: -10px; }
+
+/* ── Labels (Stickers & Boxes) ── */
+.dishSticker {
+  position: absolute;
+  top: 15%;
+  left: 5%;
+  width: 50%;
+  z-index: 30;
+  transform: rotate(-4deg);
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
+}
+
+.stickerBg {
+  width: 100%;
+  height: auto;
+}
+
+.stickerText {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 16px;
+  color: #2D1B69;
+  padding: 0 10px;
+  text-align: center;
+}
+
+.descriptionBox {
+  position: absolute;
+  bottom: 0%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 75%;
+  z-index: 30;
+  filter: drop-shadow(0 -4px 12px rgba(0,0,0,0.08));
+}
+
+.boxBg {
+  width: 100%;
+  height: auto;
+}
+
+.boxText {
+  position: absolute;
+  inset: 0;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.32;
+  color: #2D1B69;
+  font-weight: 500;
+}
+
+.carouselContainer { display: none; }
+.desktopGrid { display: block; }
+
+@media (max-width: 767px) {
+  .carouselContainer { display: flex; }
+  .desktopGrid { display: none; }
 }
 
 /* Bottom row */

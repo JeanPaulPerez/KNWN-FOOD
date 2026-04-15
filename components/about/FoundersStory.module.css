@@ -137,9 +137,10 @@
 
 .stickerImg {
   width: 100%;
-  max-width: 380px;
+  max-width: 480px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 4px 12px rgba(45, 27, 105, 0.25));
+  rotate: -1deg;
 }
 
 @media (min-width: 768px) {
@@ -167,21 +168,23 @@
 .problemCard {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
+  position: relative;
 }
 
 .problemLabel {
   align-self: flex-start;
   display: inline-block;
   background: #2D1B69;
-  color: white;
+  color: #FFFFFF;
   font-family: Poppins, sans-serif;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-radius: 9999px;
-  padding: 10px 22px;
-  font-size: clamp(16px, 1vw, 18px);
+  font-weight: 700;
+  text-transform: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: clamp(17px, 1.4vw, 24px);
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(45, 27, 105, 0.2);
 }
 
 .problemImgWrap {
@@ -202,11 +205,11 @@
 .problemCard3 {}
 
 .problemImg1 {
-  width: 72%;
+  width: 100%;
   height: auto;
   object-fit: contain;
-  margin-top: -15px;
-  rotate: 6deg;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 }
 
 .problemImg2 {

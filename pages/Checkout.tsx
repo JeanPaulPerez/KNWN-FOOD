@@ -405,7 +405,7 @@ function CheckoutForm({ cart }: { cart: any }) {
         <form id="checkout-form" onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
 
           {/* ── LEFT COLUMN ───────────────────────────────────────────────── */}
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-7 space-y-8 order-2 lg:order-1">
 
             {/* Express Checkout */}
             <div className="text-center mb-8">
@@ -547,8 +547,129 @@ function CheckoutForm({ cart }: { cart: any }) {
 
           </div>
 
-          {/* ── RIGHT COLUMN: ORDER SUMMARY ───────────────────────────────── */}
-          <div className="lg:col-span-5 relative mt-4 md:mt-0">
+          {/* ── MOBILE ONLY: Order Summary top (items + repeat) ─────────────── */}
+          <div className="lg:hidden order-1 bg-white rounded-[2rem] p-8 shadow-sm border border-brand-primary/5">
+            <h2 className="text-2xl font-bold text-brand-primary leading-tight mb-6">Order Summary</h2>
+            <div className="space-y-6">
+              {Object.entries(
+                cart.items.reduce((acc: any, it: any) => {
+                  const ds = it.serviceDate.split(',')[0];
+                  if (!acc[ds]) acc[ds] = [];
+                  acc[ds].push(it);
+                  return acc;
+                }, {})
+              ).map(([day, items]: any, i) => (
+                <div key={i} className="space-y-4">
+                  <h4 className="text-sm font-bold text-brand-primary">{day}</h4>
+                  {items.map((item: any) => {
+                    const c = item.customizations || {};
+                    const choices: string[] = [];
+                    if (c.base)    choices.push(c.base);
+                    if (c.protein) choices.push(c.protein);
+                    if (c.sauce)   choices.push(c.sauce);
+                    if (c.swap)    choices.push(`Swap: ${c.swap}`);
+                    return (
+                      <div key={`m-${item.id}-${item.serviceDate}-${JSON.stringify(c)}`} className="flex gap-4 bg-brand-bg p-4 rounded-3xl border border-gray-100">
+                        <img src={getFoodBg(item.name)} className="w-20 h-20 object-cover rounded-2xl flex-shrink-0" alt={item.name} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-start gap-2">
+                            <h3 className="text-[18px] font-semibold leading-tight text-brand-primary truncate">{item.name}</h3>
+                            <span className="text-[15px] font-serif text-brand-primary flex-shrink-0">${(item.price * item.quantity).toFixed(1)}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-1 text-brand-primary/40">
+                            <Calendar size={11} />
+                            <span className="text-[10px] font-black uppercase tracking-widest">{item.serviceDate.split(',')[0]}</span>
+                          </div>
+                          <div className="mt-1.5 space-y-1">
+                            {(c.isVegetarian || choices.length > 0) && (
+                              <div className="flex flex-wrap items-center gap-1">
+                                {c.isVegetarian && <span className="text-[9px] font-black tracking-wide bg-[#DCFCE7] text-[#16A34A] px-2.5 py-1 rounded-full">🌿 Vegetarian</span>}
+                                {choices.map((ch, ci) => <span key={ci} className="text-[9px] font-semibold bg-brand-subtle text-brand-accent px-2.5 py-1 rounded-full">{ch}</span>)}
+                              </div>
+                            )}
+                            {c.avoid && <p className="text-[9px] text-brand-primary/40 leading-tight"><span className="text-red-400 font-black">✕ </span>{c.avoid}</p>}
+                            {c.vegInstructions && <p className="text-[9px] text-brand-primary/40 italic leading-tight">{c.vegInstructions}</p>}
+                          </div>
+                          <div className="flex items-center justify-between mt-3.5">
+                            <div className="flex items-center bg-white rounded-full border border-gray-100 p-1">
+                              <button type="button" onClick={() => cart.updateQuantity(item.id, item.serviceDate, -1, c)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-brand-bg transition-colors text-brand-primary text-sm font-bold">−</button>
+                              <span className="px-3 text-[13px] text-brand-primary font-black">{item.quantity}</span>
+                              <button type="button" onClick={() => cart.updateQuantity(item.id, item.serviceDate, 1, c)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-brand-bg transition-colors text-brand-primary text-sm font-bold">+</button>
+                            </div>
+                            <button type="button" onClick={() => cart.removeItem(item.id, item.serviceDate, c)} className="text-[10px] uppercase tracking-[0.15em] text-brand-primary/25 hover:text-red-400 transition-colors font-black">Remove</button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 bg-brand-primary/5 border border-brand-primary/10 rounded-2xl p-5 flex items-start gap-4">
+              <button type="button" onClick={() => setRepeatOrder(!repeatOrder)} className={clsx('w-6 h-6 rounded-md flex items-center justify-center mt-0.5 shrink-0 transition-all shadow-sm', repeatOrder ? 'bg-brand-primary' : 'bg-white border border-brand-primary/20')}>
+                {repeatOrder && <Check size={14} className="text-white" strokeWidth={3} />}
+              </button>
+              <div className="cursor-pointer" onClick={() => setRepeatOrder(!repeatOrder)}>
+                <p className="font-bold text-brand-primary leading-tight text-sm">Repeat this order next week?</p>
+                <p className="text-xs text-brand-primary/60 font-medium leading-snug mt-1">Edit or pause until 10 PM the day before delivery.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* ── MOBILE ONLY: Totals + CTA (bottom) ───────────────────────────── */}
+          <div className="lg:hidden order-3 bg-white rounded-[2rem] p-8 shadow-sm border border-brand-primary/5">
+            <div className="flex gap-2">
+              <input type="text" placeholder="Promo Code" value={couponInput} onChange={(e) => setCouponInput(e.target.value)} className="flex-1 border border-brand-primary/20 rounded-xl px-4 py-3 text-sm font-semibold text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/40" />
+              <button type="button" onClick={handleApplyCoupon} className="bg-brand-primary text-white rounded-xl px-6 font-bold text-sm tracking-wider hover:brightness-110">Apply</button>
+            </div>
+            {coupon && <div className="mt-2 text-[10px] text-green-600 font-bold uppercase bg-green-50 px-3 py-1.5 rounded-md inline-block">Code applied: {coupon.code} (-${discountAmount.toFixed(2)})</div>}
+            {couponError && <div className="mt-2 text-[10px] text-red-600 font-bold bg-red-50 px-3 py-1.5 rounded-md inline-block">{couponError}</div>}
+            <div className="mt-6 border border-brand-primary/10 bg-[#FAFAFC] rounded-2xl p-6">
+              <h4 className="font-bold text-brand-primary text-sm mb-1">Add a Tip</h4>
+              <p className="text-xs text-brand-primary/60 mb-4 flex gap-2 items-center">
+                <span className="w-3 h-3 rounded bg-[#00A9E0] text-white flex items-center justify-center"><Check size={8} strokeWidth={4} /></span>
+                Show your support for the KNWN team
+              </p>
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                {[0.10, 0.15, 0.20, 'none'].map((val) => {
+                  const isActive = tipRate === val;
+                  const amount = typeof val === 'number' ? (afterDiscount * val).toFixed(2) : null;
+                  return (
+                    <button key={String(val)} type="button" onClick={() => setTipRate(val as number | 'none')} className={clsx('py-3 flex flex-col items-center justify-center rounded-xl border font-bold transition-all shadow-sm bg-white', isActive ? 'border-[#00D632] shadow-[#00D632]/20 shadow-md ring-1 ring-[#00D632]' : 'border-gray-200 text-brand-primary/60 hover:border-gray-300')}>
+                      <span className={clsx('text-sm', isActive && 'text-brand-primary')}>{val === 'none' ? 'None' : `${(val as number) * 100}%`}</span>
+                      {amount && <span className={clsx('text-[10px] opacity-60', isActive && 'text-brand-primary font-medium')}>${amount}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
+                <div className="px-4 py-3 text-xs text-brand-primary/40 font-semibold flex-1">Custom tip</div>
+                <div className="flex items-center gap-1 border-r border-gray-200 px-3 opacity-30"><span className="px-1 text-lg">−</span><span className="px-1 text-lg">+</span></div>
+                <button type="button" className="px-4 py-3 text-[11px] font-bold text-brand-primary/50 bg-gray-50 uppercase hover:bg-gray-100 transition-colors">Add tip</button>
+              </div>
+              <p className="text-[10px] text-brand-primary/60 font-medium italic mt-4 text-center">Thank you.</p>
+            </div>
+            <div className="mt-8 space-y-4 font-semibold text-sm">
+              <h3 className="text-2xl font-bold text-brand-primary mb-6">Order Total</h3>
+              <div className="flex justify-between text-brand-primary/70"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+              <div className="flex justify-between text-brand-primary/70"><span>Discounts</span><span>-${discountAmount.toFixed(2)}</span></div>
+              <div className="flex justify-between text-brand-primary/70"><span>Delivery</span><span className="uppercase text-brand-primary">FREE</span></div>
+              <div className="flex justify-between text-brand-primary/70 pb-4 border-b border-brand-primary/10"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
+              <div className="flex justify-between text-xl font-black text-brand-primary pt-2"><span>Total</span><span>${finalTotal.toFixed(2)}</span></div>
+            </div>
+            {error && <div className="bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-200 flex gap-2 items-center mt-4"><AlertCircle size={14} />{error}</div>}
+            <div className="mt-8 flex flex-col gap-3">
+              <button type="submit" disabled={loading} className="w-full bg-brand-primary text-white py-5 rounded-xl font-bold text-lg flex justify-center items-center gap-3 hover:brightness-110 shadow-[0_15px_30px_rgba(23,11,85,0.2)] transition-all active:scale-95 disabled:opacity-50">
+                {loading ? <Loader2 size={24} className="animate-spin" /> : <><Lock size={16} className="opacity-60" /> Place Order <span className="text-[#D4E84F] text-2xl font-light transform translate-y-[-2px]">⟶</span></>}
+              </button>
+              <button type="button" onClick={() => navigate('/order')} className="w-full bg-white border border-brand-primary/10 text-brand-primary py-4 rounded-xl font-bold text-sm tracking-wider flex justify-center items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
+                <span className="text-xl transform -translate-y-[1px]">←</span> Continue Shopping
+              </button>
+            </div>
+          </div>
+
+          {/* ── RIGHT COLUMN: ORDER SUMMARY (desktop only) ───────────────────── */}
+          <div className="hidden lg:block lg:col-span-5 lg:order-2 relative mt-4">
             <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-brand-primary/5 sticky top-32">
               <h2 className="text-2xl md:text-[1.7rem] font-bold text-brand-primary leading-tight mb-6">Order Summary</h2>
 

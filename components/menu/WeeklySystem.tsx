@@ -79,7 +79,13 @@ interface Props {
 }
 
 export default function WeeklySystem({ onItemSelect }: Props) {
-  const [activeDay, setActiveDay] = useState<number>(COPY.defaultDay);
+  const [activeDay, setActiveDay] = React.useState<number>(COPY.defaultDay);
+  const [activeItemIndex, setActiveItemIndex] = React.useState(0);
+
+  // Reset active item index when changing day
+  React.useEffect(() => {
+    setActiveItemIndex(0);
+  }, [activeDay]);
 
   const dayKey = DAY_KEYS[activeDay];
   const items = MENUS[dayKey].categories[0].items;
@@ -90,6 +96,9 @@ export default function WeeklySystem({ onItemSelect }: Props) {
     if (!target) return;
     onItemSelect({ item: target, date: getDateForDayIndex(activeDay) });
   };
+
+  const nextItem = () => setActiveItemIndex((prev) => (prev + 1) % items.length);
+  const prevItem = () => setActiveItemIndex((prev) => (prev - 1 + items.length) % items.length);
 
   return (
     <section className={s.section}>
@@ -119,35 +128,89 @@ export default function WeeklySystem({ onItemSelect }: Props) {
           </div>
         </div>
 
-        {/* Meal cards */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeDay}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -14 }}
-            transition={{ duration: 0.25 }}
-            className={s.cardsGrid}
-          >
-            {items.map((item, idx) => (
-              <div key={item.id} className={s.card}>
-                <div className={s.plateWrapper}>
-                  <img src="/assets/icons/plate-shadow.png" alt="" loading="lazy" className={s.plateShadow} />
-                  {item.customizationOptions?.hasVegetarianOption && (
-                    <img src="/assets/icons/hoja.png" alt="" loading="lazy" className={s.vegIcon} />
-                  )}
-                  <img
-                    src={images[idx]}
-                    alt={item.name}
-                    loading={idx === 0 ? 'eager' : 'lazy'}
-                    decoding="async"
-                    className={s.cardImage}
-                  />
+        {/* Meal cards carousel (mobile only) */}
+        <div className={s.carouselContainer}>
+          <button className={`${s.navBtn} ${s.prevBtn}`} onClick={prevItem} aria-label="Previous meal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${activeDay}-${activeItemIndex}`}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className={s.singleCardWrapper}
+            >
+              {items[activeItemIndex] && (
+                <div className={s.card}>
+                  <div className={s.plateWrapper}>
+                    <img src="/assets/icons/plate-shadow.png" alt="" loading="lazy" className={s.plateShadow} />
+                    {items[activeItemIndex].customizationOptions?.hasVegetarianOption && (
+                      <img src="/assets/icons/hoja.png" alt="" loading="lazy" className={s.vegIcon} />
+                    )}
+                    
+                    {/* Dish Name Sticker (Top-Left) */}
+                    <div className={s.dishSticker}>
+                      <img src="/assets/hero-bg/Bloque_amarillo_horizontal.png" alt="" className={s.stickerBg} />
+                      <span className={s.stickerText}>{items[activeItemIndex].name}</span>
+                    </div>
+
+                    <img
+                      src={images[activeItemIndex]}
+                      alt={items[activeItemIndex].name}
+                      loading="lazy"
+                      className={s.cardImage}
+                    />
+                    
+                    {/* Description Box (Bottom) */}
+                    <div className={s.descriptionBox}>
+                      <img src="/assets/hero-bg/Block_amarillo_vertical.png" alt="" className={s.boxBg} />
+                      <p className={s.boxText}>{items[activeItemIndex].description}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          <button className={`${s.navBtn} ${s.nextBtn}`} onClick={nextItem} aria-label="Next meal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+
+        {/* Desktop Grid (hidden on mobile) */}
+        <div className={s.desktopGrid}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeDay}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -14 }}
+              transition={{ duration: 0.25 }}
+              className={s.cardsGrid}
+            >
+              {items.map((item, idx) => (
+                <div key={item.id} className={s.card}>
+                  <div className={s.plateWrapper}>
+                    <img src="/assets/icons/plate-shadow.png" alt="" loading="lazy" className={s.plateShadow} />
+                    {item.customizationOptions?.hasVegetarianOption && (
+                      <img src="/assets/icons/hoja.png" alt="" loading="lazy" className={s.vegIcon} />
+                    )}
+                    <img
+                      src={images[idx]}
+                      alt={item.name}
+                      loading={idx === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                      className={s.cardImage}
+                    />
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
         {/* Bottom row — veg badge + TRY NOW */}
         <div className={s.bottomRow}>

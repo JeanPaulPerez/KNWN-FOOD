@@ -12,7 +12,6 @@ export default function About() {
       <HowWeFixLunch />
       <FoundersStory />
       <KitchenHero />
-      <ZipCode />
     </div>
   );
 }

@@ -9,7 +9,7 @@ const PROBLEM_CARDS = [
     alt: 'Another $22 sad salad',
     cardClass: s.problemCard1,
     imgClass: s.problemImg1,
-    style: { transform: 'rotate(-2deg) translateY(18px)', transformOrigin: 'center bottom' },
+    style: { transform: 'rotate(-4deg) translateY(10px)' },
     imgStyle: { objectFit: 'cover' as const },
   },
   {
@@ -18,7 +18,7 @@ const PROBLEM_CARDS = [
     alt: 'Another pile of delivery fees',
     cardClass: s.problemCard2,
     imgClass: s.problemImg2,
-    style: { transform: 'rotate(1deg)', transformOrigin: 'center bottom' },
+    style: { transform: 'rotate(2deg) translateY(-5px)' },
     imgStyle: { objectFit: 'contain' as const },
   },
   {
@@ -27,7 +27,7 @@ const PROBLEM_CARDS = [
     alt: 'Another fake fresh meal prep',
     cardClass: s.problemCard3,
     imgClass: s.problemImg3,
-    style: { transform: 'rotate(2.5deg) translateY(-22px)', transformOrigin: 'center bottom' },
+    style: { transform: 'rotate(-3deg) translateY(15px)' },
     imgStyle: { objectFit: 'cover' as const },
   },
 ];

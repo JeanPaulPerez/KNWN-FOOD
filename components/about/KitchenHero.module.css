@@ -60,18 +60,22 @@
 }
 
 .eyebrow {
-  font-family: "Instrument Serif", serif;
-  font-style: italic;
-  color: rgba(255, 255, 255, 0.85);
-  letter-spacing: 0.15em;
-  font-size: clamp(13px, 1.8vw, 24px);
+  font-family: "Nothing You Could Do", cursive;
+  color: #FFFFFF;
+  font-size: clamp(28px, 3.5vw, 42px);
+  rotate: -2deg;
+  margin-bottom: -10px;
 }
 
 .heading {
   color: white;
   font-family: Poppins, sans-serif;
-  font-weight: 900;
-  font-size: clamp(24px, 5vw, 69px);
-  line-height: 1.15;
-  max-width: 860px;
+  font-weight: 800;
+  font-size: clamp(38px, 6vw, 75px);
+  line-height: 1.1;
+  max-width: 920px;
+}
+
+.zipWrap {
+  margin-top: 24px;
 }

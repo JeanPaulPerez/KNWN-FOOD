@@ -1,4 +1,5 @@
 import React from 'react';
+import ZipCode from '../ZipCode';
 import s from './KitchenHero.module.css';
 
 // ─── COPY — edit text here ────────────────────────────────────────────────────
@@ -19,6 +20,9 @@ export default function KitchenHero() {
             <p className={s.eyebrow}>{COPY.eyebrow}</p>
             <h2 className={s.heading}>{COPY.heading}</h2>
           </div>
+        </div>
+        <div className={s.zipWrap}>
+          <ZipCode />
         </div>
       </div>
     </section>

@@ -110,71 +110,59 @@ export default function FindRealLunch() {
               </div>
             </div>
 
-            {/* Mobile */}
-            <div className="md:hidden mt-8 overflow-hidden rounded-[16px] shadow-[0_8px_20px_rgba(43,28,112,0.06)] border border-[#D75E2B]">
-              <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr] bg-white text-center">
-                
+            {/* Mobile table (Compressed Full-Width Box - Image 1/3) */}
+            <div className="md:hidden mt-8 -mx-5 w-[calc(100%+40px)] overflow-hidden bg-[#311c67]">
+              <div className="flex flex-col">
                 {/* Header Row */}
-                <div className="flex items-center justify-center bg-[#34206E] text-white font-bold text-[13px] p-2 leading-tight">
-                  Feature
-                </div>
-                <div className="flex items-center justify-center p-2 border-l border-[#D75E2B]">
-                  <span className="font-black text-[#34206E] text-[18px] tracking-tight">K<span className="text-[14px]">N</span>W<span className="text-[14px]">N</span></span>
-                </div>
-                <div className="flex items-center justify-center p-2 border-l text-[#34206E] font-bold text-[10px] leading-[1.1] border-[#D75E2B]">
-                  Meal Prep Service
-                </div>
-                <div className="flex items-center justify-center p-2 border-l text-[#34206E] font-bold text-[10px] leading-[1.1] border-[#D75E2B]">
-                  Restaurant &<br/>Delivery<br/>Apps
+                <div className="grid grid-cols-[1.3fr_1fr_1fr_1fr] bg-[#311c67]">
+                  <div className="flex items-center justify-center p-4 text-[13px] font-extrabold uppercase tracking-widest text-[#FFFFFF]">Feature</div>
+                  <div className="flex items-center justify-center bg-white p-3">
+                    <span className="font-extrabold text-[#311c67] text-[17px] tracking-tight">K<span className="text-[12px]">N</span>W<span className="text-[12px]">N</span></span>
+                  </div>
+                  <div className="flex items-center justify-center p-3 text-center text-white font-extrabold text-[9px] uppercase tracking-widest">Meal Prep</div>
+                  <div className="flex items-center justify-center p-3 text-center text-white font-extrabold text-[9px] uppercase tracking-widest leading-tight">Delivery<br/>Apps</div>
                 </div>
 
                 {/* Feature Rows */}
                 {COMPARISON_COLUMNS.map((col, rowIndex) => (
-                  <React.Fragment key={col.compact}>
-                    {/* Row Label */}
-                    <div className="flex items-center justify-start bg-[#E89977] text-white font-bold text-[12px] p-3 border-t border-[#D75E2B]">
+                  <div key={col.compact} className="grid grid-cols-[1.3fr_1fr_1fr_1fr]">
+                    <div className="flex items-center justify-start bg-[#e8e8e8] px-4 py-4 text-[13px] font-extrabold text-[#311c67] border-t-2 border-white leading-tight">
                       {col.compact}
                     </div>
-                    {/* KNWN Check */}
-                    <div className="flex items-center justify-center bg-[#F9F9F9] border-l border-t border-[#D75E2B]">
+                    {/* KNWN Column (White Highlight - Continuous Vertical Strip) */}
+                    <div className="flex items-center justify-center bg-white">
                       {COMPARISON_ROWS[0].checks[rowIndex] && (
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B1A5A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D75E2B" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
                       )}
                     </div>
-                    {/* Meal Prep Check */}
-                    <div className="flex items-center justify-center bg-white border-l border-t border-[#D75E2B]">
-                      {COMPARISON_ROWS[1].checks[rowIndex] && (
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B1A5A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    {/* Meal Prep */}
+                    <div className="flex items-center justify-center bg-[#e8e8e8] border-l-2 border-t-2 border-white">
+                      {COMPARISON_ROWS[1].checks[rowIndex] ? (
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#311c67" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
-                      )}
+                      ) : <span className="text-[#311c67]/10 font-black text-[15px]">--</span>}
                     </div>
-                    {/* Apps Check */}
-                    <div className="flex items-center justify-center bg-white border-l border-t border-[#D75E2B]">
-                      {COMPARISON_ROWS[2].checks[rowIndex] && (
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B1A5A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    {/* Apps */}
+                    <div className="flex items-center justify-center bg-[#e8e8e8] border-l-2 border-t-2 border-white">
+                      {COMPARISON_ROWS[2].checks[rowIndex] ? (
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#311c67" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
-                      )}
+                      ) : <span className="text-[#311c67]/10 font-black text-[15px]">--</span>}
                     </div>
-                  </React.Fragment>
+                  </div>
                 ))}
-
               </div>
             </div>
 
-            {/* Sticker */}
+            {/* Sticker (Desktop only) */}
             <button onClick={() => navigate('/order')} aria-label="Try now — go to order"
               className="absolute bottom-[1.15rem] right-[-2rem] hidden md:block cursor-pointer bg-transparent border-none p-0 transition-transform duration-200 hover:scale-105 z-10">
               <img src={COPY.stickerImage} alt="Try now"
                 className="w-[220px] rotate-[-4deg] lg:w-[255px]" />
-            </button>
-            <button onClick={() => navigate('/order')} aria-label="Try now — go to order"
-              className="mx-auto mt-4 block cursor-pointer bg-transparent border-none p-0 md:hidden transition-transform duration-200 hover:scale-105 z-10">
-              <img src={COPY.stickerImage} alt="Try now"
-                className="w-[210px] rotate-[-4deg]" />
             </button>
           </div>
 

@@ -51,9 +51,11 @@ export default function HowWeFixLunch() {
             <div className={s.cards}>
               {CARDS.map(({ n, title, body }) => (
                 <div key={n} className={s.card}>
-                  <p className={s.cardTitle}>{title}</p>
-                  <p className={s.cardBody}>{body}</p>
-                  <span className={s.cardNumber}>{n}</span>
+                  <div className={s.cardNumber}>{n}</div>
+                  <div className={s.cardText}>
+                    <p className={s.cardTitle}>{title}</p>
+                    <p className={s.cardBody}>{body}</p>
+                  </div>
                 </div>
               ))}
             </div>
