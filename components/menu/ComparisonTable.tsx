@@ -88,8 +88,8 @@ export default function ComparisonTable() {
               <div className={s.mHeaderCellBrand}>
                 <span className={s.mBrandText}>K<span className={s.mBrandSmall}>N</span>W<span className={s.mBrandSmall}>N</span></span>
               </div>
-              <div className={s.mHeaderCellOther}>Meal Prep{'\n'}Service</div>
-              <div className={s.mHeaderCellOther}>Restaurant{'\n'}& Apps</div>
+              <div className={s.mHeaderCellOther}>{'Meal Prep\nService'}</div>
+              <div className={s.mHeaderCellOther}>{'Restaurant &\nApps'}</div>
             </div>
 
             {/* Feature Rows */}
@@ -98,21 +98,21 @@ export default function ComparisonTable() {
                 <div className={s.mLabelCell}>{col.compact}</div>
                 <div className={s.mCheckCellBrand}>
                   {COMPARISON_ROWS[0].checks[rowIndex] && (
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#311c67" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#311c67" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   )}
                 </div>
                 <div className={s.mCheckCellOther}>
                   {COMPARISON_ROWS[1].checks[rowIndex] ? (
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#311c67" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#311c67" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   ) : <span className={s.mEmpty} />}
                 </div>
                 <div className={s.mCheckCellOther}>
                   {COMPARISON_ROWS[2].checks[rowIndex] ? (
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#311c67" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#311c67" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   ) : <span className={s.mEmpty} />}

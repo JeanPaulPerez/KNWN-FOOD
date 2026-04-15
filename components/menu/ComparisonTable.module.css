@@ -153,31 +153,37 @@
 }
 
 /* ── Mobile table ── */
-.mobileTableContainer {
-  display: block;
-  margin-top: 28px;
-  overflow: visible;
-  border-radius: 18px;
-}
-
 @media (min-width: 768px) {
   .mobileTableContainer {
     display: none;
   }
 }
 
+/* Full-width bleed, padding-top reserves space for the elevated KNWN card */
+.mobileTableContainer {
+  margin: 36px -16px 0;
+  width: calc(100% + 32px);
+  overflow: visible;
+  padding-top: 24px;
+}
+
+@media (max-width: 480px) {
+  .mobileTableContainer {
+    margin: 28px -12px 0;
+    width: calc(100% + 24px);
+  }
+}
+
 .mobileInnerTable {
   display: flex;
   flex-direction: column;
-  border-radius: 18px;
   overflow: hidden;
-  border: 2px solid rgba(49, 28, 103, 0.25);
-  box-shadow: 0 16px 48px rgba(49, 28, 103, 0.20);
 }
 
+/* ── Header ── */
 .mHeaderRow {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  grid-template-columns: 1.35fr 1fr 1.05fr 1.05fr;
   background: #311c67;
   overflow: visible;
 }
@@ -186,38 +192,39 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 20px 16px;
+  padding: 20px 18px;
   font-size: 13px;
   font-weight: 800;
   text-transform: uppercase;
+  letter-spacing: 0.14em;
   color: #FFFFFF;
-  letter-spacing: 0.12em;
   font-family: Poppins, sans-serif;
 }
 
-/* KNWN column — elevated card that floats above the header */
+/* KNWN card — elevated above the navy bar */
 .mHeaderCellBrand {
   background: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 22px 10px 16px;
+  padding: 18px 12px 20px;
   position: relative;
-  top: -12px;
+  top: -24px;
+  margin-bottom: -24px;
   border-radius: 14px 14px 0 0;
-  box-shadow: -6px -4px 18px rgba(49, 28, 103, 0.12), 6px -4px 18px rgba(49, 28, 103, 0.12);
+  box-shadow: -3px -6px 20px rgba(49, 28, 103, 0.16), 3px -6px 20px rgba(49, 28, 103, 0.16);
 }
 
 .mBrandText {
   font-weight: 900;
-  font-size: 20px;
+  font-size: 22px;
   color: #311c67;
   letter-spacing: -0.02em;
   font-family: Poppins, sans-serif;
 }
 
 .mBrandSmall {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .mHeaderCellOther {
@@ -226,33 +233,34 @@
   justify-content: center;
   padding: 14px 8px;
   text-align: center;
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 800;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.80);
-  letter-spacing: 0.06em;
-  line-height: 1.5;
+  letter-spacing: 0.08em;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.85);
   font-family: Poppins, sans-serif;
   white-space: pre-line;
 }
 
+/* ── Data rows ── */
 .mRow {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr 1fr;
-  border-top: 2px solid #DB5A29;
+  grid-template-columns: 1.35fr 1fr 1.05fr 1.05fr;
+  border-top: 2px solid #FFFFFF;
 }
 
 .mLabelCell {
-  background: #DB5A29;
+  background: #E8E8E8;
   display: flex;
   align-items: center;
-  padding: 20px 16px;
-  font-size: 16px;
+  padding: 22px 18px;
+  font-size: 15px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #311c67;
   font-family: Poppins, sans-serif;
-  line-height: 1.2;
-  min-height: 80px;
+  line-height: 1.25;
+  min-height: 84px;
 }
 
 .mCheckCellBrand {
@@ -260,23 +268,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 80px;
+  min-height: 84px;
 }
 
 .mCheckCellOther {
-  background: #F1EFF8;
+  background: #EBEBEB;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-left: 1px solid rgba(219, 90, 41, 0.15);
-  min-height: 80px;
+  border-left: 2px solid #FFFFFF;
+  min-height: 84px;
 }
 
+/* Empty cell marker — a subtle horizontal bar */
 .mEmpty {
   display: inline-block;
-  width: 24px;
+  width: 22px;
   height: 3px;
-  background: rgba(49, 28, 103, 0.20);
+  background: rgba(49, 28, 103, 0.18);
   border-radius: 2px;
 }
 
@@ -301,25 +310,6 @@
   }
 }
 
-.stickerLinkMobile {
-  display: block;
-  margin: 16px auto 0;
-  width: max-content;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  z-index: 10;
-}
-
-.stickerLinkMobile:hover {
-  transform: scale(1.05);
-}
-
-@media (min-width: 768px) {
-  .stickerLinkMobile {
-    display: none;
-  }
-}
-
 /* Sticker Images */
 .stickerDesktop {
   display: block;
@@ -331,10 +321,4 @@
   .stickerDesktop {
     width: 255px;
   }
-}
-
-.stickerMobile {
-  display: block;
-  width: 210px;
-  transform: rotate(-4deg);
 }
