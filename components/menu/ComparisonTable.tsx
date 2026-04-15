@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { clsx } from 'clsx';
 import s from './ComparisonTable.module.css';
 
 // ─── COPY — edit text & table data here ───────────────────────────────────────
@@ -79,62 +80,51 @@ export default function ComparisonTable() {
         </div>
 
         {/* Mobile table */}
-        <div className={s.mobileTable}>
-          {COMPARISON_ROWS.map((row) => (
-            <div
-              key={row.label}
-              className={s.mobileRow}
-              style={{ background: row.highlighted ? '#34206E' : '#FFFFFF' }}
-            >
-              <div
-                className={s.mobileRowLabel}
-                style={{ color: row.highlighted ? '#FFFFFF' : '#34206E' }}
-              >
-                {row.label}
+        <div className={s.mobileTableContainer}>
+          <div className={s.mobileInnerTable}>
+            {/* Header Row */}
+            <div className={s.mHeaderRow}>
+              <div className={s.mHeaderCellLabel}>Feature</div>
+              <div className={s.mHeaderCellBrand}>
+                <span className={s.mBrandText}>K<span className={s.mBrandSmall}>N</span>W<span className={s.mBrandSmall}>N</span></span>
               </div>
-              <div className={s.mobileGrid}>
-                {COMPARISON_COLUMNS.map((col, i) => (
-                  <div
-                    key={`${row.label}-${col.compact}`}
-                    className={s.mobileCell}
-                    style={{
-                      borderRight:  i % 2 === 0 ? '2px solid #D75E2B' : 'none',
-                      borderBottom: i < 2       ? '2px solid #D75E2B' : 'none',
-                    }}
-                  >
-                    <span
-                      className={s.mobileCellLabel}
-                      style={{ color: row.highlighted ? 'rgba(255,255,255,0.78)' : '#5C4B92' }}
-                    >
-                      {col.compact}
-                    </span>
-                    {row.checks[i] ? (
-                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
-                        stroke={row.highlighted ? '#FFFFFF' : '#D75E2B'}
-                        strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    ) : (
-                      <span
-                        className={s.mobileCellEmpty}
-                        style={{ color: row.highlighted ? 'rgba(255,255,255,0.28)' : 'rgba(52,32,110,0.24)' }}
-                      >
-                        --
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <div className={s.mHeaderCellOther}>Meal Prep{'\n'}Service</div>
+              <div className={s.mHeaderCellOther}>Restaurant{'\n'}& Apps</div>
             </div>
-          ))}
+
+            {/* Feature Rows */}
+            {COMPARISON_COLUMNS.map((col, rowIndex) => (
+              <div key={col.compact} className={s.mRow}>
+                <div className={s.mLabelCell}>{col.compact}</div>
+                <div className={s.mCheckCellBrand}>
+                  {COMPARISON_ROWS[0].checks[rowIndex] && (
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#311c67" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </div>
+                <div className={s.mCheckCellOther}>
+                  {COMPARISON_ROWS[1].checks[rowIndex] ? (
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#311c67" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : <span className={s.mEmpty} />}
+                </div>
+                <div className={s.mCheckCellOther}>
+                  {COMPARISON_ROWS[2].checks[rowIndex] ? (
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#311c67" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : <span className={s.mEmpty} />}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Sticker */}
+        {/* Sticker (Desktop Only) */}
         <Link to="/order" className={s.stickerLinkDesktop}>
           <img src={COPY.stickerImage} alt="Try now" loading="lazy" className={s.stickerDesktop} />
-        </Link>
-        <Link to="/order" className={s.stickerLinkMobile}>
-          <img src={COPY.stickerImage} alt="Try now" className={s.stickerMobile} />
         </Link>
       </div>
 

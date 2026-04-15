@@ -153,66 +153,131 @@
 }
 
 /* ── Mobile table ── */
-.mobileTable {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.mobileTableContainer {
+  display: block;
+  margin-top: 28px;
+  overflow: visible;
+  border-radius: 18px;
 }
 
 @media (min-width: 768px) {
-  .mobileTable {
+  .mobileTableContainer {
     display: none;
   }
 }
 
-.mobileRow {
-  overflow: hidden;
-  border-radius: 24px;
-  border: 2px solid #D75E2B;
-  box-shadow: 0 10px 26px rgba(69, 27, 10, 0.12);
-  /* background set inline */
-}
-
-.mobileRowLabel {
-  padding: 16px 20px;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.2;
-  font-family: Poppins, sans-serif;
-  /* color set inline */
-}
-
-.mobileGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-top: 2px solid #D75E2B;
-}
-
-.mobileCell {
+.mobileInnerTable {
   display: flex;
-  min-height: 78px;
   flex-direction: column;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 2px solid rgba(49, 28, 103, 0.25);
+  box-shadow: 0 16px 48px rgba(49, 28, 103, 0.20);
+}
+
+.mHeaderRow {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  background: #311c67;
+  overflow: visible;
+}
+
+.mHeaderCellLabel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 16px;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  letter-spacing: 0.12em;
+  font-family: Poppins, sans-serif;
+}
+
+/* KNWN column — elevated card that floats above the header */
+.mHeaderCellBrand {
+  background: #FFFFFF;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px;
+  padding: 22px 10px 16px;
+  position: relative;
+  top: -12px;
+  border-radius: 14px 14px 0 0;
+  box-shadow: -6px -4px 18px rgba(49, 28, 103, 0.12), 6px -4px 18px rgba(49, 28, 103, 0.12);
+}
+
+.mBrandText {
+  font-weight: 900;
+  font-size: 20px;
+  color: #311c67;
+  letter-spacing: -0.02em;
+  font-family: Poppins, sans-serif;
+}
+
+.mBrandSmall {
+  font-size: 14px;
+}
+
+.mHeaderCellOther {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 8px;
   text-align: center;
-  /* dynamic borders set inline */
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.80);
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  font-family: Poppins, sans-serif;
+  white-space: pre-line;
 }
 
-.mobileCellLabel {
-  font-size: 12px;
-  font-weight: 600;
+.mRow {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  border-top: 2px solid #DB5A29;
+}
+
+.mLabelCell {
+  background: #DB5A29;
+  display: flex;
+  align-items: center;
+  padding: 20px 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #FFFFFF;
+  font-family: Poppins, sans-serif;
   line-height: 1.2;
-  font-family: Poppins, sans-serif;
-  /* color set inline */
+  min-height: 80px;
 }
 
-.mobileCellEmpty {
-  font-size: 11px;
-  font-weight: 500;
-  font-family: Poppins, sans-serif;
-  /* color set inline */
+.mCheckCellBrand {
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+}
+
+.mCheckCellOther {
+  background: #F1EFF8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid rgba(219, 90, 41, 0.15);
+  min-height: 80px;
+}
+
+.mEmpty {
+  display: inline-block;
+  width: 24px;
+  height: 3px;
+  background: rgba(49, 28, 103, 0.20);
+  border-radius: 2px;
 }
 
 /* Sticker Link Wrappers */
