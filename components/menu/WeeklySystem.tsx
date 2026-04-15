@@ -23,32 +23,32 @@ const DAY_KEYS: Weekday[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'frid
 
 // ── Monday ───────────────────────────────────────────────────────────────────
 const MONDAY: [string, string] = [
-  '/assets/menu/Menu_Platos/Monday/4.png',   // left plate
-  '/assets/menu/Menu_Platos/Monday/3.png',   // right plate
+  '/assets/menu/Menu_Platos/Monday/4.webp',   // left plate
+  '/assets/menu/Menu_Platos/Monday/3.webp',   // right plate
 ];
 
 // ── Tuesday ──────────────────────────────────────────────────────────────────
 const TUESDAY: [string, string] = [
-  '/assets/menu/Menu_Platos/Tuesday/2.png',  // left plate
-  '/assets/menu/Menu_Platos/Tuesday/1.png',  // right plate
+  '/assets/menu/Menu_Platos/Tuesday/2.webp',  // left plate
+  '/assets/menu/Menu_Platos/Tuesday/1.webp',  // right plate
 ];
 
 // ── Wednesday ────────────────────────────────────────────────────────────────
 const WEDNESDAY: [string, string] = [
-  '/assets/menu/Menu_Platos/Wednesday/5.png', // left plate
-  '/assets/menu/Menu_Platos/Wednesday/7.png', // right plate
+  '/assets/menu/Menu_Platos/Wednesday/5.webp', // left plate
+  '/assets/menu/Menu_Platos/Wednesday/7.webp', // right plate
 ];
 
 // ── Thursday ─────────────────────────────────────────────────────────────────
 const THURSDAY: [string, string] = [
-  '/assets/menu/Menu_Platos/Thursday/6.png',  // left plate
-  '/assets/menu/Menu_Platos/Thursday/8.png',  // right plate
+  '/assets/menu/Menu_Platos/Thursday/6.webp',  // left plate
+  '/assets/menu/Menu_Platos/Thursday/8.webp',  // right plate
 ];
 
 // ── Friday ───────────────────────────────────────────────────────────────────
 const FRIDAY: [string, string] = [
-  '/assets/menu/Menu_Platos/Friday/9.png',    // left plate
-  '/assets/menu/Menu_Platos/Friday/10.png',   // right plate
+  '/assets/menu/Menu_Platos/Friday/9.webp',    // left plate
+  '/assets/menu/Menu_Platos/Friday/10.webp',   // right plate
 ];
 
 // ─── Do not edit below — maps constants to day keys ──────────────────────────
@@ -139,17 +139,9 @@ export default function WeeklySystem({ onItemSelect }: Props) {
                   <img
                     src={images[idx]}
                     alt={item.name}
-                    loading="lazy"
+                    loading={idx === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
                     className={s.cardImage}
-                    style={{
-                      transform: 
-                        item.name === 'Chicken Pesto Pasta' ? 'scale(1.24)' :
-                        item.name === 'Chicken Lime' ? 'scale(1.14)' :
-                        item.name === 'Milanesa' ? 'scale(1.16)' :
-                        item.name === 'Carne Asada' ? 'scale(1.14)' :
-                        item.name === 'Mediterranean Chicken' ? 'scale(1.14)' :
-                        'scale(1.1)'
-                    }}
                   />
                 </div>
               </div>
