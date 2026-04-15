@@ -386,6 +386,17 @@ export default function OrderPage({ cart }: { cart: any }) {
   const autocompleteServiceRef = React.useRef<any>(null);
   const placesServiceRef = React.useRef<any>(null);
   const sessionTokenRef = React.useRef<any>(null);
+  const pillContainerRef = React.useRef<HTMLDivElement>(null);
+  const activePillRef = React.useRef<HTMLButtonElement>(null);
+
+  // Scroll the pill container so the active date is centered/visible on mount and on change
+  React.useEffect(() => {
+    const container = pillContainerRef.current;
+    const pill = activePillRef.current;
+    if (!container || !pill) return;
+    const scrollTo = pill.offsetLeft - container.clientWidth / 2 + pill.offsetWidth / 2;
+    container.scrollLeft = Math.max(0, scrollTo);
+  }, [activeIdx]);
 
   const activeDate = availableDates[activeIdx];
   const visibleDates = availableDates.slice(windowStart, windowStart + WINDOW_SIZE);
@@ -635,7 +646,7 @@ export default function OrderPage({ cart }: { cart: any }) {
           </div>
 
           {/* ── Day selector ─────────────────────── */}
-          <div className="mb-8 flex w-full items-center gap-2 md:gap-3 overflow-x-auto pb-2 md:pb-4 no-scrollbar">
+          <div ref={pillContainerRef} className="mb-8 flex w-full items-center gap-4 md:gap-3 overflow-x-auto pb-2 md:pb-4 no-scrollbar">
             {availableDates.map((date, absIdx) => {
               const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
               const datePart = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -646,11 +657,12 @@ export default function OrderPage({ cart }: { cart: any }) {
               return (
                 <button
                   key={absIdx}
+                  ref={isActive ? activePillRef : undefined}
                   disabled={isPast}
                   onClick={() => setActiveIdx(absIdx)}
                   className={clsx(
-                    'flex h-[58px] w-[76px] shrink-0 flex-col items-center justify-center rounded-xl border transition-all duration-200',
-                    'md:h-[74px] md:w-[130px] md:rounded-2xl',
+                    'flex h-[88px] w-[29.5%] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
+                    'md:h-[74px] md:w-[130px]',
                     isPast
                       ? 'border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed opacity-50'
                       : isActive
@@ -659,8 +671,8 @@ export default function OrderPage({ cart }: { cart: any }) {
                   )}
                   style={{ fontFamily: 'Poppins, sans-serif' }}
                 >
-                  <span className="text-[13px] md:text-[17px] font-semibold leading-none">{dayShort}</span>
-                  <span className={clsx('mt-1 text-[10px] md:text-[12px] font-medium leading-none', isActive ? 'text-white/70' : 'text-[#311c67]/50')}>
+                  <span className="text-[17px] md:text-[17px] font-semibold leading-none">{dayShort}</span>
+                  <span className={clsx('mt-1.5 text-[12px] md:text-[12px] font-medium leading-none', isActive ? 'text-white/70' : 'text-[#311c67]/50')}>
                     {datePart}
                   </span>
                 </button>
@@ -700,7 +712,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className={clsx("group relative z-10 flex h-full w-full shrink-0 snap-center flex-col overflow-hidden rounded-[24px] border border-[#EAEAEA] bg-white shadow-[0_12px_32px_rgba(49,28,103,0.06)]",
+                    className={clsx("group relative z-10 flex h-full w-[88%] snap-center shrink-0 flex-col overflow-hidden rounded-[24px] border border-[#EAEAEA] bg-white shadow-[0_12px_32px_rgba(49,28,103,0.06)] md:w-full",
                       (getDateStatus(activeDate) === 'ACTIVE' || getDateStatus(activeDate) === 'PREVIEW')
                         ? "cursor-pointer" : "opacity-80"
                     )}
