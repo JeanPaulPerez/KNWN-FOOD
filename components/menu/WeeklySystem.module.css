@@ -178,8 +178,13 @@
   transform: translateY(-50%) scale(0.9);
 }
 
-.prevBtn { left: -10px; }
-.nextBtn { right: -10px; }
+.prevBtn {
+  left: -10px;
+}
+
+.nextBtn {
+  right: -10px;
+}
 
 /* ── Labels (Stickers & Boxes) ── */
 .dishSticker {
@@ -189,7 +194,7 @@
   width: 50%;
   z-index: 30;
   transform: rotate(-4deg);
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
 }
 
 .stickerBg {
@@ -218,7 +223,7 @@
   transform: translateX(-50%);
   width: 75%;
   z-index: 30;
-  filter: drop-shadow(0 -4px 12px rgba(0,0,0,0.08));
+  filter: drop-shadow(0 -4px 12px rgba(0, 0, 0, 0.08));
 }
 
 .boxBg {
@@ -241,12 +246,22 @@
   font-weight: 500;
 }
 
-.carouselContainer { display: none; }
-.desktopGrid { display: block; }
+.carouselContainer {
+  display: none;
+}
+
+.desktopGrid {
+  display: block;
+}
 
 @media (max-width: 767px) {
-  .carouselContainer { display: flex; }
-  .desktopGrid { display: none; }
+  .carouselContainer {
+    display: flex;
+  }
+
+  .desktopGrid {
+    display: none;
+  }
 }
 
 /* Bottom row */

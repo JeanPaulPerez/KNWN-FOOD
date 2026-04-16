@@ -160,16 +160,16 @@ function getWeekdayKey(date: Date): Weekday {
 
 /** Maps meal names to real food-bg photos (with background, great for cards) */
 const FOOD_BG: Record<string, string> = {
-  'mediterranean chicken': '/assets/food-bg/mediterranean-chicken.webp',
-  'bibi bamp rice': '/assets/food-bg/bibi-bamp-rice.webp',
-  'carne asada': '/assets/food-bg/carne-asada.webp',
-  'chicken lime': '/assets/food-bg/chicken-lime.webp',
-  'chicken pesto pasta': '/assets/food-bg/pesto-pasta.webp',
-  'thai beef salad': '/assets/food-bg/thai-beef-salad.webp',
-  'milanesa': '/assets/food-bg/milanesa.webp',
-  'harissa meatballs': '/assets/food-bg/harissa-meatballs.webp',
-  'crispy korean chicken': '/assets/food-bg/korean-crispy-chicken.webp',
-  'chicken caesar salad': '/assets/food-bg/chicken-cesar-salad.webp',
+  'mediterranean chicken': '/assets/food-horizontal/Mediterranean chicken.webp',
+  'bibi bamp rice': '/assets/food-horizontal/Bibi Bamp Rice.webp',
+  'carne asada': '/assets/food-horizontal/Carne Asada.webp',
+  'chicken lime': '/assets/food-horizontal/Chicken Lime.webp',
+  'chicken pesto pasta': '/assets/food-horizontal/Pesto Pasta.webp',
+  'thai beef salad': '/assets/food-horizontal/Thai Beef Salad.webp',
+  'milanesa': '/assets/food-horizontal/Milanesa.webp',
+  'harissa meatballs': '/assets/food-horizontal/Harissa Meatballs.webp',
+  'crispy korean chicken': '/assets/food-horizontal/Korean Crispy Chicken.webp',
+  'chicken caesar salad': '/assets/food-horizontal/Chicken Cesar Salad.webp',
 };
 
 function getFoodBgImage(name: string): string {
@@ -225,7 +225,7 @@ const CustomizationModal: React.FC<{
     setAvoidList(prev => prev.includes(opt) ? prev.filter(o => o !== opt) : [...prev, opt]);
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-[500] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm"
       onClick={onClose}
     >
@@ -248,7 +248,7 @@ const CustomizationModal: React.FC<{
         <div className="overflow-y-auto flex-1 no-scrollbar pb-24">
           {/* Image header */}
           <div className="relative h-64 bg-[#EEEAF8] flex items-center justify-center overflow-hidden">
-            <img src={item.image} className="w-full h-full object-cover mix-blend-multiply" alt={item.name} />
+            <img src={getFoodBgImage(item.name)} className="w-full h-full object-cover mix-blend-multiply" alt={item.name} />
           </div>
 
           <div className="px-6 py-8 space-y-8">
@@ -658,38 +658,46 @@ export default function OrderPage({ cart }: { cart: any }) {
             </p>
           </div>
 
-          {/* ── Day selector MOBILE (all dates, compact, scroll) ───────────────── */}
-          <div ref={pillContainerRef} className="md:hidden mb-6 flex w-full gap-2 overflow-x-auto pb-2 no-scrollbar">
-            {availableDates.map((date, absIdx) => {
-              const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
-              const dateStr  = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-              const status   = getDateStatus(date);
-              const isPast   = status === 'PAST' || status === 'TODAY_CLOSED';
-              const isActive = activeIdx === absIdx;
-              return (
-                <button
-                  key={absIdx}
-                  ref={isActive ? activePillRef : undefined}
-                  disabled={isPast}
-                  onClick={() => { if (!isPast) setActiveIdx(absIdx); }}
-                  className={clsx(
-                    'flex h-[80px] w-[92px] shrink-0 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
-                    isPast
-                      ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
-                      : isActive
-                        ? 'border-[#311c67] bg-[#311c67] text-white'
-                        : 'border-[#D1C9E0] bg-white text-[#311c67]/85'
-                  )}
-                  style={{ fontFamily: 'Poppins, sans-serif' }}
-                >
-                  <span className="text-[15px] font-semibold leading-none">{dayShort}</span>
-                  <span className={clsx('mt-1.5 text-[12px] leading-none', isActive ? 'text-white/75' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/55')}>
-                    {dateStr}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          {/* ── Day selector MOBILE (3 dates centered on active) ─────────────── */}
+          {(() => {
+            const total = availableDates.length;
+            const start = Math.min(Math.max(activeIdx - 1, 0), Math.max(total - 3, 0));
+            const mobileDates = availableDates.slice(start, start + 3);
+            return (
+              <div ref={pillContainerRef} className="md:hidden mb-6 flex w-full gap-2 justify-center pb-2">
+                {mobileDates.map((date, i) => {
+                  const absIdx = start + i;
+                  const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
+                  const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  const status = getDateStatus(date);
+                  const isPast = status === 'PAST' || status === 'TODAY_CLOSED';
+                  const isActive = activeIdx === absIdx;
+                  return (
+                    <button
+                      key={absIdx}
+                      ref={isActive ? activePillRef : undefined}
+                      disabled={isPast}
+                      onClick={() => { if (!isPast) setActiveIdx(absIdx); }}
+                      className={clsx(
+                        'flex h-[80px] flex-1 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
+                        isPast
+                          ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
+                          : isActive
+                            ? 'border-[#311c67] bg-[#311c67] text-white'
+                            : 'border-[#D1C9E0] bg-white text-[#311c67]/85'
+                      )}
+                      style={{ fontFamily: 'Poppins, sans-serif' }}
+                    >
+                      <span className="text-[15px] font-semibold leading-none">{dayShort}</span>
+                      <span className={clsx('mt-1.5 text-[12px] leading-none', isActive ? 'text-white/75' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/55')}>
+                        {dateStr}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })()}
 
           {/* ── Day selector DESKTOP (windowed, with nav arrows) ───────────────── */}
           <div className="hidden md:flex mb-10 w-full min-w-0 max-w-full items-center justify-between overflow-x-auto pb-1 gap-2">
@@ -723,7 +731,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                   style={{ fontFamily: 'Poppins, sans-serif' }}
                 >
                   <span className="text-[19px] font-semibold leading-none">{dayShort}</span>
-                  <span className={clsx('mt-1.5 text-[14px] leading-none', 
+                  <span className={clsx('mt-1.5 text-[14px] leading-none',
                     activeIdx === absIdx ? 'text-white/80' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/60'
                   )}>
                     {dateStr}
@@ -804,7 +812,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className={clsx("group relative z-10 flex flex-col h-full w-[calc(100vw-64px)] shrink-0 snap-center min-h-[500px] overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_16px_40px_rgba(49,28,103,0.09)] md:w-full md:min-h-[560px] xl:min-h-[620px]",
+                    className={clsx("group relative z-10 flex flex-col h-full w-[78vw] shrink-0 snap-center min-h-[500px] overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_16px_40px_rgba(49,28,103,0.09)] md:w-full md:min-h-[560px] xl:min-h-[620px]",
                       (getDateStatus(activeDate) === 'ACTIVE' || getDateStatus(activeDate) === 'PREVIEW')
                         ? "cursor-pointer" : "opacity-80"
                     )}

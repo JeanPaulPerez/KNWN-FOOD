@@ -66,8 +66,7 @@ export default function CustomerFavs() {
               <span className={s.deliveryText}>Delivery Included</span>
             </div>
             <Link to="/menu" className={s.menuBtnWrap}>
-              <img src="/assets/hero-bg/SEEMENU.png" alt="" loading="lazy" className={s.menuBtnImg} />
-              <span className={s.menuBtnText}>SEE FULL MENU</span>
+              <img src="/assets/hero-bg/SEEMENU.png" alt="See Full Menu" loading="lazy" className={s.menuBtnImg} />
             </Link>
           </div>
         </div>

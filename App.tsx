@@ -260,36 +260,36 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <footer className="relative z-20 mt-auto bg-brand-primary px-5 py-10 text-white md:px-10 md:py-16 lg:px-12 lg:py-24">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 md:gap-16">
-          <div className="col-span-1 sm:col-span-2 space-y-5 md:space-y-8">
+      <footer className="relative z-20 mt-auto bg-brand-primary px-5 py-6 text-white md:px-10 md:py-16 lg:px-12 lg:py-24">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 sm:gap-10 md:gap-16 text-center md:text-left">
+          <div className="col-span-1 sm:col-span-2 space-y-3 md:space-y-8">
             <img
               src="https://knwnfood.com/wp-content/uploads/2025/09/Recurso-91x.webp"
               alt="KNWN Food"
               loading="lazy"
-              className="w-28 md:w-40 lg:w-48 brightness-0 invert opacity-80"
+              className="w-20 md:w-40 lg:w-48 brightness-0 invert opacity-80 mx-auto md:mx-0"
             />
-            <p className="text-white/40 max-w-sm font-light leading-relaxed text-xs md:text-sm">
+            <p className="text-white/40 max-w-sm font-light leading-relaxed text-xs md:text-sm mx-auto md:mx-0">
               Chef-driven dining, delivered. Experience a rotating menu of seasonally-inspired bowls and plates, prepared with intention and delivered to your doorstep.
             </p>
           </div>
           <div>
-            <h4 className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black mb-5 md:mb-8 text-white/40">Explore</h4>
+            <h4 className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black mb-3 md:mb-8 text-white/40">Explore</h4>
             <ul className="text-white/80 text-[10px] md:text-xs font-black uppercase tracking-widest">
-              <li><Link to="/menu" className="flex items-center min-h-[44px] hover:text-white transition-colors">Menu</Link></li>
-              <li><Link to="/about" className="flex items-center min-h-[44px] hover:text-white transition-colors">Story</Link></li>
+              <li><Link to="/menu" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">Menu</Link></li>
+              <li><Link to="/about" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">Story</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black mb-5 md:mb-8 text-white/40">Connect</h4>
+            <h4 className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black mb-3 md:mb-8 text-white/40">Connect</h4>
             <ul className="text-white/80 text-[10px] md:text-xs font-black uppercase tracking-widest">
-              <li><a href="https://www.instagram.com/knwnfood/" target="_blank" rel="noopener noreferrer" className="flex items-center min-h-[44px] hover:text-white transition-colors">Instagram</a></li>
-              <li><a href="https://www.linkedin.com/company/knwnfood/" target="_blank" rel="noopener noreferrer" className="flex items-center min-h-[44px] hover:text-white transition-colors">LinkedIn</a></li>
-              <li><Link to="/menu" className="flex items-center min-h-[44px] hover:text-white transition-colors">Newsletter</Link></li>
+              <li><a href="https://www.instagram.com/knwnfood/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">Instagram</a></li>
+              <li><a href="https://www.linkedin.com/company/knwnfood/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">LinkedIn</a></li>
+              <li><Link to="/menu" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">Newsletter</Link></li>
             </ul>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto mt-10 md:mt-16 lg:mt-24 pt-6 md:pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[8px] md:text-[9px] tracking-[0.3em] text-white/20 uppercase font-black text-center md:text-left">
+        <div className="max-w-7xl mx-auto mt-6 md:mt-16 lg:mt-24 pt-5 md:pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-3 text-[8px] md:text-[9px] tracking-[0.3em] text-white/20 uppercase font-black text-center">
           <p>© 2024 KNWN FOOD. ARCHITECTING TOMORROW'S DINING.</p>
           <div className="flex gap-6 md:gap-8">
             <a href="https://knwnfood.com/privacy-policy/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Privacy Policy</a>

@@ -162,7 +162,7 @@
 .menuBtnImg {
   display: block;
   /* Set width so the image is a reasonable button size */
-  width: 240px; 
+  width: 240px;
   height: auto;
   object-fit: contain;
 }
@@ -238,7 +238,8 @@
 ════════════════════════════════════════════════════════════════════════════ */
 
 /* ── Small Desktop (1025px - 1300px) & short screens: tighten up everything ── */
-@media (max-width: 1300px), (max-height: 800px) {
+@media (max-width: 1300px),
+(max-height: 800px) {
   .section {
     padding-top: 40px;
     padding-bottom: 40px;
@@ -391,7 +392,8 @@
     top: 140px;
     left: 10%;
     z-index: 5;
-    background: #dddf00; /* Match bright yellow */
+    background: #dddf00;
+    /* Match bright yellow */
     color: var(--purple);
     font-size: 15px;
     padding: 8px 18px;
@@ -410,7 +412,8 @@
   .arrowLeft,
   .arrowRight {
     position: absolute;
-    top: 260px; /* Approximate center of bowl */
+    top: 260px;
+    /* Approximate center of bowl */
     transform: translateY(-50%);
     width: 36px;
     height: 36px;
@@ -432,7 +435,8 @@
     width: 100%;
     min-height: auto;
     left: 0;
-    margin-top: -160px; /* Pull the blob up behind the bowl */
+    margin-top: -160px;
+    /* Pull the blob up behind the bowl */
     z-index: 2;
   }
 
@@ -448,7 +452,8 @@
 
   .cardBody {
     position: relative;
-    padding: 160px 20px 40px; /* Provide enough space for bowl overlap */
+    padding: 160px 20px 40px;
+    /* Provide enough space for bowl overlap */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -489,7 +494,8 @@
   /* Make delivery row and menu button display inline if possible, or stacked closely */
   .menuBtnWrap {
     margin-top: 4px;
-    transform: scale(0.85); /* scale down the image button */
+    transform: scale(0.85);
+    /* scale down the image button */
   }
 }
 
@@ -511,11 +517,11 @@
   .arrowRight {
     top: 240px;
   }
-  
+
   .blobWrap {
     margin-top: -120px;
   }
-  
+
   .cardBody {
     padding: 130px 16px 30px;
     gap: 8px;
@@ -528,7 +534,7 @@
   .dishDesc {
     font-size: 14px;
   }
-  
+
   .menuBtnWrap {
     transform: scale(0.7);
   }
