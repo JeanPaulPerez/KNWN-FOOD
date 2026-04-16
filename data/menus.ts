@@ -14,7 +14,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 12.90,
             calories: 777,
             protein: 36,
-            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/MEDITERRANEAN_CHICKEN_iobysa.png",
+            image: "/assets/food-bg/mediterranean-chicken.webp",
             tags: ["High-Protein", "Fresh"],
             wooProductId: 1360,
             customizationOptions: {
@@ -34,7 +34,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 15.90,
             calories: 990,
             protein: 32,
-            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/BIBI_BAMP_RICE_kczybg.png",
+            image: "/assets/food-bg/bibi-bamp-rice.webp",
             tags: ["Nutritious", "Balanced"],
             wooProductId: 1185,
             customizationOptions: {
@@ -63,7 +63,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 15.90,
             calories: 1431,
             protein: 53,
-            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CARNE_ASADA_lfjnlg.png",
+            image: "/assets/food-bg/carne-asada.webp",
             tags: ["Premium", "Steak"],
             wooProductId: 1449,
             customizationOptions: {
@@ -83,7 +83,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 12.90,
             calories: 974,
             protein: 37,
-            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CHICKEN_LIME_rtggkr.png",
+            image: "/assets/food-bg/chicken-lime.webp",
             tags: ["Light", "Zesty"],
             wooProductId: 1450,
             customizationOptions: {
@@ -112,7 +112,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 15.90,
             calories: 710,
             protein: 39,
-            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CHICKEN_PESTO_PASTA_b8flzw.png",
+            image: "/assets/food-bg/pesto-pasta.webp",
             tags: ["Italian", "Comfort"],
             wooProductId: 1452,
             customizationOptions: {
@@ -132,7 +132,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 15.90,
             calories: 812,
             protein: 40,
-            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369140/THAI_BEEF_SALAD_ktgza9.png",
+            image: "/assets/food-bg/thai-beef-salad.webp",
             tags: ["Spicy", "Thai"],
             wooProductId: 1455,
             customizationOptions: {
@@ -161,7 +161,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 12.90,
             calories: 924,
             protein: 32,
-            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/MILANESA_kqpck6.png",
+            image: "/assets/food-bg/milanesa.webp",
             tags: ["Crispy", "Classic"],
             wooProductId: 1456,
             customizationOptions: {
@@ -177,7 +177,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 15.90,
             calories: 774,
             protein: 39,
-            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/HARISSA_MEATBALLS_gakt0h.png",
+            image: "/assets/food-bg/harissa-meatballs.webp",
             tags: ["Mediterranean", "Spicy"],
             wooProductId: 1459,
             customizationOptions: {
@@ -206,7 +206,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 12.90,
             calories: 1124,
             protein: 37,
-            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369139/CRISPY_KOREAN_CHICKEN_khpm4p.png",
+            image: "/assets/food-bg/korean-crispy-chicken.webp",
             tags: ["Korean", "Crispy"],
             wooProductId: 1460,
             customizationOptions: {
@@ -222,7 +222,7 @@ export const MENUS: Record<Weekday, DayMenu> = {
             price: 12.90,
             calories: 1214,
             protein: 55,
-            image: "https://res.cloudinary.com/dp7dtmzb2/image/upload/v1771369140/CHICKEN_CESAR_SALAD_vbyfrr.png",
+            image: "/assets/food-bg/chicken-cesar-salad.webp",
             tags: ["Classic", "Fresh"],
             popular: true,
             wooProductId: 1463,

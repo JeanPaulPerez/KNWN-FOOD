@@ -329,7 +329,7 @@
 
 @media (max-width: 640px) {
   .section {
-    padding: 24px 16px 34px;
+    padding: 40px 16px 0px;
     display: flex;
     flex-direction: column;
     background: #f4f1ff;

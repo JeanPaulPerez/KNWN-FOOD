@@ -37,8 +37,18 @@ export default function CustomerFavs() {
         {/* Day badge — top left */}
         <span className={s.dayBadge}>{item.day}</span>
 
-        {/* "Customer favs" heading — top right, above blob */}
+        {/* "Customer favs" heading — desktop */}
         <h2 className={s.heading}>Customer favs</h2>
+
+        {/* "CUSTOMER FAVS" arched heading — mobile only */}
+        <svg className={s.headingCurved} viewBox="0 0 360 90" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <path id="custFavsArch" d="M 15 100 Q 180 8 345 100" />
+          </defs>
+          <text fontFamily="'Instrument Serif', Georgia, serif" fontSize="46" fontWeight="700" fill="#2B1C70" textAnchor="middle" letterSpacing="1">
+            <textPath href="#custFavsArch" startOffset="50%">CUSTOMER FAVS</textPath>
+          </text>
+        </svg>
 
         {/* Food bowl cutout — floats over lavender, overlaps blob */}
         <img

@@ -499,14 +499,34 @@
   }
 }
 
+/* ─── Curved heading (mobile SVG arch) — hidden on desktop ──────────────── */
+.headingCurved {
+  display: none;
+}
+
 @media (max-width: 480px) {
-  .dayBadge {
-    top: 130px;
-    left: 5%;
+  .section {
+    padding-top: 0px;
+    padding-bottom: 0px;
   }
 
+  .dayBadge {
+    top: 150px;
+    left: 12%;
+  }
+
+  /* Hide flat heading, show arched SVG */
   .heading {
-    font-size: clamp(34px, 10vw, 42px);
+    display: none;
+  }
+
+  .headingCurved {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    margin: 20px 0px -30px 80px;
+    flex-shrink: 0;
+    rotate: 10deg;
   }
 
   .foodImg {
@@ -515,27 +535,54 @@
 
   .arrowLeft,
   .arrowRight {
-    top: 240px;
+    top: 260px;
   }
 
   .blobWrap {
     margin-top: -120px;
+    overflow: visible;
+  }
+
+  /* scaleX stretches the lime area of the PNG to cover edge-to-edge;
+     section overflow:hidden clips the excess at the viewport edges */
+  .blob {
+    transform: scaleX(1.7);
+    transform-origin: center center;
   }
 
   .cardBody {
-    padding: 130px 16px 30px;
+    padding: 130px 20px 30px;
     gap: 8px;
+    align-items: center;
+    text-align: center;
   }
 
   .dishName {
-    font-size: 20px;
+    font-size: 26px;
   }
 
   .dishDesc {
-    font-size: 14px;
+    font-size: 18px;
+    max-width: 88%;
+  }
+
+  .pricePill {
+    font-size: 17px;
+    padding: 8px 18px;
+  }
+
+  .deliveryText {
+    font-size: 17px;
+  }
+
+  .deliveryRow {
+    justify-content: center;
+    align-self: center;
+    width: 100%;
   }
 
   .menuBtnWrap {
-    transform: scale(0.7);
+    align-self: center;
+    transform: scale(0.95);
   }
 }
