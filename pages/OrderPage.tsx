@@ -622,7 +622,7 @@ export default function OrderPage({ cart }: { cart: any }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDE8F5]">
+    <div className="min-h-screen bg-[#EDE8F5] overflow-x-clip">
       <div className="border-y border-[#D4C8E8] bg-[#E4DCF2]">
         <div className="mx-auto grid max-w-[1280px] grid-cols-1 text-[#311c67] md:grid-cols-[1fr_360px]">
           <div className="flex items-center gap-3 px-6 py-3 text-[13px] font-medium md:px-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
@@ -658,13 +658,13 @@ export default function OrderPage({ cart }: { cart: any }) {
             </p>
           </div>
 
-          {/* ── Day selector MOBILE (3 dates centered on active) ─────────────── */}
+          {/* ── Day selector MOBILE ─────────────────────────────────────────── */}
           {(() => {
             const total = availableDates.length;
             const start = Math.min(Math.max(activeIdx - 1, 0), Math.max(total - 3, 0));
             const mobileDates = availableDates.slice(start, start + 3);
             return (
-              <div ref={pillContainerRef} className="md:hidden mb-6 flex w-full gap-2 justify-center pb-2">
+              <div ref={pillContainerRef} className="md:hidden mb-10 flex w-full gap-3 justify-center">
                 {mobileDates.map((date, i) => {
                   const absIdx = start + i;
                   const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
@@ -679,17 +679,17 @@ export default function OrderPage({ cart }: { cart: any }) {
                       disabled={isPast}
                       onClick={() => { if (!isPast) setActiveIdx(absIdx); }}
                       className={clsx(
-                        'flex h-[80px] flex-1 flex-col items-center justify-center rounded-2xl border transition-all duration-200',
+                        'flex h-[88px] flex-1 flex-col items-center justify-center rounded-[24px] border transition-all duration-300',
                         isPast
-                          ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
+                          ? 'border-gray-200 bg-gray-100/50 text-gray-400 cursor-not-allowed opacity-40'
                           : isActive
-                            ? 'border-[#311c67] bg-[#311c67] text-white'
-                            : 'border-[#D1C9E0] bg-white text-[#311c67]/85'
+                            ? 'border-[#311c67] bg-[#311c67] text-white shadow-lg shadow-[#311c67]/15'
+                            : 'border-[#D1C9E0] bg-white text-[#311c67]/85 hover:border-[#311c67]/40'
                       )}
                       style={{ fontFamily: 'Poppins, sans-serif' }}
                     >
-                      <span className="text-[15px] font-semibold leading-none">{dayShort}</span>
-                      <span className={clsx('mt-1.5 text-[12px] leading-none', isActive ? 'text-white/75' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/55')}>
+                      <span className="text-[17px] font-bold leading-none">{dayShort}</span>
+                      <span className={clsx('mt-1.5 text-[13px] font-medium leading-none', isActive ? 'text-white/75' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/50')}>
                         {dateStr}
                       </span>
                     </button>
@@ -701,7 +701,6 @@ export default function OrderPage({ cart }: { cart: any }) {
 
           {/* ── Day selector DESKTOP (windowed, with nav arrows) ───────────────── */}
           <div className="hidden md:flex mb-10 w-full min-w-0 max-w-full items-center justify-between overflow-x-auto pb-1 gap-2">
-
             {visibleDates.map((date, visibleI) => {
               const absIdx = windowStart + visibleI;
               const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
@@ -782,10 +781,11 @@ export default function OrderPage({ cart }: { cart: any }) {
             <span>Place your order within <strong className="font-bold text-[#DB5A29]">{countdownLabel}</strong> for next-day lunch delivery.</span>
           </div>
 
+
           {/* ── Main grid: 2 meal cards + sidebar ────────────────────────────── */}
           <div id="meal-cards" className="relative w-full">
             {/* Soft red / blue glows (CSS) + optional PNGs in /public/images_KNWN/ */}
-            <div className="pointer-events-none absolute inset-x-0 -bottom-20 top-[-40px] z-0 overflow-visible md:-bottom-40 md:-top-[60px]">
+            <div className="pointer-events-none absolute inset-x-0 -bottom-20 top-[-40px] z-0 overflow-hidden md:overflow-visible md:-bottom-40 md:-top-[60px]">
               <img
                 src={ORDER_GLOW_RED}
                 alt=""
@@ -801,7 +801,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                 className="absolute -bottom-[20%] right-[-10%] w-[800px] max-w-none select-none opacity-35 md:-bottom-[50%] md:right-[-5%] md:w-[1200px]"
               />
             </div>
-            <div className="relative z-[1] flex gap-4 overflow-x-auto pb-6 no-scrollbar snap-x snap-mandatory scroll-smooth px-5 md:px-0 md:grid md:grid-cols-2 md:items-stretch md:gap-5 md:overflow-visible md:snap-none md:pb-0 xl:grid-cols-3 xl:gap-8">
+            <div className="relative z-[1] flex gap-3 overflow-x-auto pb-6 no-scrollbar snap-x snap-mandatory scroll-smooth overscroll-x-contain -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:items-stretch md:gap-5 md:overflow-visible md:snap-none md:pb-0 xl:grid-cols-3 xl:gap-8" style={{ WebkitOverflowScrolling: 'touch' }}>
 
               {/* Meal cards */}
               <AnimatePresence mode="wait">
@@ -812,7 +812,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className={clsx("group relative z-10 flex flex-col h-full w-[78vw] shrink-0 snap-center min-h-[500px] overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_16px_40px_rgba(49,28,103,0.09)] md:w-full md:min-h-[560px] xl:min-h-[620px]",
+                    className={clsx("group relative z-10 flex flex-col h-full w-[88vw] shrink-0 snap-start min-h-[500px] overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_16px_40px_rgba(49,28,103,0.09)] md:w-full md:min-h-[560px] xl:min-h-[620px]",
                       (getDateStatus(activeDate) === 'ACTIVE' || getDateStatus(activeDate) === 'PREVIEW')
                         ? "cursor-pointer" : "opacity-80"
                     )}
@@ -884,7 +884,7 @@ export default function OrderPage({ cart }: { cart: any }) {
               </AnimatePresence>
 
               {/* ── Sidebar ──────────────────────────────────────────────────────── */}
-              <div className="md:col-span-2 xl:col-span-1 xl:relative xl:h-full">
+              <div className="hidden md:block md:col-span-2 xl:col-span-1 xl:relative xl:h-full">
                 <div
                   className="relative z-10 flex flex-col h-[480px] xl:h-full xl:absolute xl:inset-0 rounded-[24px] border border-[#311c67]/10 bg-white p-0 shadow-[0_20px_48px_rgba(49,28,103,0.1)]"
                   style={{ fontFamily: 'Poppins, sans-serif' }}
@@ -1018,6 +1018,7 @@ export default function OrderPage({ cart }: { cart: any }) {
               </div>
             </div>
           </div>
+
         </div>
       </div>
 

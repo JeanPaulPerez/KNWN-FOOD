@@ -257,10 +257,15 @@
 @media (max-width: 767px) {
   .carouselContainer {
     display: flex;
+    overflow: hidden;
   }
 
   .desktopGrid {
     display: none;
+  }
+
+  .singleCardWrapper {
+    overflow: hidden;
   }
 }
 
