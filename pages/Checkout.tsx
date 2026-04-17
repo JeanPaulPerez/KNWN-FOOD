@@ -617,10 +617,10 @@ function CheckoutForm({ cart }: { cart: any }) {
           </div>
 
           {/* ── MOBILE ONLY: Totals + CTA (bottom) ───────────────────────────── */}
-          <div className="lg:hidden order-3 bg-white rounded-[2rem] p-8 shadow-sm border border-brand-primary/5">
+          <div className="lg:hidden order-3 bg-white rounded-[2rem] p-5 md:p-8 shadow-sm border border-brand-primary/5">
             <div className="flex gap-2">
-              <input type="text" placeholder="Promo Code" value={couponInput} onChange={(e) => setCouponInput(e.target.value)} className="flex-1 border border-brand-primary/20 rounded-xl px-4 py-3 text-sm font-semibold text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/40" />
-              <button type="button" onClick={handleApplyCoupon} className="bg-brand-primary text-white rounded-xl px-6 font-bold text-sm tracking-wider hover:brightness-110">Apply</button>
+              <input type="text" placeholder="Promo Code" value={couponInput} onChange={(e) => setCouponInput(e.target.value)} className="min-w-0 flex-1 border border-brand-primary/20 rounded-xl px-4 py-3 text-sm font-semibold text-brand-primary focus:border-brand-primary outline-none placeholder:text-brand-primary/40" />
+              <button type="button" onClick={handleApplyCoupon} className="whitespace-nowrap bg-brand-primary text-white rounded-xl px-6 font-bold text-sm tracking-wider hover:brightness-110">Apply</button>
             </div>
             {coupon && <div className="mt-2 text-[10px] text-green-600 font-bold uppercase bg-green-50 px-3 py-1.5 rounded-md inline-block">Code applied: {coupon.code} (-${discountAmount.toFixed(2)})</div>}
             {couponError && <div className="mt-2 text-[10px] text-red-600 font-bold bg-red-50 px-3 py-1.5 rounded-md inline-block">{couponError}</div>}

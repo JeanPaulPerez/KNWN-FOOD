@@ -215,7 +215,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen selection:bg-brand-primary selection:text-white flex flex-col font-sans bg-[#F5F3FF]">
+    <div className="min-h-screen selection:bg-brand-primary selection:text-white flex flex-col font-sans bg-[#F4F1FF]">
       <ScrollToTop />
       <Header cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} onOpenProfile={handleAccountAction} />
 

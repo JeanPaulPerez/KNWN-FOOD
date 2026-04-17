@@ -785,23 +785,23 @@ export default function OrderPage({ cart }: { cart: any }) {
           {/* ── Main grid: 2 meal cards + sidebar ────────────────────────────── */}
           <div id="meal-cards" className="relative w-full">
             {/* Soft red / blue glows (CSS) + optional PNGs in /public/images_KNWN/ */}
-            <div className="pointer-events-none absolute inset-x-0 -bottom-20 top-[-40px] z-0 overflow-hidden md:overflow-visible md:-bottom-40 md:-top-[60px]">
+            <div className="pointer-events-none absolute inset-x-0 -bottom-8 top-[140px] z-0 overflow-hidden md:overflow-visible md:-bottom-40 md:-top-[60px]">
               <img
                 src={ORDER_GLOW_RED}
                 alt=""
                 aria-hidden
                 onError={hideBrokenImg}
-                className="absolute -left-[15%] -top-[10%] w-[800px] max-w-none select-none opacity-35 md:-left-[10%] md:-top-[30%] md:w-[1000px]"
+                className="absolute -left-[38%] bottom-[-4%] w-[560px] max-w-none select-none opacity-55 md:-left-[10%] md:-top-[30%] md:bottom-auto md:w-[1000px] md:opacity-35"
               />
               <img
                 src={ORDER_GLOW_BLUE}
                 alt=""
                 aria-hidden
                 onError={hideBrokenImg}
-                className="absolute -bottom-[20%] right-[-10%] w-[800px] max-w-none select-none opacity-35 md:-bottom-[50%] md:right-[-5%] md:w-[1200px]"
+                className="absolute -bottom-[2%] right-[-34%] w-[560px] max-w-none select-none opacity-55 md:-bottom-[50%] md:right-[-5%] md:w-[1200px] md:opacity-35"
               />
             </div>
-            <div className="relative z-[1] flex gap-3 overflow-x-auto pb-6 no-scrollbar snap-x snap-mandatory scroll-smooth overscroll-x-contain -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:items-stretch md:gap-5 md:overflow-visible md:snap-none md:pb-0 xl:grid-cols-3 xl:gap-8" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="relative z-[1] flex gap-3 overflow-x-auto pb-8 no-scrollbar snap-x snap-mandatory scroll-smooth overscroll-x-contain -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:items-stretch md:gap-5 md:overflow-visible md:snap-none md:pb-0 xl:grid-cols-3 xl:gap-8" style={{ WebkitOverflowScrolling: 'touch' }}>
 
               {/* Meal cards */}
               <AnimatePresence mode="wait">
@@ -812,7 +812,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className={clsx("group relative z-10 flex flex-col h-full w-[88vw] shrink-0 snap-start min-h-[500px] overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_16px_40px_rgba(49,28,103,0.09)] md:w-full md:min-h-[560px] xl:min-h-[620px]",
+                    className={clsx("group relative z-10 flex flex-col h-full w-[74vw] max-w-[305px] shrink-0 snap-start min-h-[500px] overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_16px_40px_rgba(49,28,103,0.09)] md:w-full md:max-w-none md:min-h-[560px] xl:min-h-[620px]",
                       (getDateStatus(activeDate) === 'ACTIVE' || getDateStatus(activeDate) === 'PREVIEW')
                         ? "cursor-pointer" : "opacity-80"
                     )}
@@ -1018,6 +1018,13 @@ export default function OrderPage({ cart }: { cart: any }) {
               </div>
             </div>
           </div>
+
+          <p
+            className="md:hidden mt-3 max-w-[320px] text-[14px] leading-[1.28] text-[#311c67]/82"
+            style={{ fontFamily: 'Poppins, sans-serif' }}
+          >
+            Disclaimer: All orders require at least 1-day advance notice. You&apos;re viewing meals available for tomorrow and beyond. We&apos;ll cook and deliver Monday through Friday.
+          </p>
 
         </div>
       </div>
