@@ -14,7 +14,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Loader2, AlertCircle, Check, Lock, Calendar, ChevronDown
+  Loader2, AlertCircle, Check, Lock, Calendar, ChevronDown, CreditCard
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -62,6 +62,13 @@ type StoredCheckoutAddress = {
   zip: string;
   country: string;
 };
+
+type SavedCard = { id: string; brand: string; last4: string; expMonth: number; expYear: number; };
+
+function brandLabel(brand: string) {
+  const map: Record<string, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'Amex', discover: 'Discover', jcb: 'JCB', unionpay: 'UnionPay', diners: 'Diners' };
+  return map[brand] || brand.charAt(0).toUpperCase() + brand.slice(1);
+}
 
 function readStoredCheckoutAddress(): StoredCheckoutAddress | null {
   if (typeof window === 'undefined') return null;
@@ -116,9 +123,14 @@ function CheckoutForm({ cart }: { cart: any }) {
   const [deliveryAddress, setDeliveryAddress] = useState<StoredCheckoutAddress | null>(() => readStoredCheckoutAddress());
   const [editingAddress, setEditingAddress] = useState(false);
   const [addressDraft, setAddressDraft] = useState<StoredCheckoutAddress>({ formatted: '', street: '', city: '', state: '', zip: '', country: 'US' });
+  const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [loadingCards, setLoadingCards] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error,   setError]     = useState('');
-  const [tipRate, setTipRate]   = useState<number | 'none'>('none');
+  const [tipRate, setTipRate]   = useState<number | 'none' | 'custom'>('none');
+  const [customTipInput, setCustomTipInput] = useState('');
+  const [customTipFixed, setCustomTipFixed] = useState(0);
   const [repeatOrder, setRepeatOrder] = useState(true);
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
@@ -134,6 +146,32 @@ function CheckoutForm({ cart }: { cart: any }) {
     if (cart.items.length === 0) navigate('/order');
   }, [cart.items.length, navigate]);
 
+  // Pre-fill delivery address from user profile if sessionStorage is empty
+  useEffect(() => {
+    if (!deliveryAddress && user && (user.street || user.zip)) {
+      const addr: StoredCheckoutAddress = {
+        street: user.street || '',
+        city:   user.city  || '',
+        state:  user.state || '',
+        zip:    user.zip   || '',
+        country: 'US',
+        formatted: [user.street, user.city, user.state, user.zip].filter(Boolean).join(', '),
+      };
+      setDeliveryAddress(addr);
+    }
+  }, [user]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch saved Stripe cards for logged-in user
+  useEffect(() => {
+    if (!user?.email) return;
+    setLoadingCards(true);
+    fetch(`/api/payment-methods?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.json())
+      .then(data => { setSavedCards(data.paymentMethods || []); })
+      .catch(() => {})
+      .finally(() => setLoadingCards(false));
+  }, [user?.email]);
+
   // ── Totals ────────────────────────────────────────────────────────────────
   const subtotal       = cart.total;
   const discountAmount = coupon
@@ -143,7 +181,7 @@ function CheckoutForm({ cart }: { cart: any }) {
     : 0;
   const afterDiscount = Math.max(0, subtotal - discountAmount);
   const tax           = afterDiscount * TAX_RATE;
-  const tipAmount     = tipRate === 'none' ? 0 : afterDiscount * (tipRate as number);
+  const tipAmount     = tipRate === 'none' ? 0 : tipRate === 'custom' ? customTipFixed : afterDiscount * (tipRate as number);
   const finalTotal    = afterDiscount + tax + tipAmount;
   const isFree        = finalTotal === 0 && !!coupon?.isFree;
 
@@ -353,13 +391,9 @@ function CheckoutForm({ cart }: { cart: any }) {
       let paymentIntentId: string | null = null;
 
       if (!isFree) {
-        if (!stripe || !elements) throw new Error('Payment system not loaded.');
+        if (!stripe) throw new Error('Payment system not loaded.');
 
-        // 1. Validate the PaymentElement (required for deferred intent)
-        const { error: submitErr } = await elements.submit();
-        if (submitErr) throw new Error(submitErr.message);
-
-        // 2. Create PaymentIntent server-side
+        // Create PaymentIntent server-side
         const piRes = await fetch('/api/create-payment-intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -368,23 +402,36 @@ function CheckoutForm({ cart }: { cart: any }) {
         if (!piRes.ok) throw new Error((await piRes.json()).error);
         const { clientSecret } = await piRes.json();
 
-        // 3. Confirm — redirect: 'if_required' keeps Apple/Google Pay inline
-        const { error: confirmErr, paymentIntent } = await stripe.confirmPayment({
-          elements,
-          clientSecret,
-          redirect: 'if_required',
-          confirmParams: {
-            return_url: window.location.href,
-            payment_method_data: {
-              billing_details: {
-                name, email, phone,
-                address: { line1: street, line2: address2, city, state, postal_code: zip, country: 'US' },
+        if (selectedCardId) {
+          // Saved card flow
+          const { error: confirmErr, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: selectedCardId,
+          });
+          if (confirmErr) throw new Error(confirmErr.message);
+          paymentIntentId = paymentIntent?.id || null;
+        } else {
+          // New card / PaymentElement flow
+          if (!elements) throw new Error('Payment system not loaded.');
+          const { error: submitErr } = await elements.submit();
+          if (submitErr) throw new Error(submitErr.message);
+
+          const { error: confirmErr, paymentIntent } = await stripe.confirmPayment({
+            elements,
+            clientSecret,
+            redirect: 'if_required',
+            confirmParams: {
+              return_url: window.location.href,
+              payment_method_data: {
+                billing_details: {
+                  name, email, phone,
+                  address: { line1: street, line2: address2, city, state, postal_code: zip, country: 'US' },
+                },
               },
             },
-          },
-        });
-        if (confirmErr) throw new Error(confirmErr.message);
-        paymentIntentId = paymentIntent?.id || null;
+          });
+          if (confirmErr) throw new Error(confirmErr.message);
+          paymentIntentId = paymentIntent?.id || null;
+        }
       }
 
       await completeOrderRef.current({
@@ -494,18 +541,26 @@ function CheckoutForm({ cart }: { cart: any }) {
                         className="w-full border border-brand-primary/20 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium text-sm"
                       />
                     </div>
-                    <input
-                      type="text"
-                      placeholder="ZIP code"
-                      value={addressDraft.zip}
-                      onChange={e => setAddressDraft(d => ({ ...d, zip: e.target.value }))}
-                      className="w-full border border-brand-primary/20 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium text-sm"
-                    />
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="ZIP code"
+                        value={addressDraft.zip}
+                        onChange={e => setAddressDraft(d => ({ ...d, zip: e.target.value }))}
+                        className={`w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary transition-all text-brand-primary font-medium text-sm ${addressDraft.zip && !DELIVERY_ZIPS.has(addressDraft.zip.trim()) ? 'border-red-400 focus:border-red-400' : 'border-brand-primary/20 focus:border-brand-primary'}`}
+                      />
+                      {addressDraft.zip && !DELIVERY_ZIPS.has(addressDraft.zip.trim()) && (
+                        <p className="mt-1.5 text-xs text-red-500 font-semibold flex items-center gap-1">
+                          <AlertCircle size={12} /> We don't deliver to this ZIP code yet.
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-3 pt-1">
                     <button
                       type="button"
-                      className="bg-brand-primary text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-brand-dark transition-colors"
+                      disabled={!!addressDraft.zip && !DELIVERY_ZIPS.has(addressDraft.zip.trim())}
+                      className="bg-brand-primary text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-brand-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => {
                         const formatted = [addressDraft.street, addressDraft.city, addressDraft.state, addressDraft.zip].filter(Boolean).join(', ');
                         const updated = { ...addressDraft, formatted };
@@ -534,12 +589,46 @@ function CheckoutForm({ cart }: { cart: any }) {
 
               {!isFree ? (
                 <div className="px-8 pb-8 space-y-5">
-                  <PaymentElement
-                    options={{
-                      layout:   { type: 'accordion', defaultCollapsed: false, radios: true, spacedAccordionItems: false },
-                      wallets:  { applePay: 'never', googlePay: 'never' }, // wallets are in express section above
-                    }}
-                  />
+                  {/* Saved cards */}
+                  {loadingCards && (
+                    <div className="flex items-center gap-2 text-brand-primary/50 text-sm"><Loader2 size={14} className="animate-spin" /> Loading saved cards…</div>
+                  )}
+                  {savedCards.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs font-bold text-brand-primary/60 uppercase tracking-wider">Saved cards</p>
+                      {savedCards.map(card => (
+                        <button
+                          key={card.id}
+                          type="button"
+                          onClick={() => setSelectedCardId(selectedCardId === card.id ? null : card.id)}
+                          className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl border-2 font-semibold text-sm transition-all ${selectedCardId === card.id ? 'border-brand-primary bg-brand-primary/5 text-brand-primary' : 'border-brand-primary/15 text-brand-primary/70 hover:border-brand-primary/30'}`}
+                        >
+                          <CreditCard size={18} className="shrink-0 opacity-60" />
+                          <span className="flex-1 text-left">{brandLabel(card.brand)} •••• {card.last4}</span>
+                          <span className="text-xs text-brand-primary/50 font-medium">{card.expMonth.toString().padStart(2,'0')}/{card.expYear}</span>
+                          {selectedCardId === card.id && <Check size={16} className="text-brand-primary shrink-0" />}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedCardId(null)}
+                        className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl border-2 font-semibold text-sm transition-all ${!selectedCardId ? 'border-brand-primary bg-brand-primary/5 text-brand-primary' : 'border-brand-primary/15 text-brand-primary/70 hover:border-brand-primary/30'}`}
+                      >
+                        <CreditCard size={18} className="shrink-0 opacity-60" />
+                        <span className="flex-1 text-left">Use a new card</span>
+                        {!selectedCardId && <Check size={16} className="text-brand-primary shrink-0" />}
+                      </button>
+                    </div>
+                  )}
+                  {/* PaymentElement: only show when no saved card is selected */}
+                  {!selectedCardId && (
+                    <PaymentElement
+                      options={{
+                        layout:   { type: 'accordion', defaultCollapsed: false, radios: true, spacedAccordionItems: false },
+                        wallets:  { applePay: 'never', googlePay: 'never' },
+                      }}
+                    />
+                  )}
                 </div>
               ) : (
                 <div className="px-8 pb-8">
@@ -573,7 +662,7 @@ function CheckoutForm({ cart }: { cart: any }) {
               </div>
 
               <div className="relative">
-                <input required name="street" type="text" defaultValue={deliveryAddress?.street || '6778 West Flagler Street'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                <input required name="street" type="text" defaultValue={deliveryAddress?.street || user?.street || ''} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                 <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">Address</label>
               </div>
 
@@ -583,17 +672,17 @@ function CheckoutForm({ cart }: { cart: any }) {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="relative">
-                  <input required name="city" type="text" defaultValue={deliveryAddress?.city || 'Miami'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <input required name="city" type="text" defaultValue={deliveryAddress?.city || user?.city || ''} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">City</label>
                 </div>
                 <div className="relative col-span-1">
                   <select name="state" className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 appearance-none font-medium text-brand-primary focus:border-brand-primary outline-none">
-                    <option>{deliveryAddress?.state || 'Florida'}</option>
+                    <option>{deliveryAddress?.state || user?.state || 'Florida'}</option>
                   </select>
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">State</label>
                 </div>
                 <div className="relative">
-                  <input required name="zip" type="text" defaultValue={deliveryAddress?.zip || '33144'} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
+                  <input required name="zip" type="text" defaultValue={deliveryAddress?.zip || user?.zip || ''} className="w-full border border-brand-primary/20 rounded-xl px-4 pt-6 pb-2 font-medium text-brand-primary focus:border-brand-primary outline-none" />
                   <label className="absolute left-4 top-2 text-[10px] text-brand-primary/60 font-bold uppercase">ZIP Code</label>
                 </div>
               </div>
@@ -715,9 +804,27 @@ function CheckoutForm({ cart }: { cart: any }) {
                 })}
               </div>
               <div className="flex border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
-                <div className="px-4 py-3 text-xs text-brand-primary/40 font-semibold flex-1">Custom tip</div>
-                <div className="flex items-center gap-1 border-r border-gray-200 px-3 opacity-30"><span className="px-1 text-lg">−</span><span className="px-1 text-lg">+</span></div>
-                <button type="button" className="px-4 py-3 text-[11px] font-bold text-brand-primary/50 bg-gray-50 uppercase hover:bg-gray-100 transition-colors">Add tip</button>
+                <span className="px-3 py-3 text-xs text-brand-primary/50 font-bold self-center">$</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.50"
+                  placeholder="Custom tip"
+                  value={customTipInput}
+                  onChange={e => setCustomTipInput(e.target.value)}
+                  className="flex-1 py-3 text-xs font-semibold text-brand-primary outline-none bg-transparent placeholder:text-brand-primary/30 [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <div className="flex items-center border-r border-gray-200 px-2 gap-1">
+                  <button type="button" onClick={() => { const v = Math.max(0, parseFloat(customTipInput || '0') - 0.5); setCustomTipInput(v.toFixed(2)); }} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-brand-primary font-bold text-lg leading-none">−</button>
+                  <button type="button" onClick={() => { const v = parseFloat(customTipInput || '0') + 0.5; setCustomTipInput(v.toFixed(2)); }} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-brand-primary font-bold text-lg leading-none">+</button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { const v = parseFloat(customTipInput); if (!isNaN(v) && v > 0) { setCustomTipFixed(v); setTipRate('custom'); } }}
+                  className="px-4 py-3 text-[11px] font-bold text-brand-primary bg-gray-50 uppercase hover:bg-gray-100 transition-colors"
+                >
+                  Add tip
+                </button>
               </div>
               <p className="text-[10px] text-brand-primary/60 font-medium italic mt-4 text-center">Thank you.</p>
             </div>
@@ -887,9 +994,27 @@ function CheckoutForm({ cart }: { cart: any }) {
                 </div>
 
                 <div className="flex border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
-                  <div className="px-4 py-3 text-xs text-brand-primary/40 font-semibold flex-1">Custom tip</div>
-                  <div className="flex items-center gap-1 border-r border-gray-200 px-3 opacity-30"><span className="px-1 text-lg">−</span><span className="px-1 text-lg">+</span></div>
-                  <button type="button" className="px-4 py-3 text-[11px] font-bold text-brand-primary/50 bg-gray-50 uppercase hover:bg-gray-100 transition-colors">Add tip</button>
+                  <span className="px-3 py-3 text-xs text-brand-primary/50 font-bold self-center">$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.50"
+                    placeholder="Custom tip"
+                    value={customTipInput}
+                    onChange={e => setCustomTipInput(e.target.value)}
+                    className="flex-1 py-3 text-xs font-semibold text-brand-primary outline-none bg-transparent placeholder:text-brand-primary/30 [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <div className="flex items-center border-r border-gray-200 px-2 gap-1">
+                    <button type="button" onClick={() => { const v = Math.max(0, parseFloat(customTipInput || '0') - 0.5); setCustomTipInput(v.toFixed(2)); }} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-brand-primary font-bold text-lg leading-none">−</button>
+                    <button type="button" onClick={() => { const v = parseFloat(customTipInput || '0') + 0.5; setCustomTipInput(v.toFixed(2)); }} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-brand-primary font-bold text-lg leading-none">+</button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { const v = parseFloat(customTipInput); if (!isNaN(v) && v > 0) { setCustomTipFixed(v); setTipRate('custom'); } }}
+                    className="px-4 py-3 text-[11px] font-bold text-brand-primary bg-gray-50 uppercase hover:bg-gray-100 transition-colors"
+                  >
+                    Add tip
+                  </button>
                 </div>
                 <p className="text-[10px] text-brand-primary/60 font-medium italic mt-4 text-center">Thank you.</p>
               </div>
