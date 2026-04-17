@@ -113,7 +113,9 @@ function CheckoutForm({ cart }: { cart: any }) {
   const stripe     = useStripe();
   const elements   = useElements();
 
-  const [deliveryAddress] = useState<StoredCheckoutAddress | null>(() => readStoredCheckoutAddress());
+  const [deliveryAddress, setDeliveryAddress] = useState<StoredCheckoutAddress | null>(() => readStoredCheckoutAddress());
+  const [editingAddress, setEditingAddress] = useState(false);
+  const [addressDraft, setAddressDraft] = useState<StoredCheckoutAddress>({ formatted: '', street: '', city: '', state: '', zip: '', country: 'US' });
   const [loading, setLoading]   = useState(false);
   const [error,   setError]     = useState('');
   const [tipRate, setTipRate]   = useState<number | 'none'>('none');
@@ -448,12 +450,82 @@ function CheckoutForm({ cart }: { cart: any }) {
             </div>
 
             {/* Delivering To */}
-            <div className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-brand-primary/5 flex flex-col items-start gap-1">
+            <div className="bg-white rounded-[1.5rem] p-8 shadow-sm border border-brand-primary/5 flex flex-col items-start gap-3">
               <h2 className="text-2xl font-bold text-brand-primary">Delivering to your office</h2>
-              <p className="text-brand-primary/60 font-medium text-base mb-1 tracking-tight">
-                {deliveryAddress?.formatted || 'Add your delivery address from the menu page to prefill checkout.'}
-              </p>
-              <button type="button" className="text-brand-orange text-sm font-bold hover:underline underline-offset-4">Edit delivery preferences</button>
+              {!editingAddress ? (
+                <>
+                  <p className="text-brand-primary/60 font-medium text-base tracking-tight">
+                    {deliveryAddress?.formatted || 'Add your delivery address below.'}
+                  </p>
+                  <button
+                    type="button"
+                    className="text-brand-orange text-sm font-bold hover:underline underline-offset-4"
+                    onClick={() => {
+                      setAddressDraft(deliveryAddress ?? { formatted: '', street: '', city: '', state: '', zip: '', country: 'US' });
+                      setEditingAddress(true);
+                    }}
+                  >
+                    Edit delivery preferences
+                  </button>
+                </>
+              ) : (
+                <div className="w-full space-y-3">
+                  <div className="grid grid-cols-1 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Street address"
+                      value={addressDraft.street}
+                      onChange={e => setAddressDraft(d => ({ ...d, street: e.target.value }))}
+                      className="w-full border border-brand-primary/20 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium text-sm"
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        placeholder="City"
+                        value={addressDraft.city}
+                        onChange={e => setAddressDraft(d => ({ ...d, city: e.target.value }))}
+                        className="w-full border border-brand-primary/20 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium text-sm"
+                      />
+                      <input
+                        type="text"
+                        placeholder="State"
+                        value={addressDraft.state}
+                        onChange={e => setAddressDraft(d => ({ ...d, state: e.target.value }))}
+                        className="w-full border border-brand-primary/20 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium text-sm"
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="ZIP code"
+                      value={addressDraft.zip}
+                      onChange={e => setAddressDraft(d => ({ ...d, zip: e.target.value }))}
+                      className="w-full border border-brand-primary/20 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium text-sm"
+                    />
+                  </div>
+                  <div className="flex gap-3 pt-1">
+                    <button
+                      type="button"
+                      className="bg-brand-primary text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-brand-dark transition-colors"
+                      onClick={() => {
+                        const formatted = [addressDraft.street, addressDraft.city, addressDraft.state, addressDraft.zip].filter(Boolean).join(', ');
+                        const updated = { ...addressDraft, formatted };
+                        window.sessionStorage.setItem(CHECKOUT_ADDRESS_STORAGE_KEY, JSON.stringify(updated));
+                        setDeliveryAddress(updated);
+                        setEditingAddress(false);
+                      }}
+                    >
+                      Save address
+                    </button>
+                    <button
+                      type="button"
+                      className="text-brand-primary/50 text-sm font-bold px-4 py-2.5 rounded-xl hover:text-brand-primary transition-colors"
+                      onClick={() => setEditingAddress(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Payment Method */}
@@ -662,8 +734,8 @@ function CheckoutForm({ cart }: { cart: any }) {
               <button type="submit" disabled={loading} className="w-full bg-brand-primary text-white py-5 rounded-xl font-bold text-lg flex justify-center items-center gap-3 hover:brightness-110 shadow-[0_15px_30px_rgba(23,11,85,0.2)] transition-all active:scale-95 disabled:opacity-50">
                 {loading ? <Loader2 size={24} className="animate-spin" /> : <><Lock size={16} className="opacity-60" /> Place Order <span className="text-[#D4E84F] text-2xl font-light transform translate-y-[-2px]">⟶</span></>}
               </button>
-              <button type="button" onClick={() => navigate('/order')} className="w-full bg-white border border-brand-primary/10 text-brand-primary py-4 rounded-xl font-bold text-sm tracking-wider flex justify-center items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
-                <span className="text-xl transform -translate-y-[1px]">←</span> Continue Shopping
+              <button type="button" onClick={() => navigate('/account')} className="w-full bg-white border border-brand-primary/10 text-brand-primary py-4 rounded-xl font-bold text-sm tracking-wider flex justify-center items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
+                My Account
               </button>
             </div>
           </div>
@@ -850,10 +922,10 @@ function CheckoutForm({ cart }: { cart: any }) {
                   }
                 </button>
                 <button
-                  type="button" onClick={() => navigate('/order')}
+                  type="button" onClick={() => navigate('/account')}
                   className="w-full bg-white border border-brand-primary/10 text-brand-primary py-4 rounded-xl font-bold text-sm tracking-wider flex justify-center items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm"
                 >
-                  <span className="text-xl transform -translate-y-[1px]">←</span> Continue Shopping
+                  My Account
                 </button>
               </div>
 
