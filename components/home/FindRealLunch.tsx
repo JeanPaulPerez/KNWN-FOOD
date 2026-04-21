@@ -26,9 +26,9 @@ const COMPARISON_ROWS = [
 export default function FindRealLunch() {
   const navigate = useNavigate();
   return (
-    <section className="bg-[#F5F3FF] py-10 px-5 md:px-14">
+    <section className="bg-[#F5F3FF] py-10 px-[5px] md:px-14">
       <div
-        style={{ background: '#DB5A29', borderRadius: '24px', maxWidth: '1280px' }}
+        style={{ background: '#DB5A29', borderRadius: '8px', maxWidth: '1280px' }}
         className="mx-auto py-10 px-5 md:px-12"
       >
         <div className="mx-auto max-w-7xl">
@@ -110,8 +110,8 @@ export default function FindRealLunch() {
               </div>
             </div>
 
-            {/* Mobile table (Compressed Full-Width Box - Image 1/3) */}
-            <div className="md:hidden mt-8 -mx-5 w-[calc(100%+40px)] overflow-hidden bg-[#311c67]">
+            {/* Mobile table (Compressed Box - Rounded) */}
+            <div className="md:hidden mt-8 overflow-hidden bg-[#311c67]" style={{ borderRadius: '8px' }}>
               <div className="flex flex-col">
                 {/* Header Row */}
                 <div className="grid grid-cols-[1.3fr_1fr_1fr_1fr] bg-[#311c67]">

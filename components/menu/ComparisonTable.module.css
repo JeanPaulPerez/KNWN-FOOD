@@ -17,18 +17,6 @@
   position: relative;
 }
 
-@media (max-width: 768px) {
-  .section {
-    padding: 32px 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .section {
-    padding: 24px 12px;
-  }
-}
-
 /* Heading */
 .heading {
   text-align: center;
@@ -37,7 +25,6 @@
   font-weight: 700;
   color: white;
   line-height: 1;
-  letter-spacing: 5px;
 }
 
 .headingAccent {
@@ -128,7 +115,6 @@
   overflow: hidden;
   border-radius: 22px;
   box-shadow: 0 12px 28px rgba(95, 41, 14, 0.08);
-  /* background set inline (highlighted ? #34206E : #FFFFFF) */
 }
 
 .rowLabel {
@@ -141,7 +127,6 @@
   font-weight: 700;
   line-height: 1;
   font-family: Poppins, sans-serif;
-  /* color set inline */
 }
 
 .checkCell {
@@ -153,24 +138,17 @@
 }
 
 /* ── Mobile table ── */
-@media (min-width: 768px) {
-  .mobileTableContainer {
-    display: none;
-  }
-}
-
-/* Full-width bleed, padding-top reserves space for the elevated KNWN card */
 .mobileTableContainer {
-  margin: 36px -16px 0;
-  width: calc(100% + 32px);
+  display: block;
+  margin: 36px 0 0;
+  width: 100%;
   overflow: visible;
   padding-top: 24px;
 }
 
-@media (max-width: 480px) {
+@media (min-width: 768px) {
   .mobileTableContainer {
-    margin: 28px -12px 0;
-    width: calc(100% + 24px);
+    display: none;
   }
 }
 
@@ -178,6 +156,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border-radius: 8px; /* Added radius here too */
 }
 
 /* ── Header ── */
@@ -201,7 +180,6 @@
   font-family: Poppins, sans-serif;
 }
 
-/* KNWN card — elevated above the navy bar */
 .mHeaderCellBrand {
   background: #FFFFFF;
   display: flex;
@@ -280,7 +258,6 @@
   min-height: 84px;
 }
 
-/* Empty cell marker — a subtle horizontal bar */
 .mEmpty {
   display: inline-block;
   width: 22px;
@@ -289,7 +266,7 @@
   border-radius: 2px;
 }
 
-/* Sticker Link Wrappers */
+/* Sticker */
 .stickerLinkDesktop {
   position: absolute;
   bottom: 1.15rem;
@@ -310,7 +287,6 @@
   }
 }
 
-/* Sticker Images */
 .stickerDesktop {
   display: block;
   width: 220px;
@@ -320,5 +296,36 @@
 @media (min-width: 1024px) {
   .stickerDesktop {
     width: 255px;
+  }
+}
+
+/* ── MOBILE OVERRIDES ────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .section {
+    padding: 30px 10px;
+    margin: 0 5px;
+    border-radius: 8px;
+    width: auto;
+  }
+
+  .heading {
+    letter-spacing: normal;
+    font-size: clamp(40px, 10vw, 54px);
+    line-height: 0.95;
+  }
+
+  .headingAccent {
+    font-size: clamp(42px, 10.5vw, 56px);
+  }
+
+  .subtitle {
+    font-size: clamp(14px, 4.5vw, 18px);
+    margin-top: 14px;
+    line-height: 1.4;
+    padding: 0 10px;
+  }
+
+  .mobileTableContainer {
+    margin-top: 24px;
   }
 }

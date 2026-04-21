@@ -198,6 +198,8 @@
 @media (max-width: 768px) {
   .section {
     padding: 36px 16px 40px;
+    margin: 0 5px;
+    border-radius: 8px;
   }
 
   .heading {
@@ -252,6 +254,8 @@
 @media (max-width: 480px) {
   .section {
     padding: 28px 12px 32px;
+    margin: 0 5px;
+    border-radius: 8px;
   }
 
   .heading {

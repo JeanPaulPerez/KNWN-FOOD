@@ -172,7 +172,7 @@
 /* ── Tablet & Mobile (≤ 768px): single column, stacked ────────── */
 @media (max-width: 768px) {
   .section {
-    padding: 24px 16px 32px;
+    padding: 24px 5px 32px;
   }
 
   .banner {
@@ -180,7 +180,7 @@
     flex-direction: column;
     padding: 40px 24px 32px;
     gap: 20px;
-    border-radius: 24px;
+    border-radius: 8px;
     position: relative;
     z-index: 1;
   }

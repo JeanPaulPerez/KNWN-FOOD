@@ -1,89 +1,22 @@
+/* ── SHARED / BASE STYLES ────────────────────────────────────────────────── */
 .section {
   background: #F5F3FF;
-  padding: 48px 0 32px;
-}
-
-.divider {
-  width: 1200px;
-  height: 2px;
-  background: rgba(0, 0, 0, 0.2);
-  margin: 0 auto 120px;
-}
-
-@media (min-width: 768px) {
-  .section {
-    padding: 80px 0 48px;
-  }
 }
 
 .inner {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 20px;
 }
 
-@media (min-width: 768px) {
-  .inner {
-    padding: 0 40px;
-  }
-}
-
-/* Founders row */
-.foundersRow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 32px;
-  margin-bottom: 32px;
-}
-
-@media (min-width: 768px) {
-  .foundersRow {
-    flex-direction: row;
-    gap: 80px;
-    margin-bottom: 48px;
-    align-items: center;
-    justify-content: center;
-  }
+.divider {
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .photoWrap {
   position: relative;
   flex-shrink: 0;
-  width: 100%;
-  max-width: 260px;
-  margin: 0 auto;
-}
-
-@media (min-width: 768px) {
-  .photoWrap {
-    max-width: 360px;
-    margin: 0;
-  }
-}
-
-.dateStamp {
-  position: absolute;
-  bottom: 12px;
-  right: 14px;
-  font-family: Poppins, sans-serif;
-  font-size: clamp(10px, 0.7vw, 12px);
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
-  letter-spacing: 0.06em;
-  pointer-events: none;
-  user-select: none;
-}
-
-.blob {
-  position: absolute;
-  width: 200%;
-  top: -35%;
-  left: 0%;
-  pointer-events: none;
-  user-select: none;
-  mix-blend-mode: multiply;
-  opacity: 0.90;
 }
 
 .founderPhoto {
@@ -96,38 +29,11 @@
   display: block;
 }
 
-.foundersText {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  text-align: center;
-  padding-top: 0;
-  align-items: center;
-}
-
-@media (min-width: 768px) {
-  .foundersText {
-    text-align: center;
-    padding-top: 8px;
-    align-items: center;
-  }
-}
-
-.foundersHeading {
-  font-family: "Instrument Serif", serif;
-  font-weight: 500;
-  color: #db5a29;
-  font-size: clamp(35px, 4.5vw, 68px);
-  line-height: 1.15;
-}
-
-.foundersSubtitle {
-  color: #db5a29;
-  font-family: "Poppins";
-  font-weight: 400;
-  font-size: clamp(30px, 1.2vw, 35px);
-  line-height: 1.2;
-  align-items: center;
+.blob {
+  position: absolute;
+  mix-blend-mode: multiply;
+  opacity: 0.90;
+  pointer-events: none;
 }
 
 .stickerWrap {
@@ -136,116 +42,296 @@
 }
 
 .stickerImg {
-  width: 100%;
-  max-width: 480px;
-  object-fit: contain;
   filter: drop-shadow(0 4px 12px rgba(45, 27, 105, 0.25));
   rotate: -1deg;
-}
-
-@media (min-width: 768px) {
-  .stickerImg {
-    max-width: 530px;
-  }
-}
-
-/* Problem cards grid */
-.problemGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px 32px;
-  margin-bottom: 64px;
-  overflow: visible;
-}
-
-@media (min-width: 768px) {
-  .problemGrid {
-    grid-template-columns: 1fr 1fr 1fr;
-    margin-bottom: 80px;
-  }
 }
 
 .problemCard {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  position: relative;
 }
 
 .problemLabel {
-  align-self: flex-start;
-  display: inline-block;
   background: #2D1B69;
   color: #FFFFFF;
   font-family: Poppins, sans-serif;
   font-weight: 700;
-  text-transform: none;
   border-radius: 12px;
-  padding: 10px 20px;
-  font-size: clamp(17px, 1.4vw, 24px);
   z-index: 20;
-  box-shadow: 0 4px 12px rgba(45, 27, 105, 0.2);
 }
 
 .problemImgWrap {
   width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-.problemImg {
-  width: 100%;
-  height: 300px;
-  display: block;
-}
-
-/* ── Individual card overrides ── */
-.problemCard1 {}
-
-.problemCard2 {}
-
-.problemCard3 {}
-
-.problemImg1 {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-}
-
-.problemImg2 {
-  height: 260px;
-  object-fit: contain;
-}
-
-.problemImg3 {
-  height: 300px;
-  object-fit: cover;
-  margin-top: -20px;
-}
-
-/* Quote */
 .quoteBlock {
   text-align: center;
-  max-width: 920px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
-.quote {
-  font-family: "Instrument Serif", serif;
-  color: #2D1B69;
-  font-size: clamp(62px, 2.8vw, 77px);
-  font-weight: 600;
-  line-height: 1.3;
+/* ── PC STYLES (≥ 768px) ─────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  .section {
+    padding: 80px 0 48px;
+  }
+
+  .inner {
+    padding: 0 40px;
+  }
+
+  .divider {
+    max-width: 1200px;
+    margin: 0 auto 120px;
+  }
+
+  .foundersRow {
+    display: flex;
+    flex-direction: row;
+    gap: 80px;
+    margin-bottom: 48px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .photoWrap {
+    max-width: 360px;
+  }
+
+  .blob {
+    width: 200%;
+    top: -35%;
+    left: 0%;
+  }
+
+  .foundersText {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 8px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .foundersHeading {
+    font-family: "Instrument Serif", serif;
+    font-weight: 500;
+    color: #db5a29;
+    font-size: 68px;
+    line-height: 1.15;
+  }
+
+  .foundersSubtitle {
+    color: #db5a29;
+    font-family: "Poppins";
+    font-weight: 400;
+    font-size: 35px;
+    line-height: 1.2;
+  }
+
+  .stickerImg {
+    width: 100%;
+    max-width: 530px;
+    object-fit: contain;
+  }
+
+  .problemGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin-bottom: 80px;
+    gap: 32px;
+  }
+
+  .problemCard {
+    gap: 16px;
+    position: relative;
+  }
+
+  .problemLabel {
+    align-self: flex-start;
+    padding: 10px 20px;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(45, 27, 105, 0.2);
+  }
+
+  .problemImg {
+    width: 100%;
+    height: 300px;
+    display: block;
+    object-fit: cover;
+  }
+
+  .problemImg2 { height: 260px; object-fit: contain; }
+
+  .quote {
+    font-family: "Instrument Serif", serif;
+    color: #2D1B69;
+    font-size: 77px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .quoteTag {
+    color: #311c67;
+    font-family: "Poppins";
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 27px;
+  }
 }
 
-.quoteTag {
-  color: #311c67;
-  font-family: "Poppins";
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: clamp(17px, 0.8vw, 27px);
+/* ── MOBILE STYLES (≤ 767px) ─────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .section {
+    padding: 40px 0 32px;
+  }
+
+  .inner {
+    padding: 0 20px;
+  }
+
+  .divider {
+    max-width: 90%;
+    margin: 0 auto 30px;
+  }
+
+  .foundersRow {
+    display: grid;
+    grid-template-areas:
+      "photo heading"
+      "subtitle subtitle"
+      "sticker sticker";
+    grid-template-columns: 130px 1fr;
+    column-gap: 20px;
+    row-gap: 12px;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+
+  .photoWrap {
+    grid-area: photo;
+    max-width: 130px;
+    margin: 0;
+  }
+
+  .blob {
+    width: 200%;
+    top: -30%;
+    left: -10%;
+  }
+
+  .dateStamp {
+    font-size: 8px;
+    bottom: 8px;
+    right: 10px;
+  }
+
+  .foundersText {
+    display: contents; /* Allows children to be grid items of .foundersRow */
+  }
+
+  .foundersHeading {
+    grid-area: heading;
+    font-family: "Instrument Serif", serif;
+    font-weight: 500;
+    color: #db5a29;
+    font-size: clamp(28px, 8vw, 36px);
+    line-height: 1.05;
+    text-align: left;
+    margin-top: -5px;
+  }
+
+  .foundersSubtitle {
+    grid-area: subtitle;
+    color: #db5a29;
+    font-family: "Poppins";
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.4;
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  .stickerWrap {
+    grid-area: sticker;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .stickerImg {
+    width: 90%;
+    max-width: 400px;
+  }
+
+  /* Problems Section - Overlapping style for compactness */
+  .problemGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* Removing gap to allow overlapping */
+    margin-bottom: 40px;
+    align-items: center;
+  }
+
+  .problemCard {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: -15px; /* Overlap cards */
+  }
+
+  .problemCard:nth-child(2) {
+    margin-top: -10px;
+    z-index: 5;
+  }
+
+  .problemCard:nth-child(3) {
+    margin-top: -10px;
+    z-index: 6;
+  }
+
+  .problemLabel {
+    padding: 6px 12px;
+    font-size: 14px;
+    margin-bottom: -12px;
+    margin-left: 10px;
+  }
+
+  .problemImgWrap {
+    border-radius: 12px;
+  }
+
+  .problemImg {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+  }
+
+  .problemImg2 {
+    height: 160px;
+  }
+
+  /* Quote */
+  .quoteBlock {
+    gap: 6px;
+    padding-top: 20px;
+  }
+
+  .quote {
+    font-family: "Instrument Serif", serif;
+    color: #2D1B69;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .quoteTag {
+    color: #311c67;
+    font-family: "Poppins";
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 }
