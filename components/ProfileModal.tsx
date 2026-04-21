@@ -37,11 +37,12 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     password: '',
     confirmPassword: '',
   });
-  const [resetData, setResetData] = useState({
-    email: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
+  const [resetStep, setResetStep] = useState<1 | 2 | 3>(1);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetOtp, setResetOtp] = useState('');
+  const [resetToken, setResetToken] = useState('');
+  const [resetNewPw, setResetNewPw] = useState('');
+  const [resetConfirmPw, setResetConfirmPw] = useState('');
   const [resetSuccess, setResetSuccess] = useState(false);
 
   useEffect(() => {
@@ -57,7 +58,12 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       password: '',
       confirmPassword: '',
     });
-    setResetData({ email: '', newPassword: '', confirmPassword: '' });
+    setResetStep(1);
+    setResetEmail('');
+    setResetOtp('');
+    setResetToken('');
+    setResetNewPw('');
+    setResetConfirmPw('');
     setResetSuccess(false);
   }, [isOpen]);
 
@@ -124,23 +130,47 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     }
   };
 
-  const handleReset = async (e: React.FormEvent) => {
+  const handleResetRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (resetData.newPassword !== resetData.confirmPassword) {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/reset-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail }),
+      });
+      const data = await parseApiResponse<any>(res);
+      if (!res.ok) {
+        setError(data.error || 'Failed to send code');
+        return;
+      }
+      setResetToken(data.token || '');
+      setResetStep(2);
+    } catch {
+      setError('Connection error. Try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (resetNewPw !== resetConfirmPw) {
       setError('Passwords do not match');
       return;
     }
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/save-customer', {
+      const res = await fetch('/api/reset-verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: resetData.email, newPassword: resetData.newPassword }),
+        body: JSON.stringify({ email: resetEmail, otp: resetOtp, token: resetToken, newPassword: resetNewPw }),
       });
       const data = await parseApiResponse<any>(res);
       if (!res.ok) {
-        setError(data.error || 'Failed to update password');
+        setError(data.error || 'Failed to reset password');
         return;
       }
       setResetSuccess(true);
@@ -247,8 +277,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               </button>
               <button
                 type="button"
-                onClick={() => { setMode('reset'); setError(''); setResetSuccess(false); }}
-                className={`flex-1 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.15em] ${mode === 'reset' ? 'bg-brand-primary text-white' : 'text-brand-primary/55'}`}
+                onClick={() => { setMode('reset'); setError(''); setResetSuccess(false); setResetStep(1); setResetEmail(''); setResetOtp(''); setResetToken(''); setResetNewPw(''); setResetConfirmPw(''); }}
+                className={`flex-1 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-brand-primary/30`}
+                disabled
+                title="Coming soon"
               >
                 Reset
               </button>
@@ -257,6 +289,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             {mode === 'reset' ? (
               resetSuccess ? (
                 <div className="text-center py-6 space-y-3">
+                  <div className="text-3xl mb-2">✓</div>
                   <p className="text-brand-primary font-semibold text-sm">Password updated!</p>
                   <p className="text-brand-primary/50 text-xs">You can now sign in with your new password.</p>
                   <button
@@ -267,30 +300,74 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                     Go to Sign In
                   </button>
                 </div>
-              ) : (
-                <form onSubmit={handleReset} className="space-y-3">
+              ) : resetStep === 1 ? (
+                <form onSubmit={handleResetRequest} className="space-y-3">
+                  <p className="text-[11px] text-brand-primary/50 pb-1">Enter your email and we'll send you a 6-digit code.</p>
                   <input
                     required
                     type="email"
                     placeholder="Email Address"
-                    value={resetData.email}
-                    onChange={(event) => { setResetData((current) => ({ ...current, email: event.target.value })); setError(''); }}
+                    value={resetEmail}
+                    onChange={(event) => { setResetEmail(event.target.value); setError(''); }}
                     className="w-full bg-brand-primary/5 border border-transparent rounded-xl px-5 py-4 text-sm text-brand-primary font-medium focus:bg-white focus:border-brand-primary focus:outline-none transition-all placeholder:text-brand-primary/25"
                   />
+                  {error && <p className="text-[11px] text-red-500 font-medium px-1">{error}</p>}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-4 mt-1 bg-brand-lime text-brand-primary rounded-2xl text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2 disabled:opacity-60"
+                  >
+                    {loading ? <><Loader2 size={13} className="animate-spin" /> Sending...</> : 'Send Code'}
+                  </button>
+                </form>
+              ) : resetStep === 2 ? (
+                <div className="space-y-3">
+                  <p className="text-[11px] text-brand-primary/50 pb-1">
+                    We sent a 6-digit code to <strong className="text-brand-primary/70">{resetEmail}</strong>. Check your inbox.
+                  </p>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="6-digit code"
+                    value={resetOtp}
+                    onChange={(event) => { setResetOtp(event.target.value.replace(/\D/g, '')); setError(''); }}
+                    className="w-full bg-brand-primary/5 border border-transparent rounded-xl px-5 py-4 text-center text-xl font-black tracking-[0.4em] text-brand-primary focus:bg-white focus:border-brand-primary focus:outline-none transition-all placeholder:text-brand-primary/20 placeholder:tracking-normal placeholder:text-sm placeholder:font-medium"
+                  />
+                  {error && <p className="text-[11px] text-red-500 font-medium px-1">{error}</p>}
+                  <button
+                    type="button"
+                    disabled={resetOtp.length !== 6}
+                    onClick={() => { setError(''); setResetStep(3); }}
+                    className="w-full py-4 mt-1 bg-brand-lime text-brand-primary rounded-2xl text-[9px] font-black uppercase tracking-[0.3em] disabled:opacity-40"
+                  >
+                    Continue
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setResetStep(1); setResetOtp(''); setError(''); }}
+                    className="w-full text-[10px] text-brand-primary/40 hover:text-brand-primary/70 transition-colors pt-1"
+                  >
+                    Resend code
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleResetVerify} className="space-y-3">
+                  <p className="text-[11px] text-brand-primary/50 pb-1">Create your new password.</p>
                   <input
                     required
                     type="password"
                     placeholder="New Password"
-                    value={resetData.newPassword}
-                    onChange={(event) => { setResetData((current) => ({ ...current, newPassword: event.target.value })); setError(''); }}
+                    value={resetNewPw}
+                    onChange={(event) => { setResetNewPw(event.target.value); setError(''); }}
                     className="w-full bg-brand-primary/5 border border-transparent rounded-xl px-5 py-4 text-sm text-brand-primary font-medium focus:bg-white focus:border-brand-primary focus:outline-none transition-all placeholder:text-brand-primary/25"
                   />
                   <input
                     required
                     type="password"
                     placeholder="Confirm New Password"
-                    value={resetData.confirmPassword}
-                    onChange={(event) => { setResetData((current) => ({ ...current, confirmPassword: event.target.value })); setError(''); }}
+                    value={resetConfirmPw}
+                    onChange={(event) => { setResetConfirmPw(event.target.value); setError(''); }}
                     className="w-full bg-brand-primary/5 border border-transparent rounded-xl px-5 py-4 text-sm text-brand-primary font-medium focus:bg-white focus:border-brand-primary focus:outline-none transition-all placeholder:text-brand-primary/25"
                   />
                   {error && <p className="text-[11px] text-red-500 font-medium px-1">{error}</p>}

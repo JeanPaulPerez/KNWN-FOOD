@@ -24,7 +24,7 @@ const COPY = {
 export default function OurPhilosophy() {
   return (
     <section className="bg-[#F5F3FF] py-14 md:py-20 px-5 md:px-14">
-      <div className="max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
+      <div className="max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-10 lg:gap-16 items-stretch">
 
         {/* LEFT — photo */}
         <div className="rounded-[2rem] overflow-hidden h-[480px] md:h-[600px] lg:h-full lg:min-h-[580px]">
@@ -52,7 +52,7 @@ export default function OurPhilosophy() {
           </h2>
 
           <ul
-            className="space-y-[6px] md:space-y-2 text-[17px] md:text-[22px] md:text-[#2D1B69] md:bg-transparent md:p-0 md:rounded-none bg-[#2B1A5A] text-white px-8 py-6 rounded-[16px] leading-relaxed list-disc list-outside ml-4 md:ml-8"
+            className="space-y-[6px] md:space-y-2 text-[17px] md:text-[22px] md:text-[#2D1B69] md:bg-transparent md:p-0 md:rounded-none bg-[#2B1A5A] text-white px-8 py-6 rounded-[16px] leading-relaxed list-disc list-outside ml-0 md:ml-8"
             style={{ fontFamily: 'Poppins, sans-serif', fontWeight: '500' }}
           >
             {COPY.bullets.map((b) => <li key={b} className="pl-1">{b}</li>)}

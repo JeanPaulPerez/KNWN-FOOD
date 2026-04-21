@@ -45,7 +45,7 @@ export default function CustomerFavs() {
           <defs>
             <path id="custFavsArch" d="M 15 100 Q 180 8 345 100" />
           </defs>
-          <text fontFamily="'Instrument Serif', Georgia, serif" fontSize="46" fontWeight="700" fill="#2B1C70" textAnchor="middle" letterSpacing="1">
+          <text fontFamily="'Instrument Serif', Georgia, serif" fontSize="46" fontWeight="400" fill="#2B1C70" textAnchor="middle" letterSpacing="1">
             <textPath href="#custFavsArch" startOffset="50%">CUSTOMER FAVS</textPath>
           </text>
         </svg>
@@ -55,7 +55,7 @@ export default function CustomerFavs() {
           key={item.img}
           src={item.img}
           alt={item.name}
-          loading="lazy"
+          loading="eager"
           className={s.foodImg}
         />
 

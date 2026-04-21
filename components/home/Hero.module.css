@@ -291,7 +291,7 @@
 
 @media (max-width: 640px) {
   .inner {
-    padding: 24px 20px 0;
+    padding: 50px 20px 0 32px;
     text-align: left;
     align-items: flex-start;
   }
@@ -314,15 +314,15 @@
   }
 
   .headingSerif {
-    font-size: clamp(42px, 11vw, 56px);
-    line-height: 0.95;
+    font-size: clamp(46px, 12vw, 58px);
+    line-height: 0.92;
     white-space: normal;
   }
 
   .headingBold {
-    margin-top: 4px;
-    font-size: clamp(38px, 10vw, 48px);
-    line-height: 0.95;
+    margin-top: 10px;
+    font-size: clamp(32px, 11vw, 44px);
+    line-height: 0.92;
     white-space: normal;
   }
 
@@ -370,26 +370,26 @@
 
   .bowlTop {
     bottom: 0px;
-    left: -50%;
+    left: -40%;
     top: auto;
     right: auto;
-    width: 100vw;
+    width: 90vw;
     max-width: none;
     z-index: 1;
   }
 
   .bowlBottom {
-    bottom: 260px;
-    right: -45%;
+    bottom: 280px;
+    right: -40%;
     left: auto;
-    width: 100vw;
+    width: 90vw;
     max-width: none;
     z-index: 0;
   }
 
   .stickerTop {
     top: auto;
-    bottom: 50%;
+    bottom: 45%;
     left: -8%;
     width: 100vw;
     max-width: 250px;
@@ -402,7 +402,7 @@
     left: 45%;
     width: 100vw;
     max-width: 250px;
-    transform: rotate(2deg);
+    transform: rotate(0deg);
     z-index: 11;
   }
 }

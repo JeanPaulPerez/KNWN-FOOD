@@ -1,4 +1,35 @@
+import crypto from 'node:crypto';
+
 const DELIVERY_WINDOW_LABEL = '10:00 AM - 12:00 PM';
+
+async function subscribeToMailchimp(email: string, name?: string): Promise<void> {
+  const apiKey = process.env.MAILCHIMP_API_KEY?.trim();
+  const listId = process.env.MAILCHIMP_LIST_ID?.trim();
+  if (!apiKey || !listId) return;
+  const dc = apiKey.split('-').pop();
+  const hash = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
+  try {
+    const [firstName, ...rest] = (name || '').split(' ');
+    await fetch(`https://${dc}.api.mailchimp.com/3.0/lists/${listId}/members/${hash}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Basic ${Buffer.from(`anystring:${apiKey}`).toString('base64')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email_address: email,
+        status_if_new: 'subscribed',
+        merge_fields: {
+          ...(firstName ? { FNAME: firstName } : {}),
+          ...(rest.length ? { LNAME: rest.join(' ') } : {}),
+        },
+        tags: ['knwn-customer', 'placed-order'],
+      }),
+    });
+  } catch (err) {
+    console.error('[mailchimp] subscribe failed:', err);
+  }
+}
 
 /**
  * api/complete-order.ts
@@ -352,6 +383,11 @@ export default async function handler(req: any, res: any) {
       };
     })
   );
+
+  // Subscribe customer to Mailchimp (fire-and-forget)
+  if (customerInfo?.email) {
+    subscribeToMailchimp(customerInfo.email, customerInfo.name);
+  }
 
   // If WooCommerce was reachable but every single order failed, surface it as an error
   // rather than silently returning fallback IDs that look like success.

@@ -219,7 +219,7 @@ export default function WeeklySystem({ onItemSelect }: Props) {
             <span className={s.vegBadgeText}>{COPY.vegBadge}</span>
           </div>
 
-          <Link to="/order" className={s.tryNowBtn} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'inline-block' }}>
+          <Link to="/order" className={s.tryNowBtn}>
             <img src="/assets/icons/try-now.png" alt="TRY NOW" loading="lazy" className={s.tryNowImg} />
           </Link>
         </div>

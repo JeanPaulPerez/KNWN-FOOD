@@ -8,6 +8,31 @@ import crypto from 'node:crypto';
 
 const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000;
 
+async function subscribeToMailchimp(email: string, firstName?: string): Promise<void> {
+  const apiKey = process.env.MAILCHIMP_API_KEY?.trim();
+  const listId = process.env.MAILCHIMP_LIST_ID?.trim();
+  if (!apiKey || !listId) return;
+  const dc = apiKey.split('-').pop();
+  const hash = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
+  try {
+    await fetch(`https://${dc}.api.mailchimp.com/3.0/lists/${listId}/members/${hash}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Basic ${Buffer.from(`anystring:${apiKey}`).toString('base64')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email_address: email,
+        status_if_new: 'subscribed',
+        merge_fields: firstName ? { FNAME: firstName } : {},
+        tags: ['knwn-customer'],
+      }),
+    });
+  } catch (err) {
+    console.error('[mailchimp] subscribe failed:', err);
+  }
+}
+
 function signToken(email: string, secret: string): string {
   const ts = Date.now();
   const sig = crypto.createHmac('sha256', secret).update(`${email}:${ts}`).digest('hex');
@@ -89,6 +114,10 @@ export default async function handler(req: any, res: any) {
     }
 
     const secret = process.env.AUTH_SESSION_SECRET || process.env.STRIPE_SECRET_KEY || wcCs!;
+
+    // Fire-and-forget — don't block the response
+    subscribeToMailchimp(data.email || email, data.first_name || firstName);
+
     return res.json({
       wcCustomerId: data.id,
       name:   `${data.first_name || firstName}`.trim(),
