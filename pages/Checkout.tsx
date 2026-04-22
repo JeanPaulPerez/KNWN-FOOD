@@ -195,6 +195,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   const couponRef          = useRef(coupon);
   const userRef            = useRef(user);
   const deliveryAddressRef = useRef(deliveryAddress);
+  const repeatOrderRef     = useRef(repeatOrder);
   finalTotalRef.current     = finalTotal;
   isFreeRef.current         = isFree;
   subtotalRef.current       = subtotal;
@@ -204,6 +205,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   couponRef.current         = coupon;
   userRef.current           = user;
   deliveryAddressRef.current = deliveryAddress;
+  repeatOrderRef.current     = repeatOrder;
 
   // ── Keep PaymentElement amount in sync with tip / coupon changes ──────────
   useEffect(() => {
@@ -259,6 +261,15 @@ function CheckoutForm({ cart }: { cart: any }) {
     if (!orderRes.ok) throw new Error((await orderRes.json()).error);
     const data       = await orderRes.json();
     const serviceDays = [...new Set(itemsSnap.map((i: any) => i.serviceDate as string))].filter(Boolean);
+
+    if (repeatOrderRef.current) {
+      try {
+        localStorage.setItem('knwn_repeat_order', JSON.stringify({ savedAt: Date.now(), items: itemsSnap }));
+      } catch {}
+    } else {
+      try { localStorage.removeItem('knwn_repeat_order'); } catch {}
+    }
+
     cart.clearCart();
     navigate('/thank-you', {
       state: {
