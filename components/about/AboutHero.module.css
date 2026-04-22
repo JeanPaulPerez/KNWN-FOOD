@@ -25,10 +25,16 @@
   }
 }
 
-/* Orange ribbon */
+/* Orange ribbon — infinite marquee */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 .ribbon {
   background: #db5a29;
   padding: 16px 0;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
@@ -37,28 +43,27 @@
   }
 }
 
-.ribbonInner {
+.ribbonTrack {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
   align-items: center;
-  gap: 12px 40px;
-  padding: 0 16px;
+  white-space: nowrap;
+  width: max-content;
+  animation: marquee 20s linear infinite;
+}
+
+.ribbonItem {
   color: white;
   font-family: Poppins, sans-serif;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-size: clamp(16px, 1.4vw, 25px);
+  font-size: clamp(14px, 1.4vw, 22px);
+  padding: 0 8px;
 }
 
 .dot {
-  opacity: 1;
-  font-size: clamp(18px, 1.6vw, 22px);
-}
-
-@media (max-width: 767px) {
-  .dot {
-    display: none;
-  }
+  color: white;
+  font-size: clamp(14px, 1.4vw, 20px);
+  opacity: 0.7;
+  padding: 0 8px;
 }

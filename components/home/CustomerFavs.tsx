@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import s from './CustomerFavs.module.css';
 
 const FAVS = [
@@ -24,18 +25,34 @@ const FAVS = [
   },
 ];
 
+const fadeSlide = {
+  initial: { opacity: 0, scale: 0.97 },
+  animate: { opacity: 1, scale: 1 },
+  exit:    { opacity: 0, scale: 0.97 },
+  transition: { duration: 0.32, ease: 'easeInOut' },
+};
+
 export default function CustomerFavs() {
   const [idx, setIdx] = useState(0);
   const prev = () => setIdx(i => (i - 1 + FAVS.length) % FAVS.length);
   const next = () => setIdx(i => (i + 1) % FAVS.length);
   const item = FAVS[idx];
 
+  // Preload all images on mount so there's no network lag on slide change
+  React.useEffect(() => {
+    FAVS.forEach(f => { new Image().src = f.img; });
+  }, []);
+
   return (
     <section className={s.section}>
       <div className={s.inner}>
 
         {/* Day badge — top left */}
-        <span className={s.dayBadge}>{item.day}</span>
+        <AnimatePresence mode="wait">
+          <motion.span key={`badge-${idx}`} {...fadeSlide} className={s.dayBadge}>
+            {item.day}
+          </motion.span>
+        </AnimatePresence>
 
         {/* "Customer favs" heading — desktop */}
         <h2 className={s.heading}>Customer favs</h2>
@@ -50,14 +67,17 @@ export default function CustomerFavs() {
           </text>
         </svg>
 
-        {/* Food bowl cutout — floats over lavender, overlaps blob */}
-        <img
-          key={item.img}
-          src={item.img}
-          alt={item.name}
-          loading="eager"
-          className={s.foodImg}
-        />
+        {/* Food bowl cutout — crossfade on slide change */}
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={`food-${idx}`}
+            src={item.img}
+            alt={item.name}
+            loading="eager"
+            className={s.foodImg}
+            {...fadeSlide}
+          />
+        </AnimatePresence>
 
         {/* Blob + card content — right side, behind bowl */}
         <div className={s.blobWrap}>
@@ -68,17 +88,19 @@ export default function CustomerFavs() {
             className={s.blob}
             aria-hidden="true"
           />
-          <div className={s.cardBody}>
-            <h3 className={s.dishName}>{item.name}</h3>
-            <p className={s.dishDesc}>{item.desc}</p>
-            <div className={s.deliveryRow}>
-              <span className={s.pricePill}>$12.90</span>
-              <span className={s.deliveryText}>Delivery Included</span>
-            </div>
-            <Link to="/menu" className={s.menuBtnWrap}>
-              <img src="/assets/hero-bg/SEEMENU.png" alt="See Full Menu" loading="lazy" className={s.menuBtnImg} />
-            </Link>
-          </div>
+          <AnimatePresence mode="wait">
+            <motion.div key={`card-${idx}`} {...fadeSlide} className={s.cardBody}>
+              <h3 className={s.dishName}>{item.name}</h3>
+              <p className={s.dishDesc}>{item.desc}</p>
+              <div className={s.deliveryRow}>
+                <span className={s.pricePill}>$12.90</span>
+                <span className={s.deliveryText}>Delivery Included</span>
+              </div>
+              <Link to="/menu" className={s.menuBtnWrap}>
+                <img src="/assets/hero-bg/SEEMENU.png" alt="See Full Menu" loading="lazy" className={s.menuBtnImg} />
+              </Link>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Left arrow */}

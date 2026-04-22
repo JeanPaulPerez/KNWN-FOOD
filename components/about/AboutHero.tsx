@@ -4,6 +4,9 @@ import s from './AboutHero.module.css';
 const RIBBON_ITEMS = ['Fewer decisions', 'Real food', 'Fair Pricing', 'One weekly plan'];
 
 export default function AboutHero() {
+  // Render items 4× so the marquee seamlessly loops at -50%
+  const repeated = [...RIBBON_ITEMS, ...RIBBON_ITEMS, ...RIBBON_ITEMS, ...RIBBON_ITEMS];
+
   return (
     <>
       <section className={s.heroSection}>
@@ -17,11 +20,11 @@ export default function AboutHero() {
       </section>
 
       <div className={s.ribbon}>
-        <div className={s.ribbonInner}>
-          {RIBBON_ITEMS.map((item, i) => (
-            <React.Fragment key={item}>
-              <span>{item}</span>
-              {i < RIBBON_ITEMS.length - 1 && <span className={s.dot}>•</span>}
+        <div className={s.ribbonTrack}>
+          {repeated.map((item, i) => (
+            <React.Fragment key={i}>
+              <span className={s.ribbonItem}>{item}</span>
+              <span className={s.dot} aria-hidden>•</span>
             </React.Fragment>
           ))}
         </div>
