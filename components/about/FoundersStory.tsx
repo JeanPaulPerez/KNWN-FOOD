@@ -9,8 +9,7 @@ const PROBLEM_CARDS = [
     alt: 'Another $22 sad salad',
     cardClass: s.problemCard1,
     imgClass: s.problemImg1,
-    style: { transform: 'rotate(-4deg) translateY(10px)' },
-    imgStyle: { objectFit: 'cover' as const },
+    labelClass: s.problemLabel1,
   },
   {
     label: 'Another pile of delivery fees?',
@@ -18,8 +17,7 @@ const PROBLEM_CARDS = [
     alt: 'Another pile of delivery fees',
     cardClass: s.problemCard2,
     imgClass: s.problemImg2,
-    style: { transform: 'rotate(2deg) translateY(-5px)' },
-    imgStyle: { objectFit: 'contain' as const },
+    labelClass: s.problemLabel2,
   },
   {
     label: 'Another fake fresh meal prep?',
@@ -27,8 +25,7 @@ const PROBLEM_CARDS = [
     alt: 'Another fake fresh meal prep',
     cardClass: s.problemCard3,
     imgClass: s.problemImg3,
-    style: { transform: 'rotate(-3deg) translateY(15px)' },
-    imgStyle: { objectFit: 'cover' as const },
+    labelClass: s.problemLabel3,
   },
 ];
 
@@ -69,11 +66,11 @@ export default function FoundersStory() {
 
         {/* Problem cards */}
         <div className={s.problemGrid}>
-          {PROBLEM_CARDS.map(({ label, img, alt, style, imgStyle, cardClass, imgClass }) => (
-            <div key={label} className={`${s.problemCard} ${cardClass}`} style={style}>
-              <span className={s.problemLabel}>{label}</span>
+          {PROBLEM_CARDS.map(({ label, img, alt, cardClass, imgClass, labelClass }) => (
+            <div key={label} className={`${s.problemCard} ${cardClass}`}>
+              <span className={`${s.problemLabel} ${labelClass}`}>{label}</span>
               <div className={s.problemImgWrap}>
-                <img src={img} alt={alt} loading="lazy" className={`${s.problemImg} ${imgClass}`} style={imgStyle} />
+                <img src={img} alt={alt} loading="lazy" className={`${s.problemImg} ${imgClass}`} />
               </div>
             </div>
           ))}

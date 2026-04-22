@@ -391,11 +391,11 @@ export default function OrderPage({ cart }: { cart: any }) {
 
   // Mobile: auto-scroll pill container to center active date
   React.useEffect(() => {
-    const container = pillContainerRef.current;
     const pill = activePillRef.current;
-    if (!container || !pill) return;
-    const scrollTo = pill.offsetLeft - container.clientWidth / 2 + pill.offsetWidth / 2;
-    container.scrollLeft = Math.max(0, scrollTo);
+    if (!pill) return;
+    requestAnimationFrame(() => {
+      pill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    });
   }, [activeIdx]);
 
   const activeDate = availableDates[activeIdx];
@@ -660,13 +660,9 @@ export default function OrderPage({ cart }: { cart: any }) {
 
           {/* ── Day selector MOBILE ─────────────────────────────────────────── */}
           {(() => {
-            const total = availableDates.length;
-            const start = Math.min(Math.max(activeIdx - 1, 0), Math.max(total - 3, 0));
-            const mobileDates = availableDates.slice(start, start + 3);
             return (
-              <div ref={pillContainerRef} className="md:hidden mb-10 flex w-full gap-3 justify-center">
-                {mobileDates.map((date, i) => {
-                  const absIdx = start + i;
+              <div ref={pillContainerRef} className="md:hidden mb-8 flex w-full gap-2.5 overflow-x-auto no-scrollbar -mx-6 px-6">
+                {availableDates.map((date, absIdx) => {
                   const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
                   const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                   const status = getDateStatus(date);
@@ -679,7 +675,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                       disabled={isPast}
                       onClick={() => { if (!isPast) setActiveIdx(absIdx); }}
                       className={clsx(
-                        'flex h-[88px] flex-1 flex-col items-center justify-center rounded-[24px] border transition-all duration-300',
+                        'flex h-[70px] w-[21vw] shrink-0 flex-col items-center justify-center rounded-[18px] border transition-all duration-300',
                         isPast
                           ? 'border-gray-200 bg-gray-100/50 text-gray-400 cursor-not-allowed opacity-40'
                           : isActive
@@ -688,13 +684,14 @@ export default function OrderPage({ cart }: { cart: any }) {
                       )}
                       style={{ fontFamily: 'Poppins, sans-serif' }}
                     >
-                      <span className="text-[17px] font-bold leading-none">{dayShort}</span>
-                      <span className={clsx('mt-1.5 text-[13px] font-medium leading-none', isActive ? 'text-white/75' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/50')}>
+                      <span className="text-[14px] font-bold leading-none">{dayShort}</span>
+                      <span className={clsx('mt-1 text-[11px] font-medium leading-none', isActive ? 'text-white/75' : isPast ? 'text-gray-400/60' : 'text-[#311c67]/50')}>
                         {dateStr}
                       </span>
                     </button>
                   );
                 })}
+                <div className="w-6 shrink-0" aria-hidden />
               </div>
             );
           })()}
@@ -775,11 +772,6 @@ export default function OrderPage({ cart }: { cart: any }) {
             </p>
           </div>
 
-          {/* ── Countdown (mobile only — desktop has it in the top bar) ────────── */}
-          <div className="md:hidden mb-6 flex items-center gap-2 rounded-xl bg-[#EDE8F5] px-4 py-3 text-[13px] font-medium text-[#311c67]/80" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            <Clock3 size={14} className="shrink-0 text-[#311c67]/60" />
-            <span>Place your order within <strong className="font-bold text-[#DB5A29]">{countdownLabel}</strong> for next-day lunch delivery.</span>
-          </div>
 
 
           {/* ── Main grid: 2 meal cards + sidebar ────────────────────────────── */}
@@ -801,7 +793,7 @@ export default function OrderPage({ cart }: { cart: any }) {
                 className="absolute -bottom-[2%] right-[-34%] w-[560px] max-w-none select-none opacity-55 md:-bottom-[50%] md:right-[-5%] md:w-[1200px] md:opacity-35"
               />
             </div>
-            <div className="relative z-[1] flex gap-3 overflow-x-auto pb-8 no-scrollbar snap-x snap-mandatory scroll-smooth overscroll-x-contain -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:items-stretch md:gap-5 md:overflow-visible md:snap-none md:pb-0 xl:grid-cols-3 xl:gap-8" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="relative z-[1] flex gap-3 overflow-x-auto pb-8 no-scrollbar snap-x snap-mandatory scroll-smooth overscroll-x-contain -mr-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:items-stretch md:gap-5 md:overflow-visible md:snap-none md:pb-0 xl:grid-cols-3 xl:gap-8" style={{ WebkitOverflowScrolling: 'touch' }}>
 
               {/* Meal cards */}
               <AnimatePresence mode="wait">
@@ -882,6 +874,9 @@ export default function OrderPage({ cart }: { cart: any }) {
                   </motion.div>
                 ))}
               </AnimatePresence>
+
+              {/* trailing spacer for mobile scroll right padding */}
+              <div className="w-8 shrink-0 md:hidden" aria-hidden />
 
               {/* ── Sidebar ──────────────────────────────────────────────────────── */}
               <div className="hidden md:block md:col-span-2 xl:col-span-1 xl:relative xl:h-full">
@@ -1020,7 +1015,7 @@ export default function OrderPage({ cart }: { cart: any }) {
           </div>
 
           <p
-            className="md:hidden mt-3 max-w-[320px] text-[14px] leading-[1.28] text-[#311c67]/82"
+            className="md:hidden mt-3 w-full text-[14px] leading-[1.28] text-[#311c67]/82"
             style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             Disclaimer: All orders require at least 1-day advance notice. You&apos;re viewing meals available for tomorrow and beyond. We&apos;ll cook and deliver Monday through Friday.

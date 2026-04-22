@@ -321,9 +321,9 @@
 
   .headingBold {
     margin-top: 10px;
-    font-size: clamp(32px, 11vw, 44px);
+    font-size: clamp(25px, 9vw, 35px);
     line-height: 0.92;
-    white-space: normal;
+    white-space: nowrap;
   }
 
   .body {
@@ -369,40 +369,53 @@
   }
 
   .bowlTop {
-    bottom: 0px;
+    bottom: 12%;
     left: -40%;
     top: auto;
     right: auto;
-    width: 90vw;
+    width: 105%;
     max-width: none;
     z-index: 1;
   }
 
   .bowlBottom {
-    bottom: 280px;
+    bottom: 63%;
     right: -40%;
     left: auto;
-    width: 90vw;
+    width: 100%;
     max-width: none;
     z-index: 0;
   }
 
   .stickerTop {
     top: auto;
-    bottom: 45%;
-    left: -8%;
-    width: 100vw;
-    max-width: 250px;
+    bottom: 60%;
+    left: -15%;
+    width: 240px;
+    max-width: 240px;
     transform: rotate(0deg);
     z-index: 10;
   }
 
   .stickerBottom {
-    bottom: 40%;
-    left: 45%;
-    width: 100vw;
-    max-width: 250px;
+    bottom: 48%;
+    left: 50%;
+    width: 240px;
+    max-width: 240px;
     transform: rotate(0deg);
     z-index: 11;
+  }
+}
+
+@media (max-width: 380px) {
+  .stickerTop {
+    width: 200px;
+    max-width: 200px;
+  }
+
+  .stickerBottom {
+    width: 210px;
+    max-width: 210px;
+    padding-left: 20px;
   }
 }

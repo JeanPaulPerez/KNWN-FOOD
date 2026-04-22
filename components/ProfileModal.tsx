@@ -135,10 +135,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/reset-request', {
+      const res = await fetch('/api/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: resetEmail }),
+        body: JSON.stringify({ action: 'request', email: resetEmail }),
       });
       const data = await parseApiResponse<any>(res);
       if (!res.ok) {
@@ -163,10 +163,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/reset-verify', {
+      const res = await fetch('/api/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: resetEmail, otp: resetOtp, token: resetToken, newPassword: resetNewPw }),
+        body: JSON.stringify({ action: 'verify', email: resetEmail, otp: resetOtp, newPassword: resetNewPw }),
       });
       const data = await parseApiResponse<any>(res);
       if (!res.ok) {
