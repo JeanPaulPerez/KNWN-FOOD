@@ -278,9 +278,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               <button
                 type="button"
                 onClick={() => { setMode('reset'); setError(''); setResetSuccess(false); setResetStep(1); setResetEmail(''); setResetOtp(''); setResetToken(''); setResetNewPw(''); setResetConfirmPw(''); }}
-                className={`flex-1 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-brand-primary/30`}
-                disabled
-                title="Coming soon"
+                className={`flex-1 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.15em] ${mode === 'reset' ? 'bg-brand-primary text-white' : 'text-brand-primary/50 hover:text-brand-primary'}`}
               >
                 Reset
               </button>
