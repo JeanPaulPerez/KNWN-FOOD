@@ -196,9 +196,20 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
 export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [profileInitialTab, setProfileInitialTab] = useState<'login' | 'register' | 'reset'>('login');
   const cart = useWooCart();
   const { isRegistered } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const state = location.state as any;
+    if (state?.openAuth && !isRegistered) {
+      setProfileInitialTab(state.openAuth);
+      setShowProfile(true);
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location.state]);
 
   const handleFinalize = () => {
     setIsCartOpen(false);
@@ -242,7 +253,7 @@ export default function App() {
 
       <AnimatePresence>
         {showProfile && (
-          <ProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
+          <ProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} initialTab={profileInitialTab} />
         )}
       </AnimatePresence>
 

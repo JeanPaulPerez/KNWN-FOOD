@@ -7,6 +7,7 @@ import { useUser } from '../store/useUser';
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialTab?: 'login' | 'register' | 'reset';
 }
 
 type AuthMode = 'login' | 'register' | 'reset';
@@ -22,10 +23,10 @@ async function parseApiResponse<T = any>(response: Response): Promise<T> {
   }
 }
 
-export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
+export default function ProfileModal({ isOpen, onClose, initialTab }: ProfileModalProps) {
   const navigate = useNavigate();
   const { user, register, logout } = useUser();
-  const [mode, setMode] = useState<AuthMode>('login');
+  const [mode, setMode] = useState<AuthMode>(initialTab ?? 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);

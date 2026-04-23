@@ -130,7 +130,8 @@ export default function ThankYou() {
           <p className="text-xs md:text-sm text-brand-primary/50 font-medium max-w-sm text-center leading-relaxed">
             If you'd like to cancel your order, please{' '}
             <Link
-              to="/account"
+              to="/"
+              state={{ openAuth: 'register' }}
               className="text-brand-primary font-black underline underline-offset-2 hover:text-brand-accent transition-colors"
             >
               register or log in to your account
