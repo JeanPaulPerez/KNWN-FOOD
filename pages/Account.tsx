@@ -233,6 +233,13 @@ type DashboardOrder = {
   canCancel: boolean;
   refundId?: string;
   cancelledAt?: string;
+  billing?: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    phone: string;
+  };
   items: Array<{
     name: string;
     quantity: number;
@@ -322,7 +329,26 @@ export default function Account() {
           throw new Error(data.error || 'Failed to load orders');
         }
         if (!cancelled) {
-          setOrders(data.orders || []);
+          const loadedOrders = data.orders || [];
+          setOrders(loadedOrders);
+
+          // Auto-fill address from most recent order if user has no address saved
+          const needsAddress = !user?.street?.trim();
+          if (needsAddress && loadedOrders.length > 0) {
+            const latest = loadedOrders.find(o => o.billing?.street);
+            if (latest?.billing?.street) {
+              const { street, city, zip, phone } = latest.billing;
+              const patch = { street, city, zip, ...(phone && !user?.phone ? { phone } : {}) };
+              updateUser(patch);
+              setAccountForm(prev => ({ ...prev, ...patch }));
+              // Persist to WooCommerce silently
+              fetch('/api/save-customer', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                body: JSON.stringify({ ...user, ...patch, wcCustomerId: user?.wcCustomerId }),
+              }).catch(() => {});
+            }
+          }
         }
       })
       .catch((error: any) => {

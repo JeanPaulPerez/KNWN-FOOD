@@ -131,6 +131,13 @@ export default async function handler(req: any, res: any) {
         refundId:       readMeta(order.meta_data, 'stripe_refund_id'),
         cancelledAt:    readMeta(order.meta_data, 'customer_cancelled_at', 'knwn_cancelled_at'),
         paymentIntentId: readMeta(order.meta_data, 'stripe_payment_intent'),
+        billing: {
+          street: order.billing?.address_1 || '',
+          city:   order.billing?.city || '',
+          state:  order.billing?.state || '',
+          zip:    order.billing?.postcode || '',
+          phone:  order.billing?.phone || '',
+        },
         items: (order.line_items || []).map((item: any) => ({
           id:        item.id,
           productId: item.product_id,
