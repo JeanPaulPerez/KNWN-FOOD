@@ -129,7 +129,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   const [loadingCards, setLoadingCards] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error,   setError]     = useState('');
-  const [tipRate, setTipRate]   = useState<number | 'none' | 'custom'>('none');
+  const [tipRate, setTipRate]   = useState<number | 'none' | 'custom'>(0.08);
   const [customTipInput, setCustomTipInput] = useState('');
   const [customTipFixed, setCustomTipFixed] = useState(0);
   const [repeatOrder, setRepeatOrder] = useState(true);
@@ -183,7 +183,7 @@ function CheckoutForm({ cart }: { cart: any }) {
     : 0;
   const afterDiscount = Math.max(0, subtotal - discountAmount);
   const tax           = afterDiscount * TAX_RATE;
-  const tipAmount     = tipRate === 'none' ? 0 : tipRate === 'custom' ? customTipFixed : afterDiscount * (tipRate as number);
+  const tipAmount     = tipRate === 'none' ? 0 : tipRate === 'custom' ? customTipFixed : subtotal * (tipRate as number);
   const finalTotal    = afterDiscount + tax + tipAmount;
   const isFree        = finalTotal === 0 && !!coupon?.isFree;
 
@@ -812,12 +812,12 @@ function CheckoutForm({ cart }: { cart: any }) {
               <h4 className="font-bold text-brand-primary text-sm mb-1">Add a Tip</h4>
               <p className="text-xs text-brand-primary/60 mb-4 flex gap-2 items-center">
                 <span className="w-3 h-3 rounded bg-[#00A9E0] text-white flex items-center justify-center"><Check size={8} strokeWidth={4} /></span>
-                Show your support for the KNWN team
+                Show your support for the KNWN Delivery Team
               </p>
               <div className="grid grid-cols-4 gap-2 mb-3">
-                {[0.10, 0.15, 0.20, 'none'].map((val) => {
+                {[0.08, 0.10, 0.12, 'none'].map((val) => {
                   const isActive = tipRate === val;
-                  const amount = typeof val === 'number' ? (afterDiscount * val).toFixed(2) : null;
+                  const amount = typeof val === 'number' ? (subtotal * val).toFixed(2) : null;
                   return (
                     <button key={String(val)} type="button" onClick={() => setTipRate(val as number | 'none')} className={clsx('py-3 flex flex-col items-center justify-center rounded-xl border font-bold transition-all shadow-sm bg-white', isActive ? 'border-[#00D632] shadow-[#00D632]/20 shadow-md ring-1 ring-[#00D632]' : 'border-gray-200 text-brand-primary/60 hover:border-gray-300')}>
                       <span className={clsx('text-sm', isActive && 'text-brand-primary')}>{val === 'none' ? 'None' : `${(val as number) * 100}%`}</span>
@@ -994,13 +994,13 @@ function CheckoutForm({ cart }: { cart: any }) {
                 <h4 className="font-bold text-brand-primary text-sm mb-1">Add a Tip</h4>
                 <p className="text-xs text-brand-primary/60 mb-4 flex gap-2 items-center">
                   <div className="w-3 h-3 rounded bg-[#00A9E0] text-white flex items-center justify-center"><Check size={8} strokeWidth={4} /></div>
-                  Show your support for the KNWN team
+                  Show your support for the KNWN Delivery Team
                 </p>
 
                 <div className="grid grid-cols-4 gap-2 mb-3">
-                  {[0.10, 0.15, 0.20, 'none'].map((val) => {
+                  {[0.08, 0.10, 0.12, 'none'].map((val) => {
                     const isActive = tipRate === val;
-                    const amount   = typeof val === 'number' ? (afterDiscount * val).toFixed(2) : null;
+                    const amount   = typeof val === 'number' ? (subtotal * val).toFixed(2) : null;
                     return (
                       <button
                         key={String(val)} type="button" onClick={() => setTipRate(val as number | 'none')}
