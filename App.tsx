@@ -193,6 +193,72 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
   );
 };
 
+function FooterContact() {
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('sending');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error();
+      setStatus('sent');
+      setForm({ name: '', email: '', message: '' });
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  return (
+    <div className="col-span-1 sm:col-span-2 md:col-span-1">
+      <h4 className="uppercase tracking-[0.3em] text-[9px] md:text-[10px] font-black mb-3 md:mb-8 text-white/40">Contact Us</h4>
+      {status === 'sent' ? (
+        <p className="text-white/70 text-xs font-semibold">Thanks! We'll get back to you soon.</p>
+      ) : (
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <input
+            required
+            type="text"
+            placeholder="Name"
+            value={form.name}
+            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            className="w-full bg-white/10 text-white placeholder:text-white/30 text-[11px] font-semibold rounded-lg px-3 py-2 outline-none focus:bg-white/15 transition-colors"
+          />
+          <input
+            required
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+            className="w-full bg-white/10 text-white placeholder:text-white/30 text-[11px] font-semibold rounded-lg px-3 py-2 outline-none focus:bg-white/15 transition-colors"
+          />
+          <textarea
+            required
+            placeholder="Message"
+            rows={3}
+            value={form.message}
+            onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+            className="w-full bg-white/10 text-white placeholder:text-white/30 text-[11px] font-semibold rounded-lg px-3 py-2 outline-none focus:bg-white/15 transition-colors resize-none"
+          />
+          {status === 'error' && <p className="text-red-400 text-[10px]">Something went wrong. Try again.</p>}
+          <button
+            type="submit"
+            disabled={status === 'sending'}
+            className="mt-1 bg-brand-lime text-brand-primary text-[10px] font-black uppercase tracking-[0.2em] rounded-lg px-4 py-2 hover:brightness-105 transition-all disabled:opacity-60"
+          >
+            {status === 'sending' ? 'Sending...' : 'Send Message'}
+          </button>
+        </form>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -261,7 +327,7 @@ export default function App() {
       </AnimatePresence>
 
       <footer className="relative z-20 mt-auto bg-brand-primary px-5 py-6 text-white md:px-10 md:py-16 lg:px-12 lg:py-24">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 sm:gap-10 md:gap-16 text-center md:text-left">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-5 sm:gap-10 md:gap-12 text-center md:text-left">
           <div className="col-span-1 sm:col-span-2 space-y-3 md:space-y-8">
             <img
               src="https://knwnfood.com/wp-content/uploads/2025/09/Recurso-91x.webp"
@@ -285,9 +351,9 @@ export default function App() {
             <ul className="text-white/80 text-[10px] md:text-xs font-black uppercase tracking-widest">
               <li><a href="https://www.instagram.com/knwnfood/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">Instagram</a></li>
               <li><a href="https://www.linkedin.com/company/knwnfood/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">LinkedIn</a></li>
-              <li><Link to="/menu" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">Newsletter</Link></li>
             </ul>
           </div>
+          <FooterContact />
         </div>
         <div className="max-w-7xl mx-auto mt-6 md:mt-16 lg:mt-24 pt-5 md:pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-3 text-[8px] md:text-[9px] tracking-[0.3em] text-white/20 uppercase font-black text-center">
           <p>© 2024 KNWN FOOD. ARCHITECTING TOMORROW'S DINING.</p>
