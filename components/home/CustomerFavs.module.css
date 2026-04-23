@@ -35,10 +35,12 @@
 .foodImg {
   position: absolute;
   left: -20px;
-  top: 50%;
-  transform: translateY(-48%);
+  top: 55px;
+  bottom: 0;
+  margin-top: auto;
+  margin-bottom: auto;
   width: 660px;
-  height: auto;
+  height: fit-content;
   object-fit: contain;
   filter: drop-shadow(0 24px 48px rgba(49, 28, 103, 0.15));
   z-index: 3;
@@ -161,25 +163,25 @@
 
 .menuBtnImg {
   display: block;
-  /* Set width so the image is a reasonable button size */
-  width: 240px;
+  width: 250px;
   height: auto;
   object-fit: contain;
 }
 
 .menuBtnText {
   position: absolute;
-  top: 50%;
+  top: 46%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-family: var(--font-ui);
-  font-size: 21px;
+  font-size: 22px;
   font-weight: 800;
   color: #ffffff;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   z-index: 2;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 .deliveryText {
@@ -253,7 +255,7 @@
   }
 
   .dayBadge {
-    top: 60px;
+    top: 80px;
     left: 60px;
     font-size: 15px;
     padding: 8px 24px;
@@ -262,6 +264,10 @@
   .foodImg {
     width: 530px;
     left: 10px;
+    top: 55px;
+    bottom: 0;
+    margin-top: auto;
+    margin-bottom: auto;
   }
 
   .heading {
@@ -311,7 +317,7 @@
   }
 
   .menuBtnText {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .arrowLeft {
@@ -336,6 +342,10 @@
   .foodImg {
     width: 520px;
     left: 0;
+    top: 0;
+    bottom: 0;
+    margin-top: auto;
+    margin-bottom: auto;
   }
 
   .heading {

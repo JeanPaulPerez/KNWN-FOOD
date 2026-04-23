@@ -10,18 +10,21 @@ const FAVS = [
     name: 'Mediterranean Chicken',
     desc: 'Grilled Mediterranean chicken over brown rice and quinoa with fresh greens, cucumber, tomato, and tahini-lemon dressing.',
     img: '/assets/hero-bg/PLATOS SIN FONDO/Mediterranean chicken.png',
+    price: '$12.90',
   },
   {
     day: 'Tuesday',
     name: 'Carne Asada',
     desc: 'Mexican-marinated steak over brown rice with sautéed peppers and corn, black beans, fresh red onion, and house Chilanga sauce.',
     img: '/assets/hero-bg/PLATOS SIN FONDO/Carne Asada.png',
+    price: '$15.90',
   },
   {
     day: 'Wednesday',
     name: 'Thai Beef Salad',
     desc: 'Thai-marinated steak over quinoa with crisp greens, cucumber, radish, basil, mint, toasted peanuts, and Thai dressing.',
     img: '/assets/hero-bg/PLATOS SIN FONDO/Thai Beef Salad.png',
+    price: '$15.90',
   },
 ];
 
@@ -93,11 +96,12 @@ export default function CustomerFavs() {
               <h3 className={s.dishName}>{item.name}</h3>
               <p className={s.dishDesc}>{item.desc}</p>
               <div className={s.deliveryRow}>
-                <span className={s.pricePill}>$12.90</span>
+                <span className={s.pricePill}>{item.price}</span>
                 <span className={s.deliveryText}>Delivery Included</span>
               </div>
               <Link to="/menu" className={s.menuBtnWrap}>
-                <img src="/assets/hero-bg/SEEMENU.png" alt="See Full Menu" loading="lazy" className={s.menuBtnImg} />
+                <img src="/assets/hero-bg/HOMEPAGE.png" alt="" loading="lazy" className={s.menuBtnImg} />
+                <span className={s.menuBtnText}>SEE MENU</span>
               </Link>
             </motion.div>
           </AnimatePresence>
