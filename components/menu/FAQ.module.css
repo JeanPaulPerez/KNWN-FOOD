@@ -381,7 +381,7 @@
   }
 }
 
-@media (max-width: 390px) {
+@media (max-width: 430px) {
   .section {
     padding: 32px 16px 40px;
     overflow-x: hidden;

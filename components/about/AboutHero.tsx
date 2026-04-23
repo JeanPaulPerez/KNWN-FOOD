@@ -11,11 +11,14 @@ export default function AboutHero() {
     <>
       <section className={s.heroSection}>
         <div className={s.heroInner}>
-          <img
-            src="/assets/about/About_Hero.png"
-            alt="KNWN is a weekly lunch system delivering freshly cooked meals made with real ingredients every day"
-            className={s.heroImg}
-          />
+          <picture>
+            <source media="(max-width: 767px)" srcSet="/assets/about/hero-mobile.webp" />
+            <img
+              src="/assets/about/About_Hero.png"
+              alt="KNWN is a weekly lunch system delivering freshly cooked meals made with real ingredients every day"
+              className={s.heroImg}
+            />
+          </picture>
         </div>
       </section>
 
