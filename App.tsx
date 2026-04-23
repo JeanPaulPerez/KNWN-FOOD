@@ -285,7 +285,7 @@ export default function App() {
             <ul className="text-white/80 text-[10px] md:text-xs font-black uppercase tracking-widest">
               <li><a href="https://www.instagram.com/knwnfood/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">Instagram</a></li>
               <li><a href="https://www.linkedin.com/company/knwnfood/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">LinkedIn</a></li>
-              <li><Link to="/menu" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">Newsletter</Link></li>
+              <li><a href="mailto:hello@knwnfood.com" className="flex items-center justify-center md:justify-start min-h-[36px] md:min-h-[44px] hover:text-white transition-colors">Contact Us</a></li>
             </ul>
           </div>
         </div>
