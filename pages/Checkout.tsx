@@ -111,6 +111,7 @@ type CompleteOrderParams = {
   deliveryInstructions?: string;
   paymentIntentId: string | null;
   paymentProvider?: string;
+  marketingOptIn?: boolean;
 };
 
 // ─── CheckoutForm ─────────────────────────────────────────────────────────────
@@ -132,6 +133,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   const [customTipInput, setCustomTipInput] = useState('');
   const [customTipFixed, setCustomTipFixed] = useState(0);
   const [repeatOrder, setRepeatOrder] = useState(true);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
   // Coupon state
@@ -194,18 +196,20 @@ function CheckoutForm({ cart }: { cart: any }) {
   const tipAmountRef       = useRef(tipAmount);
   const couponRef          = useRef(coupon);
   const userRef            = useRef(user);
-  const deliveryAddressRef = useRef(deliveryAddress);
-  const repeatOrderRef     = useRef(repeatOrder);
-  finalTotalRef.current     = finalTotal;
-  isFreeRef.current         = isFree;
-  subtotalRef.current       = subtotal;
-  discountAmountRef.current = discountAmount;
-  taxRef.current            = tax;
-  tipAmountRef.current      = tipAmount;
-  couponRef.current         = coupon;
-  userRef.current           = user;
-  deliveryAddressRef.current = deliveryAddress;
-  repeatOrderRef.current     = repeatOrder;
+  const deliveryAddressRef  = useRef(deliveryAddress);
+  const repeatOrderRef      = useRef(repeatOrder);
+  const marketingOptInRef   = useRef(marketingOptIn);
+  finalTotalRef.current      = finalTotal;
+  isFreeRef.current          = isFree;
+  subtotalRef.current        = subtotal;
+  discountAmountRef.current  = discountAmount;
+  taxRef.current             = tax;
+  tipAmountRef.current       = tipAmount;
+  couponRef.current          = coupon;
+  userRef.current            = user;
+  deliveryAddressRef.current  = deliveryAddress;
+  repeatOrderRef.current      = repeatOrder;
+  marketingOptInRef.current   = marketingOptIn;
 
   // ── Keep PaymentElement amount in sync with tip / coupon changes ──────────
   useEffect(() => {
@@ -248,6 +252,7 @@ function CheckoutForm({ cart }: { cart: any }) {
         paymentIntentId:   params.paymentIntentId,
         paymentProvider:   params.paymentProvider || 'stripe',
         isFree:            isFreeRef.current,
+        marketingOptIn:    params.marketingOptIn ?? false,
         total,
         pricing: {
           subtotal: subtotalRef.current,
@@ -333,6 +338,7 @@ function CheckoutForm({ cart }: { cart: any }) {
           zip:             addr?.zip     || '',
           paymentIntentId: paymentIntent?.id || null,
           paymentProvider: 'stripe',
+          marketingOptIn:  marketingOptInRef.current,
         });
       } catch (err: any) {
         setError(err.message || 'Express payment failed');
@@ -448,6 +454,7 @@ function CheckoutForm({ cart }: { cart: any }) {
       await completeOrderRef.current({
         name, email, phone, street, address2, city, state, zip,
         deliveryInstructions, paymentIntentId, paymentProvider: 'stripe',
+        marketingOptIn,
       });
     } catch (err: any) {
       setError(err.message);
@@ -500,8 +507,13 @@ function CheckoutForm({ cart }: { cart: any }) {
               <div className="space-y-4">
                 <input required type="email" name="email" defaultValue={user?.email} placeholder="Email" className="w-full border border-brand-primary/20 rounded-xl px-5 py-4 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium" />
                 <input required type="tel" name="phone" defaultValue={user?.phone} placeholder="Phone Number" className="w-full border border-brand-primary/20 rounded-xl px-5 py-4 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium" />
-                <label className="flex items-center gap-3 cursor-pointer pt-2 group">
-                  <div className="w-5 h-5 rounded border-2 border-brand-primary/20 bg-white flex items-center justify-center group-hover:border-brand-primary transition-colors"></div>
+                <label className="flex items-center gap-3 cursor-pointer pt-2">
+                  <input
+                    type="checkbox"
+                    checked={marketingOptIn}
+                    onChange={e => setMarketingOptIn(e.target.checked)}
+                    className="w-5 h-5 rounded border-2 border-brand-primary/20 accent-brand-primary cursor-pointer"
+                  />
                   <span className="text-sm font-semibold text-brand-primary/80 select-none">Send me updates and offers by email and SMS</span>
                 </label>
               </div>

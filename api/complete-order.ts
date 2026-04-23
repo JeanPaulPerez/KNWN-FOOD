@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 
 const DELIVERY_WINDOW_LABEL = '10:00 AM - 12:00 PM';
 
-async function subscribeToMailchimp(email: string, name?: string): Promise<void> {
+async function subscribeToMailchimp(email: string, phone?: string, name?: string): Promise<void> {
   const apiKey = process.env.MAILCHIMP_API_KEY?.trim();
   const listId = process.env.MAILCHIMP_LIST_ID?.trim();
   if (!apiKey || !listId) return;
@@ -10,6 +10,8 @@ async function subscribeToMailchimp(email: string, name?: string): Promise<void>
   const hash = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
   try {
     const [firstName, ...rest] = (name || '').split(' ');
+    // Normalize phone to E.164 for Mailchimp SMS (requires +1XXXXXXXXXX format)
+    const smsPhone = phone ? '+1' + phone.replace(/\D/g, '').replace(/^1/, '') : undefined;
     await fetch(`https://${dc}.api.mailchimp.com/3.0/lists/${listId}/members/${hash}`, {
       method: 'PUT',
       headers: {
@@ -22,8 +24,13 @@ async function subscribeToMailchimp(email: string, name?: string): Promise<void>
         merge_fields: {
           ...(firstName ? { FNAME: firstName } : {}),
           ...(rest.length ? { LNAME: rest.join(' ') } : {}),
+          ...(phone ? { PHONE: phone } : {}),
         },
-        tags: ['knwn-customer', 'placed-order'],
+        ...(smsPhone ? {
+          sms_phone_number: smsPhone,
+          sms_marketing_status: 'subscribed',
+        } : {}),
+        tags: ['knwn-customer', 'placed-order', 'marketing-optin'],
       }),
     });
   } catch (err) {
@@ -293,7 +300,7 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { items, customerInfo, couponCode, paymentIntentId, paymentProvider = 'stripe', isFree, pricing } = req.body;
+  const { items, customerInfo, couponCode, paymentIntentId, paymentProvider = 'stripe', isFree, pricing, marketingOptIn } = req.body;
 
   if (!items || items.length === 0) {
     return res.status(400).json({ error: 'No items in order' });
@@ -384,9 +391,9 @@ export default async function handler(req: any, res: any) {
     })
   );
 
-  // Subscribe customer to Mailchimp (fire-and-forget)
-  if (customerInfo?.email) {
-    subscribeToMailchimp(customerInfo.email, customerInfo.name);
+  // Subscribe to Mailchimp only if customer opted in
+  if (marketingOptIn && customerInfo?.email) {
+    subscribeToMailchimp(customerInfo.email, customerInfo.phone, customerInfo.name);
   }
 
   // If WooCommerce was reachable but every single order failed, surface it as an error
