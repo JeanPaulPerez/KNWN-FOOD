@@ -9,21 +9,21 @@ const FAVS = [
     day: 'Monday',
     name: 'Mediterranean Chicken',
     desc: 'Grilled Mediterranean chicken over brown rice and quinoa with fresh greens, cucumber, tomato, and tahini-lemon dressing.',
-    img: '/assets/hero-bg/PLATOS SIN FONDO/Mediterranean chicken.png',
+    img: '/assets/hero-bg/PLATOS SIN FONDO/Mediterranean chicken.webp',
     price: '$12.90',
   },
   {
     day: 'Tuesday',
     name: 'Carne Asada',
     desc: 'Mexican-marinated steak over brown rice with sautéed peppers and corn, black beans, fresh red onion, and house Chilanga sauce.',
-    img: '/assets/hero-bg/PLATOS SIN FONDO/Carne Asada.png',
+    img: '/assets/hero-bg/PLATOS SIN FONDO/Carne Asada.webp',
     price: '$15.90',
   },
   {
     day: 'Wednesday',
     name: 'Thai Beef Salad',
     desc: 'Thai-marinated steak over quinoa with crisp greens, cucumber, radish, basil, mint, toasted peanuts, and Thai dressing.',
-    img: '/assets/hero-bg/PLATOS SIN FONDO/Thai Beef Salad.png',
+    img: '/assets/hero-bg/PLATOS SIN FONDO/Thai Beef Salad.webp',
     price: '$15.90',
   },
 ];
@@ -85,7 +85,7 @@ export default function CustomerFavs() {
         {/* Blob + card content — right side, behind bowl */}
         <div className={s.blobWrap}>
           <img
-            src="/assets/hero-bg/Bloque_amarillo.png"
+            src="/assets/hero-bg/Bloque_amarillo.webp"
             alt=""
             loading="lazy"
             className={s.blob}
@@ -100,7 +100,7 @@ export default function CustomerFavs() {
                 <span className={s.deliveryText}>Delivery Included</span>
               </div>
               <Link to="/menu" className={s.menuBtnWrap}>
-                <img src="/assets/hero-bg/HOMEPAGE.png" alt="" loading="lazy" className={s.menuBtnImg} />
+                <img src="/assets/hero-bg/HOMEPAGE.webp" alt="" loading="lazy" className={s.menuBtnImg} />
                 <span className={s.menuBtnText}>SEE MENU</span>
               </Link>
             </motion.div>

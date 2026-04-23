@@ -44,26 +44,26 @@ export default function Hero() {
             <div className={s.glowOrange} />
 
             <img
-              src="/assets/food-cutout/pesto-pasta.png"
+              src="/assets/food-cutout/pesto-pasta.webp"
               alt=""
               className={`${s.bowl} ${s.bowlTop}`}
               loading="eager"
             />
             <img
-              src="/assets/food-cutout/thai-beef-salad.png"
+              src="/assets/food-cutout/thai-beef-salad.webp"
               alt=""
               className={`${s.bowl} ${s.bowlBottom}`}
               loading="eager"
             />
 
             <img
-              src="/assets/stickers/real-ingredients.png"
+              src="/assets/stickers/real-ingredients.webp"
               alt=""
               className={`${s.sticker} ${s.stickerTop}`}
               loading="eager"
             />
             <img
-              src="/assets/stickers/pay-less-eat-better.png"
+              src="/assets/stickers/pay-less-eat-better.webp"
               alt=""
               className={`${s.sticker} ${s.stickerBottom}`}
               loading="eager"

@@ -6,7 +6,7 @@ const COPY = {
   heading: { prefix: 'Find the', accent: 'real', suffix: 'lunch.' },
   subtitle:
     'Real lunch is made with fresh, high-quality produce, no antibiotics or hormones ever, no seed oils, and sauces made from scratch, no preservatives, just real ingredients.',
-  stickerImage: '/assets/stickers/try-now.png',
+  stickerImage: '/assets/stickers/try-now.webp',
 } as const;
 
 const COMPARISON_COLUMNS = [
