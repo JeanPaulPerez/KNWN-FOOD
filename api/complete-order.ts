@@ -237,8 +237,9 @@ async function createWooOrder(
       quantity:   item.quantity,
       meta_data:  buildItemMeta(item, customerInfo),
     }],
-    // Coupon applied to each order so WooCommerce shows the correct discounted total
-    coupon_lines: couponCode ? [{ code: couponCode }] : [],
+    // Coupon applied to each order so WooCommerce shows the correct discounted total.
+    // Skip for isFree orders — the free coupon code only exists in our API, not in WooCommerce.
+    coupon_lines: (couponCode && !isFree) ? [{ code: couponCode }] : [],
     customer_note: customerInfo.deliveryInstructions || customerInfo.notes || '',
     // ORDER-level meta.
     // e_deliverydate = Tyche Softwares "Order Delivery Date" plugin key (DD-MM-YYYY).

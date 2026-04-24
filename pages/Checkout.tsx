@@ -132,7 +132,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   const [tipRate, setTipRate]   = useState<number | 'none' | 'custom'>(0.08);
   const [customTipInput, setCustomTipInput] = useState('');
   const [customTipFixed, setCustomTipFixed] = useState(0);
-  const [repeatOrder, setRepeatOrder] = useState(true);
+  const [repeatOrder, setRepeatOrder] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
