@@ -856,7 +856,13 @@ function CheckoutForm({ cart }: { cart: any }) {
               <div className="flex justify-between text-brand-primary/70"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
               <div className="flex justify-between text-brand-primary/70"><span>Discounts</span><span>-${discountAmount.toFixed(2)}</span></div>
               <div className="flex justify-between text-brand-primary/70"><span>Delivery</span><span className="uppercase text-brand-primary">FREE</span></div>
-              <div className="flex justify-between text-brand-primary/70 pb-4 border-b border-brand-primary/10"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
+              <div className="flex justify-between text-brand-primary/70"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
+              {tipAmount > 0 && (
+                <div className="flex justify-between text-brand-primary/70 pb-4 border-b border-brand-primary/10"><span>Tip</span><span>${tipAmount.toFixed(2)}</span></div>
+              )}
+              {tipAmount === 0 && (
+                <div className="flex justify-between text-brand-primary/70 pb-4 border-b border-brand-primary/10"><span>Tip</span><span>—</span></div>
+              )}
               <div className="flex justify-between text-xl font-black text-brand-primary pt-2"><span>Total</span><span>${finalTotal.toFixed(2)}</span></div>
             </div>
             {error && <div className="bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-200 flex gap-2 items-center mt-4"><AlertCircle size={14} />{error}</div>}
@@ -1048,7 +1054,13 @@ function CheckoutForm({ cart }: { cart: any }) {
                 <div className="flex justify-between text-brand-primary/70"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
                 <div className="flex justify-between text-brand-primary/70"><span>Discounts</span><span>-${discountAmount.toFixed(2)}</span></div>
                 <div className="flex justify-between text-brand-primary/70"><span>Delivery</span><span className="uppercase text-brand-primary">FREE</span></div>
-                <div className="flex justify-between text-brand-primary/70 pb-4 border-b border-brand-primary/10"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
+                <div className="flex justify-between text-brand-primary/70"><span>Tax</span><span>${tax.toFixed(2)}</span></div>
+                {tipAmount > 0 && (
+                  <div className="flex justify-between text-brand-primary/70 pb-4 border-b border-brand-primary/10"><span>Tip</span><span>${tipAmount.toFixed(2)}</span></div>
+                )}
+                {tipAmount === 0 && (
+                  <div className="flex justify-between text-brand-primary/70 pb-4 border-b border-brand-primary/10"><span>Tip</span><span>—</span></div>
+                )}
                 <div className="flex justify-between text-xl font-black text-brand-primary pt-2"><span>Total</span><span>${finalTotal.toFixed(2)}</span></div>
               </div>
 

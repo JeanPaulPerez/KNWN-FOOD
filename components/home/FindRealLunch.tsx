@@ -125,8 +125,7 @@ export default function FindRealLunch() {
           src="/assets/tabla/Cuadro.webp"
           alt="Comparison table"
           loading="lazy"
-          className="md:hidden"
-          style={{ display: 'block', width: '100%', height: 'auto' }}
+          className="md:hidden w-full h-auto block"
         />
       </div>
     </section>
