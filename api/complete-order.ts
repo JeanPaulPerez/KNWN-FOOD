@@ -74,18 +74,20 @@ async function subscribeToMailchimp(email: string, phone?: string, name?: string
   if (!apiKey || !listId) return;
   const dc = apiKey.split('-').pop();
   const hash = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
+  const authHeader = `Basic ${Buffer.from(`anystring:${apiKey}`).toString('base64')}`;
+  const memberUrl = `https://${dc}.api.mailchimp.com/3.0/lists/${listId}/members/${hash}`;
+
+  // Normalize to E.164 — only valid if exactly 10 US digits
+  const digits = phone ? phone.replace(/\D/g, '').replace(/^1/, '') : '';
+  const smsPhone = digits.length === 10 ? `+1${digits}` : undefined;
+
   try {
     const [firstName, ...rest] = (name || '').split(' ');
-    // Normalize to E.164: strip all non-digits, remove leading 1 if present, prepend +1
-    // Only send if result is exactly 10 digits (valid US number)
-    const digits = phone ? phone.replace(/\D/g, '').replace(/^1/, '') : '';
-    const smsPhone = digits.length === 10 ? `+1${digits}` : undefined;
-    const mcRes = await fetch(`https://${dc}.api.mailchimp.com/3.0/lists/${listId}/members/${hash}`, {
+
+    // ── Step 1: PUT — upsert email subscription ───────────────────────────────
+    const putRes = await fetch(memberUrl, {
       method: 'PUT',
-      headers: {
-        Authorization: `Basic ${Buffer.from(`anystring:${apiKey}`).toString('base64')}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email_address: email,
         status_if_new: 'subscribed',
@@ -95,16 +97,30 @@ async function subscribeToMailchimp(email: string, phone?: string, name?: string
           ...(rest.length ? { LNAME: rest.join(' ') } : {}),
           ...(phone ? { PHONE: phone } : {}),
         },
-        ...(smsPhone ? {
-          sms_phone_number: smsPhone,
-          sms_marketing_status: 'subscribed',
-        } : {}),
         tags: ['knwn-customer', 'placed-order', 'marketing-optin'],
       }),
     });
-    if (!mcRes.ok) {
-      const mcErr = await mcRes.json();
-      console.error('[mailchimp] subscribe response:', mcErr);
+    if (!putRes.ok) {
+      const putErr = await putRes.json();
+      console.error('[mailchimp] PUT error:', JSON.stringify(putErr));
+    }
+
+    // ── Step 2: PATCH — set SMS phone separately (PUT ignores sms_phone_number) ─
+    if (smsPhone) {
+      const patchRes = await fetch(memberUrl, {
+        method: 'PATCH',
+        headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sms_phone_number: smsPhone,
+          sms_marketing_status: 'subscribed',
+        }),
+      });
+      const patchData = await patchRes.json();
+      if (!patchRes.ok) {
+        console.error('[mailchimp] PATCH SMS error:', JSON.stringify(patchData));
+      } else {
+        console.log('[mailchimp] SMS set:', smsPhone, '| status:', patchData.sms_marketing_status);
+      }
     }
   } catch (err) {
     console.error('[mailchimp] subscribe failed:', err);
