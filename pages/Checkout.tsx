@@ -399,8 +399,9 @@ function CheckoutForm({ cart }: { cart: any }) {
       setLoading(false);
       return;
     }
-    if (!phone.trim()) {
-      setError('Please enter your phone number.');
+    const phoneDigits = phone.replace(/\D/g, '');
+    if (!phoneDigits || phoneDigits.length < 10) {
+      setError('Please enter a valid 10-digit US phone number.');
       setLoading(false);
       return;
     }
@@ -514,7 +515,7 @@ function CheckoutForm({ cart }: { cart: any }) {
               <h2 className="text-2xl font-bold text-brand-primary mb-6">Contact</h2>
               <div className="space-y-4">
                 <input required type="email" name="email" defaultValue={user?.email} placeholder="Email" className="w-full border border-brand-primary/20 rounded-xl px-5 py-4 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium" />
-                <input required type="tel" name="phone" defaultValue={user?.phone} placeholder="Phone Number" className="w-full border border-brand-primary/20 rounded-xl px-5 py-4 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium" />
+                <input required type="tel" name="phone" defaultValue={user?.phone} placeholder="Phone Number (10 digits)" inputMode="numeric" pattern="[0-9\s\-\(\)\.]{10,}" maxLength={15} className="w-full border border-brand-primary/20 rounded-xl px-5 py-4 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium" />
                 <label className="flex items-center gap-3 cursor-pointer pt-2">
                   <input
                     type="checkbox"
