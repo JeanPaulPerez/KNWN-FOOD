@@ -87,6 +87,13 @@ export default function WeeklySystem({ onItemSelect }: Props) {
     setActiveItemIndex(0);
   }, [activeDay]);
 
+  // Preload all day images on mount so carousel switches are instant
+  React.useEffect(() => {
+    DAY_KEYS.forEach(key => {
+      DAY_IMAGES[key].forEach(src => { const img = new window.Image(); img.src = src; });
+    });
+  }, []);
+
   const dayKey = DAY_KEYS[activeDay];
   const items = MENUS[dayKey].categories[0].items;
   const images = DAY_IMAGES[dayKey];
@@ -160,7 +167,8 @@ export default function WeeklySystem({ onItemSelect }: Props) {
                     <img
                       src={images[activeItemIndex]}
                       alt={items[activeItemIndex].name}
-                      loading="lazy"
+                      loading="eager"
+                      decoding="async"
                       className={s.cardImage}
                     />
                     

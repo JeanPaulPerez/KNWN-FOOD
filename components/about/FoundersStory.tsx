@@ -41,8 +41,8 @@ export default function FoundersStory() {
 
           {/* Founders photo */}
           <div className={s.photoWrap}>
-            <img src="/assets/about/clip-path-group.jpg" alt="" aria-hidden loading="lazy" className={s.blob} />
-            <img src="/assets/about/Daniel y Choco.webp" alt="Daniel and Christian, founders of KNWN" loading="lazy" className={s.founderPhoto} />
+            <img src="/assets/about/clip-path-group.jpg" alt="" aria-hidden loading="lazy" decoding="async" className={s.blob} />
+            <img src="/assets/about/Daniel y Choco.webp" alt="Daniel and Christian, founders of KNWN" loading="lazy" decoding="async" className={s.founderPhoto} />
             <span className={s.dateStamp}>09.23.2011</span>
           </div>
 
@@ -58,6 +58,7 @@ export default function FoundersStory() {
                 src="/assets/about/WHAT ARE WE DOING FOR LUNCH.png"
                 alt="What are we doing for lunch?"
                 loading="lazy"
+                decoding="async"
                 className={s.stickerImg}
               />
             </div>
@@ -70,7 +71,7 @@ export default function FoundersStory() {
             <div key={label} className={`${s.problemCard} ${cardClass}`}>
               <span className={`${s.problemLabel} ${labelClass}`}>{label}</span>
               <div className={s.problemImgWrap}>
-                <img src={img} alt={alt} loading="lazy" className={`${s.problemImg} ${imgClass}`} />
+                <img src={img} alt={alt} loading="lazy" decoding="async" className={`${s.problemImg} ${imgClass}`} />
               </div>
             </div>
           ))}

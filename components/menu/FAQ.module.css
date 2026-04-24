@@ -336,6 +336,8 @@
     border-radius: 0;
     padding: 0 0 24px;
     overflow: visible;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .headingBlock {
@@ -381,14 +383,18 @@
   }
 }
 
-@media (max-width: 430px) {
+@media (max-width: 480px) {
   .section {
     padding: 32px 16px 40px;
     overflow-x: hidden;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .card {
     overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .heading {

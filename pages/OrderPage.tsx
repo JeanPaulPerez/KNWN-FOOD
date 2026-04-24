@@ -661,7 +661,7 @@ export default function OrderPage({ cart }: { cart: any }) {
           {/* ── Day selector MOBILE ─────────────────────────────────────────── */}
           {(() => {
             return (
-              <div ref={pillContainerRef} className="md:hidden mb-8 flex w-full gap-2.5 overflow-x-auto no-scrollbar -mx-6 px-6">
+              <div ref={pillContainerRef} className="md:hidden mb-8 flex gap-2.5 overflow-x-auto no-scrollbar snap-x scroll-smooth overscroll-x-contain -mr-6">
                 {availableDates.map((date, absIdx) => {
                   const dayShort = date.toLocaleDateString('en-US', { weekday: 'short' });
                   const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });

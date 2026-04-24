@@ -258,7 +258,7 @@
   .carouselContainer {
     display: flex;
     overflow: hidden;
-    padding: 0 28px;
+    padding: 0 12px;
     margin-top: -30px;
   }
 
@@ -271,9 +271,13 @@
   }
 
   .plateWrapper {
-    width: 100%;
-    height: 100%;
-    transform: none;
+    width: 115%;
+    height: 115%;
+    transform: translateX(-6%);
+  }
+
+  .vegIcon {
+    width: 8%;
   }
 
   .prevBtn {

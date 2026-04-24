@@ -17,6 +17,9 @@ export default function AboutHero() {
               src="/assets/about/About_Hero.png"
               alt="KNWN is a weekly lunch system delivering freshly cooked meals made with real ingredients every day"
               className={s.heroImg}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
             />
           </picture>
         </div>

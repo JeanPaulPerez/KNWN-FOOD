@@ -44,7 +44,6 @@
   object-fit: contain;
   filter: drop-shadow(0 24px 48px rgba(49, 28, 103, 0.15));
   z-index: 3;
-  /* in front of blob */
 }
 
 /* ─── Right area: heading + blob, fixed width, centered ──────────────────── */

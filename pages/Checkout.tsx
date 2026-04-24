@@ -112,6 +112,8 @@ type CompleteOrderParams = {
   paymentIntentId: string | null;
   paymentProvider?: string;
   marketingOptIn?: boolean;
+  repeatOrder?: boolean;
+  stripeCustomerId?: string | null;
 };
 
 // ─── CheckoutForm ─────────────────────────────────────────────────────────────
@@ -133,6 +135,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   const [customTipInput, setCustomTipInput] = useState('');
   const [customTipFixed, setCustomTipFixed] = useState(0);
   const [repeatOrder, setRepeatOrder] = useState(false);
+  const [stripeCustomerId, setStripeCustomerId] = useState<string | null>(null);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
@@ -198,6 +201,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   const userRef            = useRef(user);
   const deliveryAddressRef  = useRef(deliveryAddress);
   const repeatOrderRef      = useRef(repeatOrder);
+  const stripeCustomerIdRef = useRef(stripeCustomerId);
   const marketingOptInRef   = useRef(marketingOptIn);
   finalTotalRef.current      = finalTotal;
   isFreeRef.current          = isFree;
@@ -209,6 +213,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   userRef.current            = user;
   deliveryAddressRef.current  = deliveryAddress;
   repeatOrderRef.current      = repeatOrder;
+  stripeCustomerIdRef.current = stripeCustomerId;
   marketingOptInRef.current   = marketingOptIn;
 
   // ── Keep PaymentElement amount in sync with tip / coupon changes ──────────
@@ -253,6 +258,8 @@ function CheckoutForm({ cart }: { cart: any }) {
         paymentProvider:   params.paymentProvider || 'stripe',
         isFree:            isFreeRef.current,
         marketingOptIn:    params.marketingOptIn ?? false,
+        repeatOrder:       params.repeatOrder ?? false,
+        stripeCustomerId:  params.stripeCustomerId ?? null,
         total,
         pricing: {
           subtotal: subtotalRef.current,
@@ -414,10 +421,11 @@ function CheckoutForm({ cart }: { cart: any }) {
         const piRes = await fetch('/api/create-payment-intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amountInCents: Math.round(finalTotal * 100), customerEmail: email }),
+          body: JSON.stringify({ amountInCents: Math.round(finalTotal * 100), customerEmail: email, repeatOrder: repeatOrderRef.current }),
         });
         if (!piRes.ok) throw new Error((await piRes.json()).error);
-        const { clientSecret } = await piRes.json();
+        const { clientSecret, stripeCustomerId: newCustId } = await piRes.json();
+        if (newCustId) setStripeCustomerId(newCustId);
 
         if (selectedCardId) {
           // Saved card flow
@@ -454,7 +462,7 @@ function CheckoutForm({ cart }: { cart: any }) {
       await completeOrderRef.current({
         name, email, phone, street, address2, city, state, zip,
         deliveryInstructions, paymentIntentId, paymentProvider: 'stripe',
-        marketingOptIn,
+        marketingOptIn, repeatOrder: repeatOrderRef.current, stripeCustomerId: stripeCustomerIdRef.current,
       });
     } catch (err: any) {
       setError(err.message);

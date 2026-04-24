@@ -2,6 +2,72 @@ import crypto from 'node:crypto';
 
 const DELIVERY_WINDOW_LABEL = '10:00 AM - 12:00 PM';
 
+// ─── Upstash Redis helper (REST API, no SDK needed) ───────────────────────────
+async function upstash(command: any[]): Promise<any> {
+  const url   = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return null;
+  try {
+    const res = await fetch(url, {
+      method:  'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body:    JSON.stringify(command),
+    });
+    return res.json();
+  } catch (err) {
+    console.error('[upstash] error:', err);
+    return null;
+  }
+}
+
+async function saveRepeatSubscription(
+  stripeCustomerId: string,
+  paymentMethodId: string,
+  customerInfo: any,
+  items: any[],
+  pricing: any,
+): Promise<void> {
+  const id  = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+  const key = `subscription:${id}`;
+  const data = {
+    id,
+    active: true,
+    createdAt: new Date().toISOString(),
+    stripeCustomerId,
+    paymentMethodId,
+    customerInfo: {
+      name:                customerInfo.name || '',
+      email:               customerInfo.email || '',
+      phone:               customerInfo.phone || '',
+      street:              customerInfo.street || '',
+      address2:            customerInfo.address2 || '',
+      city:                customerInfo.city || '',
+      state:               customerInfo.state || '',
+      zip:                 customerInfo.zip || '',
+      deliveryInstructions: customerInfo.deliveryInstructions || '',
+      wcCustomerId:        customerInfo.wcCustomerId,
+    },
+    // Store serviceDay (e.g. "monday") so the cron can compute next week's dates
+    items: items.map((item: any) => ({
+      _wooProductId:  item._wooProductId || item.product_id || 0,
+      name:           item.name || '',
+      quantity:       item.quantity || 1,
+      price:          item.price || 0,
+      serviceDay:     (item.serviceDate || '').split(',')[0].trim().toLowerCase(),
+      customizations: item.customizations || null,
+    })),
+    pricing: {
+      subtotal: pricing?.subtotal ?? 0,
+      tax:      pricing?.tax      ?? 0,
+      tip:      pricing?.tip      ?? 0,
+      total:    pricing?.total    ?? 0,
+    },
+  };
+  await upstash(['SET', key, JSON.stringify(data)]);
+  await upstash(['SADD', 'subscriptions:active', id]);
+  console.log('[repeat-order] Subscription saved:', id);
+}
+
 async function subscribeToMailchimp(email: string, phone?: string, name?: string): Promise<void> {
   const apiKey = process.env.MAILCHIMP_API_KEY?.trim();
   const listId = process.env.MAILCHIMP_LIST_ID?.trim();
@@ -300,13 +366,158 @@ async function createWooOrder(
   }
 }
 
+// ─── Repeat-order cron helpers ───────────────────────────────────────────────
+
+const DAY_OFFSETS: Record<string, number> = { monday: 0, tuesday: 1, wednesday: 2, thursday: 3, friday: 4 };
+
+function getNextWeekDate(serviceDay: string): string {
+  const offset = DAY_OFFSETS[serviceDay.toLowerCase()] ?? 0;
+  const nextMonday = new Date();
+  nextMonday.setDate(nextMonday.getDate() + 1); // Sunday → Monday
+  nextMonday.setHours(12, 0, 0, 0);
+  const target = new Date(nextMonday);
+  target.setDate(nextMonday.getDate() + offset);
+  return target.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
+function toExportDate(dateStr: string): string {
+  const cleaned = dateStr.replace(/^[A-Za-z]+,\s*/, '');
+  const d = new Date(`${cleaned} ${new Date().getFullYear()}`);
+  if (isNaN(d.getTime())) return dateStr;
+  return `${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}-${String(d.getFullYear()).slice(-2)}`;
+}
+
+function toTycheDate(dateStr: string): string {
+  const cleaned = dateStr.replace(/^[A-Za-z]+,\s*/, '');
+  const d = new Date(`${cleaned} ${new Date().getFullYear()}`);
+  if (isNaN(d.getTime())) return dateStr;
+  return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+}
+
+async function sendRepeatConfirmationEmail(to: string, name: string, items: any[], pricing: any, serviceDates: string[]): Promise<void> {
+  const resendKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'orders@knwnfood.com';
+  if (!resendKey) return;
+  const firstName = name.split(' ')[0];
+  const itemsHtml = items.map(i => `<li style="margin-bottom:4px;">${i.name} × ${i.quantity} — <strong>$${Number(i.price).toFixed(2)}</strong></li>`).join('');
+  const datesText = [...new Set(serviceDates)].join(', ');
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: `KNWN Food <${fromEmail}>`,
+      to,
+      subject: 'Your weekly KNWN order is confirmed! 🎉',
+      html: `<div style="font-family:Poppins,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f5f3ff;border-radius:16px;"><h2 style="color:#2B1C70;margin:0 0 8px;">Hey ${firstName}! 👋</h2><p style="color:#444;line-height:1.6;margin:0 0 20px;">Your weekly repeat order has been charged and confirmed. Here's what's on its way:</p><ul style="color:#2B1C70;line-height:2;padding-left:20px;">${itemsHtml}</ul><p style="color:#444;margin:16px 0 4px;">📅 Delivery dates: <strong>${datesText}</strong></p><p style="color:#444;margin:0 0 24px;">💳 Total charged: <strong>$${Number(pricing.total).toFixed(2)}</strong></p><hr style="border:none;border-top:1px solid #ddd9ed;margin:0 0 20px;" /><p style="color:#888;font-size:13px;margin:0;">Deliveries arrive 10 AM – 12 PM. To pause or cancel, email <a href="mailto:hello@knwnfood.com" style="color:#2B1C70;">hello@knwnfood.com</a>.</p></div>`,
+    }),
+  });
+}
+
+async function runRepeatOrderCron(req: any, res: any): Promise<any> {
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret && req.headers.authorization !== `Bearer ${cronSecret}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  const wcUrl = process.env.WC_URL?.trim();
+  const wcCk  = process.env.WC_CONSUMER_KEY?.trim();
+  const wcCs  = process.env.WC_CONSUMER_SECRET?.trim();
+  if (!secretKey || !wcUrl || !wcCk || !wcCs) return res.status(500).json({ error: 'Missing env vars' });
+  const wcAuth = Buffer.from(`${wcCk}:${wcCs}`).toString('base64');
+
+  const smResult = await upstash(['SMEMBERS', 'subscriptions:active']);
+  const subIds: string[] = smResult?.result || [];
+  console.log(`[repeat-cron] Processing ${subIds.length} subscription(s)`);
+  const results = { processed: subIds.length, success: 0, failed: 0, errors: [] as string[] };
+
+  for (const id of subIds) {
+    try {
+      const getResult = await upstash(['GET', `subscription:${id}`]);
+      if (!getResult?.result) continue;
+      const sub = JSON.parse(getResult.result);
+      if (!sub.active) continue;
+      const { stripeCustomerId, paymentMethodId, customerInfo, items, pricing } = sub;
+
+      const itemsWithDates = items.map((item: any) => ({ ...item, serviceDate: getNextWeekDate(item.serviceDay) }));
+
+      const chargeParams = new URLSearchParams({
+        amount: String(Math.round((Number(pricing.total) || 0) * 100)),
+        currency: 'usd', customer: stripeCustomerId, payment_method: paymentMethodId,
+        confirm: 'true', off_session: 'true',
+        'metadata[source]': 'knwn-repeat-order', 'metadata[subscription_id]': id,
+      });
+      const chargeRes = await fetch('https://api.stripe.com/v1/payment_intents', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${secretKey}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: chargeParams.toString(),
+      });
+      const charge = await chargeRes.json() as any;
+      if (!chargeRes.ok || charge.status !== 'succeeded') {
+        const errMsg = charge.error?.message || `status=${charge.status}`;
+        console.error(`[repeat-cron] Charge failed for ${id}:`, errMsg);
+        results.failed++; results.errors.push(`${id}: ${errMsg}`); continue;
+      }
+
+      const serviceDates: string[] = [];
+      for (const item of itemsWithDates) {
+        serviceDates.push(item.serviceDate);
+        const itemMeta: any[] = [];
+        if (item.customizations?.base)         itemMeta.push({ key: 'Choose your base',           value: item.customizations.base });
+        if (item.customizations?.sauce)        itemMeta.push({ key: 'Choose your dressing/sauce', value: item.customizations.sauce });
+        if (item.customizations?.protein)      itemMeta.push({ key: 'Protein',                    value: item.customizations.protein });
+        if (item.customizations?.avoid)        itemMeta.push({ key: "Anything you don't like?",   value: item.customizations.avoid });
+        if (item.customizations?.isVegetarian) itemMeta.push({ key: 'Make it vegetarian?',        value: 'TRUE' });
+        itemMeta.push({ key: 'Delivery date', value: toExportDate(item.serviceDate) });
+        await fetch(`${wcUrl}/wp-json/wc/v3/orders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Basic ${wcAuth}` },
+          body: JSON.stringify({
+            status: 'processing', set_paid: true,
+            ...(customerInfo.wcCustomerId ? { customer_id: customerInfo.wcCustomerId } : {}),
+            payment_method: 'stripe', payment_method_title: 'Credit Card (Stripe) — Repeat Order',
+            transaction_id: charge.id,
+            billing:  { first_name: customerInfo.name?.split(' ')[0]||'', last_name: customerInfo.name?.split(' ').slice(1).join(' ')||'', address_1: customerInfo.street||'', address_2: customerInfo.address2||'', city: customerInfo.city||'Miami', state: customerInfo.state||'FL', postcode: customerInfo.zip||'', country: 'US', email: customerInfo.email||'', phone: customerInfo.phone||'' },
+            shipping: { first_name: customerInfo.name?.split(' ')[0]||'', last_name: customerInfo.name?.split(' ').slice(1).join(' ')||'', address_1: customerInfo.street||'', address_2: customerInfo.address2||'', city: customerInfo.city||'Miami', state: customerInfo.state||'FL', postcode: customerInfo.zip||'', country: 'US' },
+            line_items: [{ product_id: item._wooProductId || 0, quantity: item.quantity, meta_data: itemMeta }],
+            customer_note: customerInfo.deliveryInstructions || '',
+            meta_data: [
+              { key: 'order_source',          value: 'knwn-repeat-order' },
+              { key: 'stripe_payment_intent', value: charge.id },
+              { key: 'subscription_id',       value: id },
+              { key: 'e_deliverydate',        value: toTycheDate(item.serviceDate) },
+              { key: 'delivery_date',         value: item.serviceDate },
+              { key: 'service_date_display',  value: item.serviceDate },
+              { key: 'service_date_export',   value: toExportDate(item.serviceDate) },
+              { key: 'Delivery date',         value: toExportDate(item.serviceDate) },
+              { key: 'delivery_time_window',  value: DELIVERY_WINDOW_LABEL },
+              { key: 'Delivery Time',         value: DELIVERY_WINDOW_LABEL },
+            ],
+          }),
+        });
+      }
+      await sendRepeatConfirmationEmail(customerInfo.email, customerInfo.name, items, pricing, serviceDates);
+      await upstash(['SET', `subscription:${id}`, JSON.stringify({ ...sub, lastCharged: new Date().toISOString() })]);
+      results.success++;
+    } catch (err: any) {
+      results.failed++; results.errors.push(`${id}: ${err.message}`);
+      console.error(`[repeat-cron] Error for ${id}:`, err.message);
+    }
+  }
+  return res.json(results);
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 export default async function handler(req: any, res: any) {
+  // Vercel Cron entry point — runs every Sunday 17:00 UTC (12 PM EST)
+  if (req.query?.cron === '1' || req.url?.includes('cron=1')) {
+    return runRepeatOrderCron(req, res);
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { items, customerInfo, couponCode, paymentIntentId, paymentProvider = 'stripe', isFree, pricing, marketingOptIn } = req.body;
+  const { items, customerInfo, couponCode, paymentIntentId, paymentProvider = 'stripe', isFree, pricing, marketingOptIn, repeatOrder, stripeCustomerId } = req.body;
 
   if (!items || items.length === 0) {
     return res.status(400).json({ error: 'No items in order' });
@@ -400,6 +611,25 @@ export default async function handler(req: any, res: any) {
   // Subscribe to Mailchimp only if customer opted in
   if (marketingOptIn && customerInfo?.email) {
     await subscribeToMailchimp(customerInfo.email, customerInfo.phone, customerInfo.name);
+  }
+
+  // Save repeat subscription to Redis if customer opted in and payment was charged
+  if (repeatOrder && !isFree && stripeCustomerId && paymentIntentId) {
+    try {
+      // Retrieve PaymentIntent to get the attached payment_method ID
+      const piRes = await fetch(`https://api.stripe.com/v1/payment_intents/${paymentIntentId}`, {
+        headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}` },
+      });
+      const pi = await piRes.json() as any;
+      const paymentMethodId = typeof pi.payment_method === 'string' ? pi.payment_method : pi.payment_method?.id;
+      if (paymentMethodId) {
+        await saveRepeatSubscription(stripeCustomerId, paymentMethodId, customerInfo, items, pricing);
+      } else {
+        console.warn('[repeat-order] No payment_method on PI:', paymentIntentId);
+      }
+    } catch (err) {
+      console.error('[repeat-order] Failed to save subscription:', err);
+    }
   }
 
   // If WooCommerce was reachable but every single order failed, surface it as an error
