@@ -92,6 +92,25 @@ const FAQItem: React.FC<{ q: string; a: string; isOpen: boolean; onToggle: () =>
 export default function FAQ() {
   const [openLeft, setOpenLeft] = useState<number | null>(0);
   const [openRight, setOpenRight] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const handleToggleLeft = (i: number) => {
+    setOpenLeft(openLeft === i ? null : i);
+    if (isMobile) setOpenRight(null);
+  };
+
+  const handleToggleRight = (i: number) => {
+    setOpenRight(openRight === i ? null : i);
+    if (isMobile) setOpenLeft(null);
+  };
 
   return (
     <section className={s.section}>
@@ -115,7 +134,7 @@ export default function FAQ() {
                   q={faq.q}
                   a={faq.a}
                   isOpen={openLeft === i}
-                  onToggle={() => setOpenLeft(openLeft === i ? null : i)}
+                  onToggle={() => handleToggleLeft(i)}
                   dark={openLeft === i}
                 />
               ))}
@@ -129,7 +148,7 @@ export default function FAQ() {
                   q={faq.q}
                   a={faq.a}
                   isOpen={openRight === i}
-                  onToggle={() => setOpenRight(openRight === i ? null : i)}
+                  onToggle={() => handleToggleRight(i)}
                   dark={openRight === i}
                 />
               ))}
