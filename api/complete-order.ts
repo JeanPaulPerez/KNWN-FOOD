@@ -12,7 +12,7 @@ async function subscribeToMailchimp(email: string, phone?: string, name?: string
     const [firstName, ...rest] = (name || '').split(' ');
     // Normalize phone to E.164 for Mailchimp SMS (requires +1XXXXXXXXXX format)
     const smsPhone = phone ? '+1' + phone.replace(/\D/g, '').replace(/^1/, '') : undefined;
-    await fetch(`https://${dc}.api.mailchimp.com/3.0/lists/${listId}/members/${hash}`, {
+    const mcRes = await fetch(`https://${dc}.api.mailchimp.com/3.0/lists/${listId}/members/${hash}`, {
       method: 'PUT',
       headers: {
         Authorization: `Basic ${Buffer.from(`anystring:${apiKey}`).toString('base64')}`,
@@ -21,6 +21,7 @@ async function subscribeToMailchimp(email: string, phone?: string, name?: string
       body: JSON.stringify({
         email_address: email,
         status_if_new: 'subscribed',
+        status: 'subscribed',
         merge_fields: {
           ...(firstName ? { FNAME: firstName } : {}),
           ...(rest.length ? { LNAME: rest.join(' ') } : {}),
@@ -33,6 +34,10 @@ async function subscribeToMailchimp(email: string, phone?: string, name?: string
         tags: ['knwn-customer', 'placed-order', 'marketing-optin'],
       }),
     });
+    if (!mcRes.ok) {
+      const mcErr = await mcRes.json();
+      console.error('[mailchimp] subscribe response:', mcErr);
+    }
   } catch (err) {
     console.error('[mailchimp] subscribe failed:', err);
   }
