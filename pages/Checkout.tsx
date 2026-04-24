@@ -515,7 +515,10 @@ function CheckoutForm({ cart }: { cart: any }) {
               <h2 className="text-2xl font-bold text-brand-primary mb-6">Contact</h2>
               <div className="space-y-4">
                 <input required type="email" name="email" defaultValue={user?.email} placeholder="Email" className="w-full border border-brand-primary/20 rounded-xl px-5 py-4 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium" />
-                <input required type="tel" name="phone" defaultValue={user?.phone} placeholder="Phone Number (10 digits)" inputMode="numeric" pattern="[0-9\s\-\(\)\.]{10,}" maxLength={15} className="w-full border border-brand-primary/20 rounded-xl px-5 py-4 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition-all text-brand-primary font-medium" />
+                <div className="flex items-center border border-brand-primary/20 rounded-xl focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary transition-all overflow-hidden">
+                  <span className="flex items-center gap-1.5 px-4 py-4 bg-brand-primary/5 border-r border-brand-primary/20 text-brand-primary font-semibold text-sm shrink-0 select-none">🇺🇸 +1</span>
+                  <input required type="tel" name="phone" defaultValue={user?.phone} placeholder="(305) 555-0123" inputMode="numeric" pattern="[0-9\s\-\(\)\.]{10,}" maxLength={14} className="flex-1 px-4 py-4 text-brand-primary font-medium bg-transparent outline-none" />
+                </div>
                 <label className="flex items-center gap-3 cursor-pointer pt-2">
                   <input
                     type="checkbox"

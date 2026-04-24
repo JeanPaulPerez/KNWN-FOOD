@@ -76,8 +76,10 @@ async function subscribeToMailchimp(email: string, phone?: string, name?: string
   const hash = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
   try {
     const [firstName, ...rest] = (name || '').split(' ');
-    // Normalize phone to E.164 for Mailchimp SMS (requires +1XXXXXXXXXX format)
-    const smsPhone = phone ? '+1' + phone.replace(/\D/g, '').replace(/^1/, '') : undefined;
+    // Normalize to E.164: strip all non-digits, remove leading 1 if present, prepend +1
+    // Only send if result is exactly 10 digits (valid US number)
+    const digits = phone ? phone.replace(/\D/g, '').replace(/^1/, '') : '';
+    const smsPhone = digits.length === 10 ? `+1${digits}` : undefined;
     const mcRes = await fetch(`https://${dc}.api.mailchimp.com/3.0/lists/${listId}/members/${hash}`, {
       method: 'PUT',
       headers: {
