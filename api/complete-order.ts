@@ -399,7 +399,7 @@ export default async function handler(req: any, res: any) {
 
   // Subscribe to Mailchimp only if customer opted in
   if (marketingOptIn && customerInfo?.email) {
-    subscribeToMailchimp(customerInfo.email, customerInfo.phone, customerInfo.name);
+    await subscribeToMailchimp(customerInfo.email, customerInfo.phone, customerInfo.name);
   }
 
   // If WooCommerce was reachable but every single order failed, surface it as an error
