@@ -82,6 +82,12 @@
   margin-top: 24px;
 }
 
+/* Remove ZipCode's own section padding so the banner aligns with the card above */
+.zipWrap :global(section) {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 @media (max-width: 767px) {
   .section {
     padding: 0 0 32px;
@@ -101,6 +107,6 @@
   }
 
   .zipWrap {
-    margin: 24px 16px 0;
+    margin: 24px 0 0;
   }
 }
