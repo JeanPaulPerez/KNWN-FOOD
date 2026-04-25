@@ -14,7 +14,7 @@ export default function AboutHero() {
           <picture>
             <source media="(max-width: 767px)" srcSet="/assets/about/hero-mobile.webp" />
             <img
-              src="/assets/about/About_Hero.png"
+              src="/assets/about/About_Hero.webp"
               alt="KNWN is a weekly lunch system delivering freshly cooked meals made with real ingredients every day"
               className={s.heroImg}
               loading="eager"

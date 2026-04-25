@@ -5,7 +5,7 @@ import s from './FoundersStory.module.css';
 const PROBLEM_CARDS = [
   {
     label: 'Another $22 sad salad?',
-    img: '/assets/about/Untitled design.png',
+    img: '/assets/about/Untitled design.webp',
     alt: 'Another $22 sad salad',
     cardClass: s.problemCard1,
     imgClass: s.problemImg1,
@@ -13,7 +13,7 @@ const PROBLEM_CARDS = [
   },
   {
     label: 'Another pile of delivery fees?',
-    img: "/assets/about/Fee's.png",
+    img: "/assets/about/Fee's.webp",
     alt: 'Another pile of delivery fees',
     cardClass: s.problemCard2,
     imgClass: s.problemImg2,
@@ -21,7 +21,7 @@ const PROBLEM_CARDS = [
   },
   {
     label: 'Another fake fresh meal prep?',
-    img: '/assets/about/Meal Prep.png',
+    img: '/assets/about/Meal Prep.webp',
     alt: 'Another fake fresh meal prep',
     cardClass: s.problemCard3,
     imgClass: s.problemImg3,
