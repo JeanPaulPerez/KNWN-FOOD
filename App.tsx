@@ -22,6 +22,7 @@ import { useWooCart } from './store/useWooCart';
 import { useUser } from './store/useUser';
 import ProfileModal from './components/ProfileModal';
 import Header from './components/Header';
+import { SplashScreen, RouteLoader } from './components/LoadingScreen';
 
 const FOOD_BG_MAP: Record<string, string> = {
   'mediterranean chicken': '/assets/food-bg/mediterranean-chicken.webp',
@@ -194,6 +195,7 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
 };
 
 export default function App() {
+  const [splashDone, setSplashDone] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [profileInitialTab, setProfileInitialTab] = useState<'login' | 'register' | 'reset'>('login');
@@ -227,6 +229,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen selection:bg-brand-primary selection:text-white flex flex-col font-sans bg-[#F4F1FF]">
+      {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
+      {splashDone && <RouteLoader />}
       <ScrollToTop />
       <Header cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} onOpenProfile={handleAccountAction} />
 
