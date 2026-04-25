@@ -275,7 +275,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 sm:gap-10 md:gap-16 text-center md:text-left">
           <div className="col-span-1 sm:col-span-2 space-y-3 md:space-y-8">
             <img
-              src="https://knwnfood.com/wp-content/uploads/2025/09/Recurso-91x.webp"
+              src="/assets/logo.webp"
               alt="KNWN Food"
               loading="lazy"
               className="w-20 md:w-40 lg:w-48 brightness-0 invert opacity-80 mx-auto md:mx-0"

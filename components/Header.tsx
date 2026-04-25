@@ -47,7 +47,7 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
         {/* Logo */}
         <Link to="/" onClick={() => setOpen(false)}>
           <img
-            src="https://knwnfood.com/wp-content/uploads/2025/09/Recurso-91x.webp"
+            src="/assets/logo.webp"
             alt="KNWN Food"
             className={s.logo}
           />
