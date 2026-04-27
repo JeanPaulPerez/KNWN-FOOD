@@ -50,13 +50,6 @@ export default function CustomerFavs() {
     <section className={s.section}>
       <div className={s.inner}>
 
-        {/* Day badge — top left */}
-        <AnimatePresence mode="wait">
-          <motion.span key={`badge-${idx}`} {...fadeSlide} className={s.dayBadge}>
-            {item.day}
-          </motion.span>
-        </AnimatePresence>
-
         {/* "Customer favs" heading — desktop */}
         <h2 className={s.heading}>Customer favs</h2>
 
@@ -70,44 +63,53 @@ export default function CustomerFavs() {
           </text>
         </svg>
 
-        {/* Food bowl cutout — crossfade on slide change */}
+        {/* ALL slide-specific content in ONE AnimatePresence so everything transitions in sync */}
         <AnimatePresence mode="wait">
-          <motion.img
-            key={`food-${idx}`}
-            src={item.img}
-            alt={item.name}
-            loading="eager"
-            className={s.foodImg}
-            {...fadeSlide}
-          />
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.32, ease: 'easeInOut' }}
+            className={s.slideFrame}
+          >
+            {/* Day badge */}
+            <span className={s.dayBadge}>{item.day}</span>
+
+            {/* Food bowl cutout */}
+            <img
+              src={item.img}
+              alt={item.name}
+              loading="eager"
+              className={s.foodImg}
+            />
+
+            {/* Blob + card content */}
+            <div className={s.blobWrap}>
+              <img
+                src="/assets/hero-bg/Bloque_amarillo.webp"
+                alt=""
+                loading="lazy"
+                className={s.blob}
+                aria-hidden="true"
+              />
+              <div className={s.cardBody}>
+                <h3 className={s.dishName}>{item.name}</h3>
+                <p className={s.dishDesc}>{item.desc}</p>
+                <div className={s.deliveryRow}>
+                  <span className={s.pricePill}>{item.price}</span>
+                  <span className={s.deliveryText}>Delivery Included</span>
+                </div>
+                <Link to="/menu" className={s.menuBtnWrap}>
+                  <img src="/assets/hero-bg/HOMEPAGE.webp" alt="" loading="lazy" className={s.menuBtnImg} />
+                  <span className={s.menuBtnText}>SEE MENU</span>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
         </AnimatePresence>
 
-        {/* Blob + card content — right side, behind bowl */}
-        <div className={s.blobWrap}>
-          <img
-            src="/assets/hero-bg/Bloque_amarillo.webp"
-            alt=""
-            loading="lazy"
-            className={s.blob}
-            aria-hidden="true"
-          />
-          <AnimatePresence mode="wait">
-            <motion.div key={`card-${idx}`} {...fadeSlide} className={s.cardBody}>
-              <h3 className={s.dishName}>{item.name}</h3>
-              <p className={s.dishDesc}>{item.desc}</p>
-              <div className={s.deliveryRow}>
-                <span className={s.pricePill}>{item.price}</span>
-                <span className={s.deliveryText}>Delivery Included</span>
-              </div>
-              <Link to="/menu" className={s.menuBtnWrap}>
-                <img src="/assets/hero-bg/HOMEPAGE.webp" alt="" loading="lazy" className={s.menuBtnImg} />
-                <span className={s.menuBtnText}>SEE MENU</span>
-              </Link>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Left arrow */}
+        {/* Left arrow — outside animation so always clickable */}
         <button className={s.arrowLeft} onClick={prev} aria-label="Previous">
           <ChevronLeft size={32} strokeWidth={2.5} />
         </button>
