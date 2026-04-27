@@ -125,7 +125,14 @@ export default async function handler(req: any, res: any) {
       `${wcUrl}/wp-json/wc/v3/customers?email=${encodeURIComponent(email)}&per_page=1`,
       { headers: { Authorization: `Basic ${adminAuth}` } }
     );
-    const customers = (await searchRes.json()) as any[];
+    const searchRaw = await searchRes.text();
+    let customers: any[];
+    try {
+      customers = JSON.parse(searchRaw);
+    } catch {
+      console.error('[login-customer] non-JSON response (status', searchRes.status, '):', searchRaw.slice(0, 500));
+      return res.status(502).json({ error: 'Store API is unreachable. Please try again later.' });
+    }
     if (!Array.isArray(customers) || customers.length === 0) {
       return res.status(404).json({ error: 'No customer account found for this email' });
     }

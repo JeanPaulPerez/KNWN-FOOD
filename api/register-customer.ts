@@ -69,7 +69,14 @@ export default async function handler(req: any, res: any) {
       `${wcUrl}/wp-json/wc/v3/customers?email=${encodeURIComponent(email)}&per_page=1`,
       { headers: { Authorization: authHeader } }
     );
-    const existing = (await existingRes.json()) as any[];
+    const existingRaw = await existingRes.text();
+    let existing: any[];
+    try {
+      existing = JSON.parse(existingRaw);
+    } catch {
+      console.error('[register-customer] check-existing non-JSON response (status', existingRes.status, '):', existingRaw.slice(0, 500));
+      return res.status(502).json({ error: 'Store API is unreachable. Please try again later.' });
+    }
     if (Array.isArray(existing) && existing.length > 0) {
       return res.status(409).json({ error: 'An account already exists for this email' });
     }
@@ -107,7 +114,14 @@ export default async function handler(req: any, res: any) {
       }),
     });
 
-    const data = await createRes.json();
+    const createRaw = await createRes.text();
+    let data: any;
+    try {
+      data = JSON.parse(createRaw);
+    } catch {
+      console.error('[register-customer] create non-JSON response (status', createRes.status, '):', createRaw.slice(0, 500));
+      return res.status(502).json({ error: 'Store API is unreachable. Please try again later.' });
+    }
     if (!createRes.ok) {
       console.error('[register-customer] failed:', data);
       return res.status(502).json({ error: data.message || 'Failed to create account' });
