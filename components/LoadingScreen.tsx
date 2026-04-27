@@ -25,7 +25,8 @@ function LoadingUI({ progress }: { progress: number }) {
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        style={{ width: 'min(100vw, 780px)', height: 'auto', maxWidth: 'none', display: 'block', margin: '0 auto' }}
+        className="w-[160vw] md:w-[780px]"
+        style={{ height: 'auto', maxWidth: 'none', display: 'block', marginLeft: '-26vw', marginRight: '-30vw' }}
       />
 
       <div style={{
