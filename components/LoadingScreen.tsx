@@ -9,28 +9,30 @@ function LoadingUI({ progress }: { progress: number }) {
       key="loader"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
+      transition={{ duration: 0.50, ease: 'easeOut' }}
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
         background: '#F4F1FF',
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         gap: 32,
+        overflow: 'hidden',
       }}
     >
       <motion.img
-        src="/assets/logo.webp"
+        src="/assets/LOGO1.png"
         alt="KNWN Food"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        style={{ height: 48, width: 'auto', filter: 'brightness(0)' }}
+        style={{ width: 'min(100vw, 780px)', height: 'auto', maxWidth: 'none', display: 'block', margin: '0 auto' }}
       />
 
       <div style={{
-        width: 160, height: 3, borderRadius: 99,
+        width: 200, height: 6, borderRadius: 99,
         background: 'rgba(43,28,112,0.12)',
         overflow: 'hidden',
+        margin: '0 auto',
       }}>
         <motion.div
           animate={{ width: `${progress}%` }}

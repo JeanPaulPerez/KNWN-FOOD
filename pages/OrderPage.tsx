@@ -258,6 +258,9 @@ const CustomizationModal: React.FC<{
               </span>
               <h2 className="text-[2rem] font-serif text-[#311c67] leading-tight">{item.name}</h2>
               <p className="text-[13px] text-[#311c67]/50 font-medium leading-relaxed">{item.description}</p>
+              {(item.name === 'Crispy Korean Chicken' || item.name.toLowerCase().includes('milanesa')) && (
+                <p className="text-[13px] text-[#311c67]/55 font-semibold mt-1">*Chicken cooked in vegetable oil.</p>
+              )}
             </div>
 
             {opts?.bases && opts.bases.length > 1 && (
