@@ -412,7 +412,7 @@
 
   .dayBadge {
     position: absolute;
-    top: 140px;
+    top: 60px;
     left: 10%;
     z-index: 5;
     background: #dddf00;
@@ -534,7 +534,7 @@
   }
 
   .dayBadge {
-    top: 150px;
+    top: 50px;
     left: 12%;
   }
 
