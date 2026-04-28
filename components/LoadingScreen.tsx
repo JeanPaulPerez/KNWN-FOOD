@@ -13,33 +13,38 @@ function LoadingUI({ progress }: { progress: number }) {
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
         background: '#F4F1FF',
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        gap: 32,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
         overflow: 'hidden',
       }}
     >
-      <motion.img
-        src="/assets/LOGO1.png"
-        alt="KNWN Food"
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="w-[160vw] md:w-[780px]"
-        style={{ height: 'auto', maxWidth: 'none', display: 'block', marginLeft: '-26vw', marginRight: '-30vw' }}
-      />
-
+      {/* Inner group — always visually centered */}
       <div style={{
-        width: 200, height: 6, borderRadius: 99,
-        background: 'rgba(43,28,112,0.12)',
-        overflow: 'hidden',
-        margin: '0 auto',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        gap: window.innerWidth < 768 ? 0 : 32,
+        transform: window.innerWidth < 768 ? 'translateY(-60px)' : 'none',
       }}>
-        <motion.div
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.4, ease: 'easeOut' }}
-          style={{ height: '100%', borderRadius: 99, background: '#2B1C70' }}
+        <motion.img
+          src="/assets/LOGO1.png"
+          alt="KNWN Food"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="w-[160vw] md:w-[780px]"
+          style={{ height: 'auto', maxWidth: 'none', display: 'block', marginLeft: '-30vw', marginRight: '-30vw' }}
         />
+
+        <div style={{
+          width: 200, height: 6, borderRadius: 99,
+          background: 'rgba(43,28,112,0.12)',
+          overflow: 'hidden',
+          marginTop: window.innerWidth < 768 ? '-120px' : undefined,
+        }}>
+          <motion.div
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            style={{ height: '100%', borderRadius: 99, background: '#2B1C70' }}
+          />
+        </div>
       </div>
     </motion.div>
   );
