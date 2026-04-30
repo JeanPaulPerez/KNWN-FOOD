@@ -222,6 +222,12 @@ function CheckoutForm({ cart }: { cart: any }) {
     elements.update({ amount: Math.round(finalTotal * 100) });
   }, [elements, finalTotal]);
 
+  // ── Keep setup_future_usage in sync with repeatOrder ─────────────────────
+  useEffect(() => {
+    if (!elements) return;
+    elements.update({ setup_future_usage: repeatOrder ? 'off_session' : null });
+  }, [elements, repeatOrder]);
+
   // ── Keep PaymentRequest amount in sync ────────────────────────────────────
   useEffect(() => {
     if (!paymentRequest || finalTotal <= 0) return;
