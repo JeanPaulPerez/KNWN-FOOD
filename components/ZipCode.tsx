@@ -50,7 +50,7 @@ export default function ZipCode() {
           {result === 'valid' && (
             <div className={s.resultValidOuter}>
               <div className={s.resultValidTitle}>
-                You are within our delivery area! <Link to="/order" className={s.menuLink}>View our Menu.</Link>
+                You are within our delivery area! <Link to="/order-now" className={s.menuLink}>View our Menu.</Link>
               </div>
             </div>
           )}

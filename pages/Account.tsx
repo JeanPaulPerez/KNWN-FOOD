@@ -375,7 +375,7 @@ export default function Account() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    navigate('/home');
   };
 
   const handleCancelOrder = async (orderId: number) => {
@@ -467,7 +467,7 @@ export default function Account() {
           </p>
           <button
             type="button"
-            onClick={() => navigate('/order')}
+            onClick={() => navigate('/order-now')}
             className="mt-8 rounded-full bg-[#2B1C70] px-7 py-3 text-[12px] font-bold uppercase tracking-[0.18em] text-white"
           >
             Back to menu

@@ -15,7 +15,7 @@ export default function ThankYou() {
   const { orders, payload } = location.state || {};
 
   if (!orders?.length || !payload) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   const serviceDays: string[] = (() => {

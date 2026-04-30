@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -102,7 +102,7 @@ const CartDrawer = ({ isOpen, onClose, cart, onFinalize, isFinalizing }: { isOpe
                   </div>
                   <p className="text-brand-primary/30 font-black uppercase tracking-[0.2em] text-[9px]">Your week is empty</p>
                   <Link
-                    to="/order"
+                    to="/order-now"
                     onClick={onClose}
                     className="px-6 py-3 bg-brand-primary text-white rounded-full text-[10px] uppercase tracking-[0.2em] font-black hover:bg-brand-dark transition-colors"
                   >
@@ -237,9 +237,11 @@ export default function App() {
       <main className="flex-1">
         <React.Suspense fallback={null}>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/menu" element={<MenuPage cart={cart} />} />
-            <Route path="/order" element={<OrderPage cart={cart} />} />
+            <Route path="/order-now" element={<OrderPage cart={cart} />} />
+            <Route path="/order" element={<Navigate to="/order-now" replace />} />
             <Route path="/about" element={<About />} />
             <Route path="/checkout" element={<Checkout cart={cart} />} />
             <Route path="/thank-you" element={<ThankYou />} />

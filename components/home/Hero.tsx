@@ -20,7 +20,7 @@ export default function Hero() {
             <span className={s.bodyLine}>and deliver to your office or home instantly.</span>
           </p>
 
-          <Link to="/order" className={s.cta}>Order Now</Link>
+          <Link to="/order-now" className={s.cta}>Order Now</Link>
 
           <div className={s.badges}>
             <span className={s.badge}>

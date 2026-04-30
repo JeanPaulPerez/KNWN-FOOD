@@ -148,7 +148,7 @@ function CheckoutForm({ cart }: { cart: any }) {
   } | null>(null);
 
   useEffect(() => {
-    if (cart.items.length === 0) navigate('/order');
+    if (cart.items.length === 0) navigate('/order-now');
   }, [cart.items.length, navigate]);
 
   // Pre-fill delivery address from user profile if sessionStorage is empty

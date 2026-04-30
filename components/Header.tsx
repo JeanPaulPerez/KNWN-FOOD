@@ -33,7 +33,7 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     };
     if (location.pathname !== '/') {
-      navigate('/');
+      navigate('/home');
       setTimeout(scroll, 150);
     } else {
       scroll();
@@ -45,7 +45,7 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
 
       <div className={s.headerInner}>
         {/* Logo */}
-        <Link to="/" onClick={() => setOpen(false)}>
+        <Link to="/home" onClick={() => setOpen(false)}>
           <img
             src="/assets/logo.webp"
             alt="KNWN Food"
@@ -62,7 +62,7 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
 
         {/* Desktop actions */}
         <div className={s.actions}>
-          <Link to="/order" className={s.orderBtn}>Order now</Link>
+          <Link to="/order-now" className={s.orderBtn}>Order now</Link>
 
           <button className={s.iconBtn} onClick={onOpenCart} aria-label="Cart">
             <ShoppingBag size={22} strokeWidth={2.5} />
@@ -102,7 +102,7 @@ export default function Header({ cartCount = 0, onOpenCart, onOpenProfile }: Hea
             <Link to="/menu" className={s.drawerLink} onClick={() => setOpen(false)}>Menu</Link>
             <a href="#" className={s.drawerLink} onClick={(e) => handleHowItWorksClick(e, () => setOpen(false))}>How it Works</a>
             <Link to="/about" className={s.drawerLink} onClick={() => setOpen(false)}>About Us</Link>
-            <Link to="/order" className={s.drawerOrderBtn} onClick={() => setOpen(false)}>Order Now</Link>
+            <Link to="/order-now" className={s.drawerOrderBtn} onClick={() => setOpen(false)}>Order Now</Link>
           </div>
         )}
       </div>

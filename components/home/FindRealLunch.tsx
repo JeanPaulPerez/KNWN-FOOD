@@ -111,7 +111,7 @@ export default function FindRealLunch() {
             </div>
 
             {/* Sticker (Desktop only) */}
-            <button onClick={() => navigate('/order')} aria-label="Try now — go to order"
+            <button onClick={() => navigate('/order-now')} aria-label="Try now — go to order"
               className="absolute bottom-[1.15rem] right-[-2rem] hidden md:block cursor-pointer bg-transparent border-none p-0 transition-transform duration-200 hover:scale-105 z-10">
               <img src={COPY.stickerImage} alt="Try now"
                 className="w-[220px] rotate-[-4deg] lg:w-[255px]" />
