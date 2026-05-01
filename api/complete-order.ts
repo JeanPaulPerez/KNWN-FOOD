@@ -97,12 +97,13 @@ async function subscribeToMailchimp(email: string, phone?: string, name?: string
           ...(rest.length ? { LNAME: rest.join(' ') } : {}),
           ...(phone ? { PHONE: phone } : {}),
         },
-        tags: ['knwn-customer', 'placed-order', 'marketing-optin'],
       }),
     });
+    const putData = await putRes.json();
     if (!putRes.ok) {
-      const putErr = await putRes.json();
-      console.error('[mailchimp] PUT error:', JSON.stringify(putErr));
+      console.error('[mailchimp] PUT error:', JSON.stringify(putData));
+    } else {
+      console.log('[mailchimp] PUT success — email:', email, '| status:', putData.status, '| email_marketing_status:', putData.email_marketing_status);
     }
 
     // ── Step 2: PATCH — set SMS phone separately (PUT ignores sms_phone_number) ─
@@ -122,6 +123,19 @@ async function subscribeToMailchimp(email: string, phone?: string, name?: string
         console.log('[mailchimp] SMS set:', smsPhone, '| status:', patchData.sms_marketing_status);
       }
     }
+
+    // ── Step 3: POST — add tags via the tags endpoint (PUT body ignores tags) ──
+    await fetch(`${memberUrl}/tags`, {
+      method: 'POST',
+      headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tags: [
+          { name: 'knwn-customer', status: 'active' },
+          { name: 'placed-order', status: 'active' },
+          { name: 'marketing-optin', status: 'active' },
+        ],
+      }),
+    });
   } catch (err) {
     console.error('[mailchimp] subscribe failed:', err);
   }
