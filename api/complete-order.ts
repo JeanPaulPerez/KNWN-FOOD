@@ -78,49 +78,56 @@ async function subscribeToMailchimp(email: string, phone?: string, name?: string
   const memberUrl = `https://${dc}.api.mailchimp.com/3.0/lists/${listId}/members/${hash}`;
 
   // Normalize to E.164 — only valid if exactly 10 US digits
-  const digits = phone ? phone.replace(/\D/g, '').replace(/^1/, '') : '';
+  const rawDigits = phone ? phone.replace(/\D/g, '') : '';
+  const digits = rawDigits.startsWith('1') && rawDigits.length === 11 ? rawDigits.slice(1) : rawDigits;
   const smsPhone = digits.length === 10 ? `+1${digits}` : undefined;
+  console.log('[mailchimp] phone raw:', phone, '| digits:', digits, '| smsPhone:', smsPhone);
 
   try {
     const [firstName, ...rest] = (name || '').split(' ');
 
-    // ── Step 1: PUT — upsert email subscription ───────────────────────────────
+    // ── Step 1: PUT — upsert member with email + SMS in one call ─────────────
+    const putBody: any = {
+      email_address: email,
+      status_if_new: 'subscribed',
+      status: 'subscribed',
+      merge_fields: {
+        ...(firstName ? { FNAME: firstName } : {}),
+        ...(rest.length ? { LNAME: rest.join(' ') } : {}),
+        ...(phone ? { PHONE: phone } : {}),
+      },
+    };
+    if (smsPhone) {
+      putBody.sms_phone_number = smsPhone;
+      putBody.sms_marketing_status = 'subscribed';
+    }
     const putRes = await fetch(memberUrl, {
       method: 'PUT',
       headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email_address: email,
-        status_if_new: 'subscribed',
-        status: 'subscribed',
-        merge_fields: {
-          ...(firstName ? { FNAME: firstName } : {}),
-          ...(rest.length ? { LNAME: rest.join(' ') } : {}),
-          ...(phone ? { PHONE: phone } : {}),
-        },
-      }),
+      body: JSON.stringify(putBody),
     });
     const putData = await putRes.json();
     if (!putRes.ok) {
       console.error('[mailchimp] PUT error:', JSON.stringify(putData));
     } else {
-      console.log('[mailchimp] PUT success — email:', email, '| status:', putData.status, '| email_marketing_status:', putData.email_marketing_status);
+      console.log('[mailchimp] PUT success — email:', email, '| email_status:', putData.status, '| sms_phone_number:', putData.sms_phone_number, '| sms_marketing_status:', putData.sms_marketing_status);
     }
 
-    // ── Step 2: PATCH — set SMS phone + opt-in (pending triggers confirmation text) ─
+    // ── Step 2: PATCH — re-apply SMS fields in case PUT silently ignored them ─
     if (smsPhone) {
       const patchRes = await fetch(memberUrl, {
         method: 'PATCH',
         headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sms_phone_number: smsPhone,
-          sms_marketing_status: 'pending',
+          sms_marketing_status: 'subscribed',
         }),
       });
       const patchData = await patchRes.json();
       if (!patchRes.ok) {
         console.error('[mailchimp] PATCH SMS error:', JSON.stringify(patchData));
       } else {
-        console.log('[mailchimp] SMS pending — phone:', smsPhone, '| sms_marketing_status:', patchData.sms_marketing_status, '| sms_phone_number:', patchData.sms_phone_number);
+        console.log('[mailchimp] PATCH SMS — phone:', smsPhone, '| sms_marketing_status:', patchData.sms_marketing_status, '| sms_phone_number:', patchData.sms_phone_number);
       }
     }
 
