@@ -106,21 +106,21 @@ async function subscribeToMailchimp(email: string, phone?: string, name?: string
       console.log('[mailchimp] PUT success — email:', email, '| status:', putData.status, '| email_marketing_status:', putData.email_marketing_status);
     }
 
-    // ── Step 2: PATCH — set SMS phone separately (PUT ignores sms_phone_number) ─
+    // ── Step 2: PATCH — set SMS phone + opt-in (pending triggers confirmation text) ─
     if (smsPhone) {
       const patchRes = await fetch(memberUrl, {
         method: 'PATCH',
         headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sms_phone_number: smsPhone,
-          sms_marketing_status: 'subscribed',
+          sms_marketing_status: 'pending',
         }),
       });
       const patchData = await patchRes.json();
       if (!patchRes.ok) {
         console.error('[mailchimp] PATCH SMS error:', JSON.stringify(patchData));
       } else {
-        console.log('[mailchimp] SMS set:', smsPhone, '| status:', patchData.sms_marketing_status);
+        console.log('[mailchimp] SMS pending — phone:', smsPhone, '| sms_marketing_status:', patchData.sms_marketing_status, '| sms_phone_number:', patchData.sms_phone_number);
       }
     }
 
