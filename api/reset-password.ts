@@ -2,27 +2,58 @@
  * api/reset-password.ts
  * Consolidates reset-request and reset-verify into one function.
  * Route by body.action: 'request' | 'verify'
+ *
+ * OTP is stored in a signed HMAC token returned to the client — no WC meta_data
+ * needed, which avoids WC REST API unreliability for non-native WC users.
  */
 import nodemailer from 'nodemailer';
 import crypto from 'node:crypto';
 
+function getSecret(wcCs: string): string {
+  return process.env.RESET_JWT_SECRET?.trim() || `${wcCs}:knwn-reset`;
+}
+
+function signToken(payload: object, secret: string): string {
+  const data = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const sig   = crypto.createHmac('sha256', secret).update(data).digest('hex');
+  return `${data}.${sig}`;
+}
+
+function verifyToken(token: string, secret: string): any | null {
+  const dot = token.lastIndexOf('.');
+  if (dot === -1) return null;
+  const data     = token.slice(0, dot);
+  const sig      = token.slice(dot + 1);
+  const expected = crypto.createHmac('sha256', secret).update(data).digest('hex');
+  try {
+    if (
+      sig.length !== expected.length ||
+      !crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))
+    ) return null;
+    return JSON.parse(Buffer.from(data, 'base64url').toString());
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { action, email, otp, newPassword } = req.body ?? {};
+  const { action, email, otp, token, newPassword } = req.body ?? {};
 
   const wcUrl = process.env.WC_URL?.trim();
   const wcCk  = process.env.WC_CONSUMER_KEY?.trim();
   const wcCs  = process.env.WC_CONSUMER_SECRET?.trim();
   if (!wcUrl || !wcCk || !wcCs) return res.status(500).json({ error: 'Store not configured' });
 
-  const auth = `Basic ${Buffer.from(`${wcCk}:${wcCs}`).toString('base64')}`;
+  const auth   = `Basic ${Buffer.from(`${wcCk}:${wcCs}`).toString('base64')}`;
+  const secret = getSecret(wcCs);
 
   // ── Request OTP ───────────────────────────────────────────────────────────
   if (action === 'request') {
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
-    // Look up customer
+    // Look up customer — silently succeed on miss to avoid email enumeration
     let customers: any[] = [];
     try {
       const searchRes = await fetch(
@@ -38,7 +69,7 @@ export default async function handler(req: any, res: any) {
 
     if (!Array.isArray(customers) || customers.length === 0) {
       console.log('[reset-password] customer not found for email:', email);
-      return res.json({ success: true }); // avoid email enumeration
+      return res.json({ success: true }); // avoid enumeration
     }
 
     const customer = customers[0];
@@ -47,22 +78,8 @@ export default async function handler(req: any, res: any) {
     const otpCode = String(crypto.randomInt(100000, 999999));
     const expiry  = Date.now() + 15 * 60 * 1000;
 
-    // Store OTP in WC meta
-    try {
-      const putRes = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${customer.id}`, {
-        method: 'PUT',
-        headers: { Authorization: auth, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          meta_data: [
-            { key: 'knwn_reset_otp',    value: otpCode },
-            { key: 'knwn_reset_expiry', value: String(expiry) },
-          ],
-        }),
-      });
-      console.log('[reset-password] OTP stored, WC status:', putRes.status);
-    } catch (err: any) {
-      console.error('[reset-password] OTP store error:', err.message);
-    }
+    // Signed token carries the OTP — no WC meta storage needed
+    const resetToken = signToken({ email, otp: otpCode, exp: expiry, id: customer.id }, secret);
 
     // Send email
     const gmailUser = process.env.GMAIL_USER?.trim();
@@ -98,66 +115,30 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ error: 'Failed to send email: ' + err.message });
     }
 
-    return res.json({ success: true });
+    return res.json({ success: true, token: resetToken });
   }
 
   // ── Verify OTP + set new password ─────────────────────────────────────────
   if (action === 'verify') {
-    if (!email || !otp || !newPassword) return res.status(400).json({ error: 'Missing fields' });
+    if (!token || !otp || !newPassword) return res.status(400).json({ error: 'Missing fields' });
 
-    // Step 1: find customer ID by email
-    let customerId: number | null = null;
-    try {
-      const searchRes = await fetch(
-        `${wcUrl}/wp-json/wc/v3/customers?email=${encodeURIComponent(email)}&per_page=1`,
-        { headers: { Authorization: auth } }
-      );
-      const customers = await searchRes.json();
-      if (!Array.isArray(customers) || customers.length === 0) {
-        return res.status(400).json({ error: 'Invalid code' });
-      }
-      customerId = customers[0].id;
-    } catch (err: any) {
-      console.error('[reset-password] WC lookup error:', err.message);
-      return res.status(500).json({ error: 'Store lookup failed' });
-    }
-
-    // Step 2: fetch full customer by ID to get meta_data (query search doesn't include it)
-    let customer: any;
-    try {
-      const fullRes = await fetch(
-        `${wcUrl}/wp-json/wc/v3/customers/${customerId}`,
-        { headers: { Authorization: auth } }
-      );
-      customer = await fullRes.json();
-    } catch (err: any) {
-      console.error('[reset-password] WC full fetch error:', err.message);
-      return res.status(500).json({ error: 'Store lookup failed' });
-    }
-
-    const meta: any[]  = customer.meta_data || [];
-    const storedOtp    = meta.find((m: any) => m.key === 'knwn_reset_otp')?.value;
-    const storedExpiry = meta.find((m: any) => m.key === 'knwn_reset_expiry')?.value;
-
-    console.log('[reset-password] verify — storedOtp:', storedOtp ? 'present' : 'missing', 'provided:', otp);
-
-    if (!storedOtp || storedOtp !== String(otp)) {
+    const payload = verifyToken(token, secret);
+    if (!payload) {
+      console.log('[reset-password] verify — token signature invalid');
       return res.status(400).json({ error: 'Invalid code' });
     }
-    if (!storedExpiry || Date.now() > Number(storedExpiry)) {
+    if (Date.now() > payload.exp) {
       return res.status(400).json({ error: 'Code expired — request a new one' });
     }
+    if (String(otp).trim() !== String(payload.otp)) {
+      console.log('[reset-password] verify — OTP mismatch');
+      return res.status(400).json({ error: 'Invalid code' });
+    }
 
-    const updateRes = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${customer.id}`, {
+    const updateRes = await fetch(`${wcUrl}/wp-json/wc/v3/customers/${payload.id}`, {
       method: 'PUT',
       headers: { Authorization: auth, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        password: newPassword,
-        meta_data: [
-          { key: 'knwn_reset_otp',    value: '' },
-          { key: 'knwn_reset_expiry', value: '' },
-        ],
-      }),
+      body: JSON.stringify({ password: newPassword }),
     });
 
     console.log('[reset-password] password updated, WC status:', updateRes.status);

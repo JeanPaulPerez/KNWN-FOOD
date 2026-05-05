@@ -167,7 +167,7 @@ export default function ProfileModal({ isOpen, onClose, initialTab }: ProfileMod
       const res = await fetch('/api/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'verify', email: resetEmail, otp: resetOtp, newPassword: resetNewPw }),
+        body: JSON.stringify({ action: 'verify', token: resetToken, otp: resetOtp, newPassword: resetNewPw }),
       });
       const data = await parseApiResponse<any>(res);
       if (!res.ok) {
