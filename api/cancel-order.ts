@@ -29,20 +29,46 @@ function readMeta(meta: any[] | undefined, ...keys: string[]): string {
   return '';
 }
 
-function getOrderServiceDate(order: any): string {
-  return (
-    readMeta(order.meta_data, 'delivery_date', 'e_deliverydate', 'Fecha de Servicio', 'service_date_iso') ||
-    readMeta(order.line_items?.flatMap((i: any) => i.meta_data || []), 'Fecha de Servicio Display', 'Fecha de Servicio', 'Delivery date')
-  );
+function parseServiceDateLocal(dateStr: string): Date | null {
+  if (!dateStr) return null;
+  // YYYY-MM-DD
+  const iso = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) { const d = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3])); return isNaN(d.getTime()) ? null : d; }
+  // MM/DD/YYYY
+  const mdy4 = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (mdy4) { const d = new Date(Number(mdy4[3]), Number(mdy4[1]) - 1, Number(mdy4[2])); return isNaN(d.getTime()) ? null : d; }
+  // MM-DD-YY (export format "05-08-26")
+  const mdyShort = dateStr.match(/^(\d{2})-(\d{2})-(\d{2})$/);
+  if (mdyShort) { const d = new Date(2000 + Number(mdyShort[3]), Number(mdyShort[1]) - 1, Number(mdyShort[2])); return isNaN(d.getTime()) ? null : d; }
+  // DD-MM-YYYY (Tyche "08-05-2026")
+  const dmyLong = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (dmyLong) { const d = new Date(Number(dmyLong[3]), Number(dmyLong[2]) - 1, Number(dmyLong[1])); return isNaN(d.getTime()) ? null : d; }
+  // Human "Friday, May 8" or "May 8"
+  const human = dateStr.match(/(?:[A-Za-z]+,\s*)?([A-Za-z]+)\s+(\d{1,2})(?:,?\s*(\d{4}))?/);
+  if (human) {
+    const year = human[3] ? Number(human[3]) : new Date().getFullYear();
+    const d = new Date(`${human[1]} ${human[2]} ${year}`);
+    if (!isNaN(d.getTime())) {
+      if (d.getTime() < Date.now() - 30 * 24 * 60 * 60 * 1000) d.setFullYear(d.getFullYear() + 1);
+      return d;
+    }
+  }
+  return null;
 }
 
 function canCancelOrder(order: any): boolean {
   if (!CANCELLABLE_STATUSES.has(order.status)) return false;
-  const dateStr = getOrderServiceDate(order);
-  if (!dateStr) return false;
-  const parsed = new Date(dateStr);
-  if (isNaN(parsed.getTime())) return false;
-  const deadline = new Date(parsed);
+  const candidates = [
+    readMeta(order.meta_data, 'service_date_iso'),
+    readMeta(order.meta_data, 'delivery_date'),
+    readMeta(order.meta_data, 'e_deliverydate'),
+    readMeta(order.meta_data, 'service_date_display', 'service_date_label', 'service_day'),
+    readMeta(order.line_items?.flatMap((i: any) => i.meta_data || []), 'Delivery date'),
+  ];
+  let serviceDate: Date | null = null;
+  for (const c of candidates) { if (c) { serviceDate = parseServiceDateLocal(c); if (serviceDate) break; } }
+  if (!serviceDate) return false;
+  const deadline = new Date(serviceDate);
   deadline.setDate(deadline.getDate() - 1);
   deadline.setHours(22, 0, 0, 0);
   return Date.now() <= deadline.getTime();

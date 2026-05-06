@@ -68,6 +68,97 @@ async function saveRepeatSubscription(
   console.log('[repeat-order] Subscription saved:', id);
 }
 
+async function recordMailchimpEcomOrder(
+  email: string,
+  name: string,
+  items: any[],
+  pricing: any,
+  orderResults: { wooOrderId: number | null }[],
+): Promise<void> {
+  const apiKey  = process.env.MAILCHIMP_API_KEY?.trim();
+  const storeId = process.env.MAILCHIMP_STORE_ID?.trim();
+  if (!apiKey || !storeId) return;
+
+  const dc         = apiKey.split('-').pop();
+  const authHeader = `Basic ${Buffer.from(`anystring:${apiKey}`).toString('base64')}`;
+  const emailHash  = crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
+  const [firstName, ...rest] = (name || '').split(' ');
+  const lastName   = rest.join(' ');
+  const baseUrl    = `https://${dc}.api.mailchimp.com/3.0/ecommerce/stores/${storeId}`;
+
+  try {
+    // Upsert customer in Mailchimp store
+    const custRes = await fetch(`${baseUrl}/customers/${emailHash}`, {
+      method: 'PUT',
+      headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id:            emailHash,
+        email_address: email,
+        first_name:    firstName || '',
+        last_name:     lastName  || '',
+        opt_in_status: true,
+      }),
+    });
+    if (!custRes.ok) {
+      console.error('[mailchimp-ecom] customer upsert error:', await custRes.json());
+    } else {
+      console.log('[mailchimp-ecom] customer upserted:', email);
+    }
+
+    // Upsert each product so the order lines are always valid
+    for (const item of items) {
+      const pid = String(item._wooProductId || item.id || '');
+      if (!pid) continue;
+      await fetch(`${baseUrl}/products/${pid}`, {
+        method: 'PUT',
+        headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id:       pid,
+          title:    item.name || 'Menu Item',
+          url:      'https://knwnfood.com',
+          variants: [{ id: pid, title: item.name || 'Menu Item', price: Number(item.price) || 0 }],
+        }),
+      });
+    }
+
+    // Pick first WC order ID as the canonical Mailchimp order ID
+    const wcOrderId = orderResults.find(r => r.wooOrderId)?.wooOrderId;
+    const mcOrderId = wcOrderId ? `WC-${wcOrderId}` : `KNWN-${Date.now()}`;
+
+    const lines = items.map((item: any, i: number) => ({
+      id:                 String(item._wooProductId || i + 1),
+      product_id:         String(item._wooProductId || i + 1),
+      product_variant_id: String(item._wooProductId || i + 1),
+      quantity:           Number(item.quantity) || 1,
+      price:              Number(item.price)    || 0,
+    }));
+
+    const orderRes = await fetch(`${baseUrl}/orders`, {
+      method: 'POST',
+      headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id:               mcOrderId,
+        customer:         { id: emailHash, email_address: email, first_name: firstName || '', last_name: lastName || '', opt_in_status: true },
+        financial_status: 'paid',
+        currency_code:    'USD',
+        order_total:      Number(pricing?.total    ?? 0),
+        tax_total:        Number(pricing?.tax      ?? 0),
+        discount_total:   Number(pricing?.discount ?? 0),
+        lines,
+      }),
+    });
+    if (!orderRes.ok) {
+      const err = await orderRes.json();
+      // 400 with "already exists" is fine — idempotent
+      if (err?.status !== 400) console.error('[mailchimp-ecom] order create error:', err);
+    } else {
+      console.log('[mailchimp-ecom] order recorded:', mcOrderId, '| total:', pricing?.total);
+    }
+  } catch (err) {
+    console.error('[mailchimp-ecom] recordOrder failed:', err);
+  }
+}
+
 async function subscribeToMailchimp(email: string, phone?: string, name?: string): Promise<void> {
   const apiKey = process.env.MAILCHIMP_API_KEY?.trim();
   const listId = process.env.MAILCHIMP_LIST_ID?.trim();
@@ -299,6 +390,7 @@ async function createWooOrder(
   customerInfo: any,
   couponCode: string | null,
   paymentIntentId: string | null,
+  stripeChargeId: string | null,
   isFree: boolean,
   paymentProvider: string,
   pricing: {
@@ -358,6 +450,10 @@ async function createWooOrder(
     meta_data: [
       { key: 'order_source',          value: 'headless-react' },
       { key: 'stripe_payment_intent', value: paymentIntentId || 'N/A (free order)' },
+      // Keys expected by WooCommerce Stripe plugin for refund lookup
+      { key: '_stripe_payment_intent', value: paymentIntentId || '' },
+      { key: '_stripe_charge_id',      value: stripeChargeId  || '' },
+      { key: '_stripe_customer_id',    value: customerInfo.stripeCustomerId || '' },
       { key: 'e_deliverydate',        value: formatServiceDateTyche(item.serviceDate || '') },
       { key: 'delivery_date',         value: formatServiceDateForWoo(item.serviceDate || '') },
       { key: 'service_date_export',   value: formatServiceDateForExport(item.serviceDate || '') },
@@ -431,6 +527,52 @@ function toTycheDate(dateStr: string): string {
   const d = new Date(`${cleaned} ${new Date().getFullYear()}`);
   if (isNaN(d.getTime())) return dateStr;
   return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+}
+
+async function sendOrderConfirmationEmail(
+  to: string,
+  name: string,
+  items: any[],
+  pricing: any,
+  orderIds: string[],
+): Promise<void> {
+  const resendKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'orders@knwnfood.com';
+  if (!resendKey) {
+    console.warn('[order-email] RESEND_API_KEY not set — skipping confirmation email');
+    return;
+  }
+  const firstName   = (name || '').split(' ')[0] || 'there';
+  const itemsHtml   = items.map(i => `<li style="margin-bottom:4px;">${i.name} × ${i.quantity || 1} — <strong>$${Number(i.price || 0).toFixed(2)}</strong>${i.serviceDate ? ` · ${i.serviceDate}` : ''}</li>`).join('');
+  const orderLabel  = orderIds.length > 1 ? `Orders ${orderIds.join(', ')}` : `Order ${orderIds[0] || ''}`;
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method:  'POST',
+      headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from:    `KNWN Food <${fromEmail}>`,
+        to,
+        subject: `Your KNWN order is confirmed! 🎉`,
+        html: `<div style="font-family:Poppins,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#f5f3ff;border-radius:16px;">
+<h2 style="color:#2B1C70;margin:0 0 8px;">Hey ${firstName}! 👋</h2>
+<p style="color:#444;line-height:1.6;margin:0 0 20px;">Your order is confirmed and we're getting it ready. Here's what you ordered:</p>
+<ul style="color:#2B1C70;line-height:2;padding-left:20px;">${itemsHtml}</ul>
+<p style="color:#444;margin:16px 0 4px;">💳 Total: <strong>$${Number(pricing?.total ?? 0).toFixed(2)}</strong></p>
+<p style="color:#888;font-size:13px;margin:8px 0 0;">${orderLabel}</p>
+<hr style="border:none;border-top:1px solid #ddd9ed;margin:20px 0;" />
+<p style="color:#888;font-size:13px;margin:0;">Deliveries arrive 10 AM – 12 PM. Questions? Email <a href="mailto:hello@knwnfood.com" style="color:#2B1C70;">hello@knwnfood.com</a>.</p>
+</div>`,
+      }),
+    });
+    if (!res.ok) {
+      console.error('[order-email] Resend error:', await res.json());
+    } else {
+      console.log('[order-email] Confirmation sent to:', to);
+    }
+  } catch (err) {
+    console.error('[order-email] sendOrderConfirmationEmail failed:', err);
+  }
 }
 
 async function sendRepeatConfirmationEmail(to: string, name: string, items: any[], pricing: any, serviceDates: string[]): Promise<void> {
@@ -563,6 +705,8 @@ export default async function handler(req: any, res: any) {
   }
 
   // ── PAID FLOW: Verify payment ONCE before creating any orders ───────────────
+  let stripeChargeId: string | null = null;
+
   if (!isFree) {
     if (!paymentIntentId) {
       return res.status(400).json({ error: 'Payment confirmation is required' });
@@ -573,7 +717,8 @@ export default async function handler(req: any, res: any) {
       // The capture is atomic — if it succeeded, the transaction is final.
       // No additional server-side verification needed here.
     } else {
-      // Stripe: verify the PaymentIntent reached "succeeded"
+      // Stripe: verify the PaymentIntent reached "succeeded" and capture the charge ID
+      // (charge ID is required by WooCommerce Stripe plugin to process refunds from the admin)
       if (!process.env.STRIPE_SECRET_KEY) {
         return res.status(500).json({ error: 'Payment system not configured' });
       }
@@ -586,6 +731,11 @@ export default async function handler(req: any, res: any) {
         if (pi.status !== 'succeeded') {
           return res.status(400).json({ error: `Payment not confirmed (status: ${pi.status})` });
         }
+        // latest_charge holds the charge ID the WC Stripe plugin needs for refunds
+        stripeChargeId = typeof pi.latest_charge === 'string'
+          ? pi.latest_charge
+          : pi.latest_charge?.id ?? null;
+        console.log('[complete-order] Stripe charge ID:', stripeChargeId);
       } catch {
         return res.status(400).json({ error: 'Could not verify payment with Stripe' });
       }
@@ -618,6 +768,7 @@ export default async function handler(req: any, res: any) {
           customerInfo,
           couponCode,
           paymentIntentId,
+          stripeChargeId,
           isFree,
           paymentProvider,
           {
@@ -647,9 +798,29 @@ export default async function handler(req: any, res: any) {
     })
   );
 
+  // Send order confirmation email to customer
+  if (customerInfo?.email) {
+    const wooIds = orderResults.filter(o => o.wooOrderId).map(o => `#${o.wooOrderId}`);
+    const fallbackIds = orderResults.map(o => o.orderId);
+    await sendOrderConfirmationEmail(
+      customerInfo.email,
+      customerInfo.name || '',
+      items,
+      pricing,
+      wooIds.length ? wooIds : fallbackIds,
+    );
+  }
+
   // Subscribe to Mailchimp only if customer opted in
   if (marketingOptIn && customerInfo?.email) {
     await subscribeToMailchimp(customerInfo.email, customerInfo.phone, customerInfo.name);
+  }
+
+  // Record order in Mailchimp e-commerce store (shows purchase data in audience)
+  // Fires for all completed orders so purchase history appears in Mailchimp, matching
+  // what WooCommerce's native Mailchimp plugin does for regular checkout orders.
+  if (customerInfo?.email && process.env.MAILCHIMP_API_KEY && process.env.MAILCHIMP_STORE_ID) {
+    await recordMailchimpEcomOrder(customerInfo.email, customerInfo.name || '', items, pricing, orderResults);
   }
 
   // Save repeat subscription to Redis if customer opted in and payment was charged

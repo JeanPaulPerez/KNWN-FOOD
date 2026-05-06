@@ -44,20 +44,83 @@ function getCustomerFacingStatus(status: string) {
 }
 
 function getOrderServiceDate(order: any): string {
+  // Prioritize human-readable display string, then ISO (reliable parsing), then other formats
   return (
-    readMeta(order.meta_data, 'delivery_date', 'e_deliverydate', 'Fecha de Servicio', 'service_date_iso') ||
+    readMeta(order.meta_data, 'service_date_display', 'service_date_label', 'service_day',
+             'service_date_iso', 'delivery_date', 'e_deliverydate', 'Fecha de Servicio') ||
     readMeta(order.line_items?.flatMap((i: any) => i.meta_data || []), 'Fecha de Servicio Display', 'Fecha de Servicio', 'Delivery date')
   );
 }
 
+// Parses all date formats we store, always returning a LOCAL midnight Date to avoid UTC-offset bugs.
+function parseServiceDateLocal(dateStr: string): Date | null {
+  if (!dateStr) return null;
+
+  // YYYY-MM-DD (ISO, stored in service_date_iso)
+  const iso = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) {
+    const d = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // MM/DD/YYYY (stored in delivery_date)
+  const mdy4 = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (mdy4) {
+    const d = new Date(Number(mdy4[3]), Number(mdy4[1]) - 1, Number(mdy4[2]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // MM-DD-YY (stored in service_date_export, e.g. "05-08-26")
+  const mdyShort = dateStr.match(/^(\d{2})-(\d{2})-(\d{2})$/);
+  if (mdyShort) {
+    const d = new Date(2000 + Number(mdyShort[3]), Number(mdyShort[1]) - 1, Number(mdyShort[2]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // DD-MM-YYYY (Tyche format, stored in e_deliverydate, e.g. "08-05-2026")
+  const dmyLong = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (dmyLong) {
+    const d = new Date(Number(dmyLong[3]), Number(dmyLong[2]) - 1, Number(dmyLong[1]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // Human-readable: "Friday, May 8" or "May 8" (stored in service_date_display)
+  const humanMatch = dateStr.match(/(?:[A-Za-z]+,\s*)?([A-Za-z]+)\s+(\d{1,2})(?:,?\s*(\d{4}))?/);
+  if (humanMatch) {
+    const year = humanMatch[3] ? Number(humanMatch[3]) : new Date().getFullYear();
+    const d = new Date(`${humanMatch[1]} ${humanMatch[2]} ${year}`);
+    if (!isNaN(d.getTime())) {
+      // If date appears to be in the past (>30 days), assume next year
+      if (d.getTime() < Date.now() - 30 * 24 * 60 * 60 * 1000) d.setFullYear(d.getFullYear() + 1);
+      return d;
+    }
+  }
+
+  return null;
+}
+
+function getCanonicalServiceDate(order: any): Date | null {
+  // Try ISO first (most reliable), then all other stored formats
+  const candidates = [
+    readMeta(order.meta_data, 'service_date_iso'),
+    readMeta(order.meta_data, 'delivery_date'),
+    readMeta(order.meta_data, 'e_deliverydate'),
+    readMeta(order.meta_data, 'service_date_display', 'service_date_label', 'service_day'),
+    readMeta(order.line_items?.flatMap((i: any) => i.meta_data || []), 'Delivery date'),
+  ];
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    const parsed = parseServiceDateLocal(candidate);
+    if (parsed) return parsed;
+  }
+  return null;
+}
+
 function canCancelOrder(order: any): boolean {
   if (!CANCELLABLE_STATUSES.has(order.status)) return false;
-  const dateStr = getOrderServiceDate(order);
-  if (!dateStr) return false;
-  // Try to parse service date and check if it's at least tomorrow
-  const parsed = new Date(dateStr);
-  if (isNaN(parsed.getTime())) return false;
-  const deadline = new Date(parsed);
+  const serviceDate = getCanonicalServiceDate(order);
+  if (!serviceDate) return false;
+  const deadline = new Date(serviceDate);
   deadline.setDate(deadline.getDate() - 1);
   deadline.setHours(22, 0, 0, 0);
   return Date.now() <= deadline.getTime();
