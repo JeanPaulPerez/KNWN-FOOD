@@ -131,34 +131,50 @@ export default async function handler(req: any, res: any) {
     }
 
     const paymentIntentId = readMeta(order.meta_data, 'stripe_payment_intent');
+    const stripeChargeId  = readMeta(order.meta_data, '_stripe_charge_id');
     let refundId = '';
+    let refundFailedReason = '';
     let nextStatus = 'cancelled';
     const allocatedTotal = readMeta(order.meta_data, 'knwn_order_total');
     const refundAmountInCents = Math.round(Number(allocatedTotal || order.total || 0) * 100);
 
-    if (paymentIntentId && paymentIntentId !== 'N/A (free order)' && stripeSecret) {
-      const params = new URLSearchParams({
-        payment_intent: paymentIntentId,
-        reason:         'requested_by_customer',
-        amount:         String(refundAmountInCents),
+    const hasStripePayment =
+      stripeSecret &&
+      refundAmountInCents > 0 &&
+      paymentIntentId &&
+      paymentIntentId !== 'N/A (free order)';
+
+    if (hasStripePayment) {
+      // Prefer charge ID if available (WC Stripe plugin convention), fall back to PI
+      const refundParams = new URLSearchParams({
+        reason:                     'requested_by_customer',
+        amount:                     String(refundAmountInCents),
         'metadata[wc_order_id]':    String(orderId),
         'metadata[customer_email]': email,
       });
+      if (stripeChargeId) {
+        refundParams.set('charge', stripeChargeId);
+      } else {
+        refundParams.set('payment_intent', paymentIntentId);
+      }
 
       const refundRes = await fetch('https://api.stripe.com/v1/refunds', {
         method:  'POST',
         headers: { Authorization: `Bearer ${stripeSecret}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-        body:    params.toString(),
+        body:    refundParams.toString(),
       });
 
       const refundData = await refundRes.json();
       if (!refundRes.ok) {
-        console.error('[cancel-order] Stripe refund failed:', refundData);
-        return res.status(502).json({ error: refundData.error?.message || 'Stripe refund failed' });
+        // Stripe refund failed — log it, but do NOT block the order cancellation.
+        // Admin can issue the refund manually from the Stripe or WooCommerce dashboard.
+        refundFailedReason = refundData.error?.message || 'Stripe refund failed';
+        console.error('[cancel-order] Stripe refund failed (will cancel without refund):', JSON.stringify(refundData));
+        nextStatus = 'cancelled';
+      } else {
+        refundId   = refundData.id || '';
+        nextStatus = 'refunded';
       }
-
-      refundId   = refundData.id || '';
-      nextStatus = 'refunded';
     }
 
     const cancelledAt = new Date().toISOString();
@@ -171,7 +187,8 @@ export default async function handler(req: any, res: any) {
           { key: 'customer_cancelled_at', value: cancelledAt },
           { key: 'customer_cancelled_by', value: email },
           { key: 'stripe_refund_id',      value: refundId || '' },
-          { key: 'refund_status',         value: refundId ? 'succeeded' : 'not_required' },
+          { key: 'refund_status',         value: refundId ? 'succeeded' : refundFailedReason ? 'failed_manual_required' : 'not_required' },
+          ...(refundFailedReason ? [{ key: 'stripe_refund_error', value: refundFailedReason }] : []),
         ],
       }),
     });
@@ -181,14 +198,24 @@ export default async function handler(req: any, res: any) {
       return res.status(502).json({ error: updatedOrder.message || 'Failed to update order status' });
     }
 
-    await addOrderNote(
-      wcUrl, authHeader, orderId,
-      refundId
-        ? `Customer cancelled from the headless dashboard. Stripe refund ${refundId} created automatically.`
-        : 'Customer cancelled from the headless dashboard. No Stripe refund required.'
-    );
+    let noteText: string;
+    if (refundId) {
+      noteText = `Customer cancelled from the headless dashboard. Stripe refund ${refundId} created automatically.`;
+    } else if (refundFailedReason) {
+      noteText = `Customer cancelled from the headless dashboard. Stripe refund failed (${refundFailedReason}) — please issue refund manually.`;
+    } else {
+      noteText = 'Customer cancelled from the headless dashboard. No Stripe refund required.';
+    }
+    await addOrderNote(wcUrl, authHeader, orderId, noteText);
 
-    return res.status(200).json({ success: true, orderId, status: nextStatus, refundId: refundId || null, cancelledAt });
+    return res.status(200).json({
+      success: true,
+      orderId,
+      status: nextStatus,
+      refundId: refundId || null,
+      cancelledAt,
+      ...(refundFailedReason ? { refundNote: 'Order cancelled. Refund needs to be processed manually.' } : {}),
+    });
   } catch (err: any) {
     console.error('[cancel-order] Exception:', err);
     return res.status(500).json({ error: err?.message || 'Failed to cancel order' });
