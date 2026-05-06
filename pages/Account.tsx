@@ -280,6 +280,7 @@ export default function Account() {
   const [orders, setOrders] = useState<DashboardOrder[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [ordersError, setOrdersError] = useState('');
+  const [ordersInfo, setOrdersInfo] = useState('');
   const [activeOrderId, setActiveOrderId] = useState<number | null>(null);
   const [cancelingOrderId, setCancelingOrderId] = useState<number | null>(null);
   const [accountMessage, setAccountMessage] = useState('');
@@ -381,6 +382,7 @@ export default function Account() {
   const handleCancelOrder = async (orderId: number) => {
     setCancelingOrderId(orderId);
     setOrdersError('');
+    setOrdersInfo('');
 
     try {
       const res = await fetch('/api/cancel-order', {
@@ -393,7 +395,7 @@ export default function Account() {
           wcCustomerId: user?.wcCustomerId ?? null,
         }),
       });
-      const data = await parseApiResponse<{ error?: string; status?: string; refundId?: string; cancelledAt?: string }>(res);
+      const data = await parseApiResponse<{ error?: string; status?: string; refundId?: string; cancelledAt?: string; refundNote?: string }>(res);
 
       if (!res.ok) {
         throw new Error(data.error || 'Failed to cancel order');
@@ -404,8 +406,8 @@ export default function Account() {
           order.id === orderId
             ? {
                 ...order,
-                status: data.status || 'refunded',
-                statusLabel: data.status === 'cancelled' ? 'Cancelled' : 'Refunded',
+                status: data.status || 'cancelled',
+                statusLabel: data.status === 'refunded' ? 'Refunded' : 'Cancelled',
                 canCancel: false,
                 refundId: data.refundId || order.refundId,
                 cancelledAt: data.cancelledAt || new Date().toISOString(),
@@ -413,6 +415,9 @@ export default function Account() {
             : order
         )
       );
+      if (data.refundNote) {
+        setOrdersInfo(data.refundNote);
+      }
     } catch (error: any) {
       setOrdersError(error.message || 'Failed to cancel order');
     } finally {
@@ -558,6 +563,12 @@ export default function Account() {
             {!loadingOrders && ordersError && (
               <div className="rounded-2xl bg-red-50 px-4 py-3 text-[13px] font-medium text-red-600" style={{ fontFamily: 'Poppins, sans-serif' }}>
                 {ordersError}
+              </div>
+            )}
+
+            {ordersInfo && (
+              <div className="rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3 text-[13px] font-medium text-amber-700" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                {ordersInfo}
               </div>
             )}
 
