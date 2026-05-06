@@ -125,8 +125,9 @@ async function recordMailchimpEcomOrder(
     const wcOrderId = orderResults.find(r => r.wooOrderId)?.wooOrderId;
     const mcOrderId = wcOrderId ? `WC-${wcOrderId}` : `KNWN-${Date.now()}`;
 
+    // Line ids must be unique within the order — use positional index, not product_id
     const lines = items.map((item: any, i: number) => ({
-      id:                 String(item._wooProductId || i + 1),
+      id:                 String(i + 1),
       product_id:         String(item._wooProductId || i + 1),
       product_variant_id: String(item._wooProductId || i + 1),
       quantity:           Number(item.quantity) || 1,
@@ -149,8 +150,12 @@ async function recordMailchimpEcomOrder(
     });
     if (!orderRes.ok) {
       const err = await orderRes.json();
-      // 400 with "already exists" is fine — idempotent
-      if (err?.status !== 400) console.error('[mailchimp-ecom] order create error:', err);
+      // Treat "Resource_Already_Exists" as idempotent success; log everything else
+      if (err?.title !== 'Resource_Already_Exists' && !err?.detail?.toLowerCase().includes('already exists')) {
+        console.error('[mailchimp-ecom] order create error:', JSON.stringify(err));
+      } else {
+        console.log('[mailchimp-ecom] order already exists (idempotent):', mcOrderId);
+      }
     } else {
       console.log('[mailchimp-ecom] order recorded:', mcOrderId, '| total:', pricing?.total);
     }
