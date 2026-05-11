@@ -12,6 +12,7 @@ function ScrollToTop() {
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, X, ChevronRight, AlertTriangle, Calendar, ArrowRight } from 'lucide-react';
 import Home from './pages/Home';
+import MaintenancePage from './pages/MaintenancePage';
 const MenuPage  = React.lazy(() => import('./pages/MenuPage'));
 const Checkout  = React.lazy(() => import('./pages/Checkout'));
 const ThankYou  = React.lazy(() => import('./pages/ThankYou'));
@@ -237,7 +238,7 @@ export default function App() {
       <main className="flex-1">
         <React.Suspense fallback={null}>
           <Routes>
-            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/" element={<MaintenancePage />} />
             <Route path="/home" element={<Home />} />
             <Route path="/menu" element={<MenuPage cart={cart} />} />
             <Route path="/order-now" element={<OrderPage cart={cart} />} />
