@@ -204,6 +204,7 @@ export default function App() {
   const { isRegistered } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMaintenance = location.pathname === '/';
 
   useEffect(() => {
     const state = location.state as any;
@@ -233,7 +234,7 @@ export default function App() {
       {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
       {splashDone && <RouteLoader />}
       <ScrollToTop />
-      <Header cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} onOpenProfile={handleAccountAction} />
+      {!isMaintenance && <Header cartCount={cart.itemCount} onOpenCart={() => setIsCartOpen(true)} onOpenProfile={handleAccountAction} />}
 
       <main className="flex-1">
         <React.Suspense fallback={null}>
@@ -278,7 +279,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <footer className="relative z-20 mt-auto bg-brand-primary px-5 py-6 text-white md:px-10 md:py-16 lg:px-12 lg:py-24">
+      {!isMaintenance && <footer className="relative z-20 mt-auto bg-brand-primary px-5 py-6 text-white md:px-10 md:py-16 lg:px-12 lg:py-24">
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 sm:gap-10 md:gap-16 text-center md:text-left">
           <div className="col-span-1 sm:col-span-2 space-y-3 md:space-y-8">
             <img
@@ -314,7 +315,7 @@ export default function App() {
             <a href="https://knwnfood.com/terms-of-service/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Terms of Service</a>
           </div>
         </div>
-      </footer>
+      </footer>}
     </div>
   );
 }
